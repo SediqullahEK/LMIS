@@ -8,6 +8,6 @@ class ActivityLogs extends Component
 {
     public function render()
     {
-        return view('livewire.activityLogs');
+        return view('livewire.user.activityLogs');
     }
 }

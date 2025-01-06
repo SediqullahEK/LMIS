@@ -8,20 +8,20 @@
     @vite('resources/css/app.css') <!-- Include compiled Tailwind CSS -->
 </head>
 
-<body class="relative flex items-start justify-start min-h-screen bg-gray-100" dir="rtl">
+<body class="relative flex items-center justify-center min-h-screen bg-gray-100" dir="rtl">
     <!-- Full Background Gradient -->
     <div class="fixed top-0 left-0 w-full h-full bg-gradient-to-b from-gray-900 via-gray-900 to-[#2C3E50] z-0"></div>
 
     <!-- Content Wrapper -->
-    <div
-        class="relative z-10 flex flex-col md:flex-row items-start justify-start max-w-7xl mx-auto p-8 space-y-4 md:space-y-0 md:space-x-8">
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-center max-w-4xl mx-auto px-6">
         <!-- Form Section -->
-        <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-10 md:ml-8">
+        <div class="w-full md:w-1/2 lg:w-1/3 bg-white rounded-lg shadow-lg p-8 md:p-10">
             <div class="text-center mb-6">
-                <img src="/system_images/logo.webp" alt="Logo" class="w-24 h-24 mx-auto mb-4">
-                <h1 class="text-2xl font-bold text-gray-700">امارت اسلامی افغانستان</h1>
-                <h2 class="text-xl text-gray-600">وزارت معادن و پترولیم</h2>
-                <h2 class="text-lg text-gray-600">معینیت سروی جیولوژی</h2>
+                <img src="{{ asset('storage/system_images/logo.webp') }}" alt="Logo" class="w-24 h-24 mx-auto mb-4">
+
+                <h1 class="text-lg md:text-2xl font-bold text-gray-700">امارت اسلامی افغانستان</h1>
+                <h2 class="text-sm md:text-xl text-gray-600">وزارت معادن و پترولیم</h2>
+                <h2 class="text-sm md:text-lg text-gray-600">معینیت سروی جیولوژی</h2>
             </div>
 
             <!-- Session Status -->
@@ -78,14 +78,14 @@
         </div>
 
         <!-- Image Section -->
-        <div class="flex flex-col items-center w-full md:w-auto">
-            <img src="/system_images/loginImage.png" alt="Login Illustration"
-                class="object-contain w-300 h- max-w-full">
+        <div class="flex flex-col items-center w-full md:w-1/2">
+            <img src="{{ asset('storage/system_images/loginImage.png') }}" alt="Logo"
+                class="w-32 h-32 md:w-48 md:h-48 mx-auto mb-4">
             <div class="text-center mt-4">
-                <h2 class="text-xl text-gray-200">سیستم مدیریت جواز ها</h2>
-                <h5 class="text-lg text-gray-400 mt-2">این سیستم برای مدیریت و صدور جواز های سنگ های قیمتی، نیمه قیمتی،
-                    زر شویی، پروسس مواد ساختمانی
-                    وایجاد فابریکه ها برای پروسس ایجاد شده است
+                <h2 class="text-lg md:text-xl text-gray-200">سیستم مدیریت جواز ها</h2>
+                <h5 class="text-sm md:text-lg text-gray-400 mt-2 leading-relaxed">
+                    این سیستم برای مدیریت و صدور جواز های سنگ های قیمتی، نیمه قیمتی، زر شویی، پروسس مواد ساختمانی و
+                    ایجاد فابریکه ها برای پروسس ایجاد شده است.
                 </h5>
             </div>
         </div>

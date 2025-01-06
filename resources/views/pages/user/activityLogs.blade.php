@@ -1,3 +1,3 @@
 <x-layout.layout>
-    <livewire:user.register />
+    <livwire:user.activityLogs />
 </x-layout.layout>

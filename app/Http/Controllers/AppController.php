@@ -37,6 +37,6 @@ class AppController extends Controller
     }
     public function activityLog()
     {
-        return view('livewire.activityLogs');
+        return view('pages.user.activityLogs');
     }
 }
