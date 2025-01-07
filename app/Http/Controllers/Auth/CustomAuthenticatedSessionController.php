@@ -13,10 +13,16 @@ class CustomAuthenticatedSessionController extends  AuthenticatedSessionControll
 {
     public function store(Request $request)
     {
-        $request->validate([
-            'user_name' => 'required|string',
-            'password' => 'required|string',
-        ]);
+        $request->validate(
+            [
+                'user_name' => 'required|string',
+                'password' => 'required|string',
+            ],
+            [
+                'user_name.required' => 'نام کاربری لازمی میباشد',
+                'password.required' => 'رمز عبور لازمی میباشد'
+            ]
+        );
 
         if (! Auth::attempt($request->only('user_name', 'password'), $request->boolean('remember'))) {
             return back()->withErrors([
