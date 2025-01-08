@@ -35,9 +35,8 @@
             @endif
 
             <div class="flex flex-wrap items-center justify-between mb-2">
-
                 <!-- Search Input -->
-                <div class="relative flex items-center mt-4  group text-left {{ $currentPage > 1 ? 'hidden' : '' }}">
+                <div class="relative flex items-center mt-4 group text-left">
                     <span class="absolute left-3">
                         <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                             class="w-6 h-6 text-gray-300 mt-2">
@@ -47,17 +46,24 @@
                         </svg>
                     </span>
                     <input type="text" required wire:model.live.debounce.500ms="search" placeholder="جستجو"
-                        class="mt-1 px-2 peer block h-10 w-64 max-w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] "
+                        class="mt-1 px-2 peer block h-10 w-64 max-w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]"
                         autocomplete="off" dir="rtl">
                     <div
                         class="absolute top-12 left-0 hidden group-hover:block bg-white border border-[#D4AF37] text-gray-700 px-4 py-1 rounded-lg shadow-md">
                         <div class="flex items-center">
-
-                            <span>جستجو به اساس نام کاربری، آی آدرس، نوعیت دستگاه</span>
+                            <span>جستجو به اساس نام کاربری، اعمال، آی پی آدرس و نوعیت دستگاه</span>
                         </div>
                     </div>
                 </div>
+
+                <!-- Refresh Icon -->
+                <div class="flex items-center justify-center mt-4 ml-4">
+                    <button wire:click="refresh" class="text-gray-500 hover:text-[#D4AF37]">
+                        <i class="fa fa-refresh text-xl"></i>
+                    </button>
+                </div>
             </div>
+
 
 
             {{-- Data table section --}}
@@ -244,7 +250,7 @@
                             x-transition:leave="transition ease-in duration-200"
                             x-transition:leave-start="opacity-100 scale-100"
                             x-transition:leave-end="opacity-0 scale-90"
-                            class="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full mx-4">
+                            class="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full mx-4 my-12 ">
                             @if ($details)
                                 <!-- Modal Header -->
                                 <div class="flex justify-between items-center pb-4 border-b w-full">
@@ -254,18 +260,18 @@
                                     <button @click="more = false"
                                         class="text-gray-500 hover:text-gray-700 text-2xl focus:outline-none">&times;</button>
                                 </div>
-
-                                <!-- Modal Body -->
-                                <div class="mt-4">
-                                    <h3 class="font-medium text-lg text-gray-700">تغییرات:</h3>
-                                    <div
-                                        class="mt-2 bg-gray-100 p-4 rounded-md text-sm text-gray-600 leading-relaxed overflow-x-auto">
-                                        <pre class="whitespace-pre-wrap break-words">
+                                <div class="overflow-y-auto max-h-[80vh]">
+                                    <!-- Modal Body -->
+                                    <div class="mt-4">
+                                        <h3 class="font-medium text-lg text-gray-700">تغییرات:</h3>
+                                        <div
+                                            class="mt-2 bg-[rgba(246,191,12,0.2)] p-4 rounded-md text-sm text-gray-600 leading-relaxed overflow-x-auto">
+                                            <pre class="whitespace-pre-wrap break-words">
                                             {{ json_encode(json_decode($details->changes), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}
                                         </pre>
+                                        </div>
                                     </div>
                                 </div>
-
                                 <!-- Modal Footer -->
                                 <div class="mt-6 text-right">
                                     <button @click="more = false"
@@ -281,7 +287,7 @@
                 @if ($noData)
                     <h1 class="font-bold text-xl text-red-900">معلومات موجود نمیباشد! </h1>
                 @endif
-                <span wire:loading wire:target="loadTableData,search,perPage,sortBy">
+                <span wire:loading wire:target="loadTableData,search,perPage,sortBy,refresh">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         fill="black">
                         <rect width="6" height="14" x="1" y="4">

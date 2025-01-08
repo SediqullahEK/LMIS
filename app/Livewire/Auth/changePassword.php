@@ -30,7 +30,7 @@ class changePassword extends Component
         $user->password = Hash::make($this->new_password);
         $user->first_logged_in = true;
         $user->save();
-
+        logActivity('password changed', 'app\Models\users', $user->id);
         Auth::logout();
 
         session()->invalidate();

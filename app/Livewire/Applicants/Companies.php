@@ -79,7 +79,7 @@ class Companies extends Component
             'updated_by' => auth()->user()->id
         ]);
 
-        logActivity('create', 'App\Models\Companies');
+        logActivity('create', 'App\Models\Companies', $done->id, $done);
         // Flash a success message and reset the form
         session()->flash('message', 'شرکت موفقانه اضافه گردید');
         $this->resetForm();
@@ -134,7 +134,7 @@ class Companies extends Component
             session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
             return;
         }
-
+        $beforeState = $company->toArray();
 
         // Update only changed attributes
         if (isset($validatedData['name'])) {
@@ -159,7 +159,11 @@ class Companies extends Component
 
         $company->updated_by = auth()->user()->id;
         $done = $company->save();
-        logActivity('update', 'App\Models\Companies', $company->id, $company->toarray());
+        // Log activity with both before and after states
+        logActivity('update', 'App\Models\Companies', $company->id, [
+            'before' => $beforeState,
+            'after' => $company,
+        ]);
         if ($done) {
             $this->isOpen = false;
             session()->flash('message', 'شرکت موفقانه ویرایش گردید');
@@ -345,8 +349,6 @@ class Companies extends Component
                         'company_id' => $company->id,
                         'individual_id' => $shareholderId,
                         'shares_in_percentage' => $sharePercentages[$shareholderId],
-                        'updated_at' => now(),
-                        'created_at' => now(),
                     ];
 
                     // If shareholder already exists, it's an update
@@ -435,6 +437,7 @@ class Companies extends Component
         }
         $this->tableData();
     }
+
     //Table Data Rendering section
     public function tableData()
     {
@@ -479,6 +482,15 @@ class Companies extends Component
     public function loadTableData()
     {
         $this->isDataLoaded = true;
+    }
+    //life cycle hooks
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     public function render()

@@ -71,7 +71,7 @@ class Individuals extends Component
             }
         }
 
-        Individual::create([
+        $done = Individual::create([
             'name' => $validatedData['name'],
             'f_name' => $validatedData['fathers_name'],
             'photo_path' =>  $imagePath ?? null,
@@ -85,7 +85,7 @@ class Individuals extends Component
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id
         ]);
-
+        logActivity('create', 'App\Models\Individual', $done->id, $done);
         // Flash a success message and reset the form
         session()->flash('message', 'شخص موفقانه اضافه گردید');
         $this->resetForm();
@@ -163,6 +163,7 @@ class Individuals extends Component
             session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
             return;
         }
+        $beforeState = $individual->toArray();
 
         // Handle profile image if changed
         if ($this->photo) {
@@ -218,6 +219,10 @@ class Individuals extends Component
         $individual->updated_by = auth()->user()->id;
         $done = $individual->save();
 
+        logActivity('update', 'App\Models\Individual', $individual->id, [
+            'before' => $beforeState,
+            'after' => $individual,
+        ]);
         if ($done) {
             $this->isOpen = false;
             session()->flash('message', 'شخص موفقانه ویرایش گردید');
@@ -232,6 +237,7 @@ class Individuals extends Component
                 Storage::disk('public')->delete($individual->photo_path);
             }
             $individual->delete();
+            logActivity('delete', 'App\Models\Companies', $individual->id);
             $request->session()->flash('message', 'شخص موفقانه حذف شد');
             $this->confirm = false;
             $this->loadTableData();
@@ -331,6 +337,15 @@ class Individuals extends Component
     public function loadTableData()
     {
         $this->isDataLoaded = true;
+    }
+    //life cycle hooks
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     public function render()

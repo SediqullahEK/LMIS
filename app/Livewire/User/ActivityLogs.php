@@ -20,7 +20,7 @@ class ActivityLogs extends Component
     public $showMore = false;
     public $isDataLoaded = false;
     public $sortField = 'activity_logs.created_at';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
 
     public $search;
     public $noData = false;
@@ -75,7 +75,7 @@ class ActivityLogs extends Component
             ->select('activity_logs.*', 'users.full_name', 'activity_logs.created_at as created_at');
 
         if (!empty($this->search)) {
-            $columns = ['users.full_name', 'activity_logs.ip_address', 'activity_logs.device_type'];
+            $columns = ['users.full_name', 'activity_logs.action', 'activity_logs.ip_address', 'activity_logs.device_type'];
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'like', '%' . $this->search . '%');
@@ -96,18 +96,25 @@ class ActivityLogs extends Component
         } else {
             $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
         }
-
-        // Handle invalid page number
-        if (!$this->search && $this->perPage != 0 && $dataCount && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-            session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
-        }
-
         return $data;
     }
 
     public function loadTableData()
     {
         $this->isDataLoaded = true;
+    }
+    //life cycle hooks
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+    public function refresh()
+    {
+        $this->loadTableData();
     }
 
     public function render()

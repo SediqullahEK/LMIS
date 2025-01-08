@@ -72,7 +72,7 @@ class Register extends Component
         } else {
             $imagePath = 'user_profiles/profileIcon.png';
         }
-        User::create([
+        $done = User::create([
             'full_name' => $validatedData['full_name'],
             'user_name' => $validatedData['user_name'],
             'profile_photo_path' =>  $imagePath ?? null,
@@ -82,12 +82,15 @@ class Register extends Component
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id
         ]);
+        logActivity('create', 'app\Models\User', $done->id, $done->toArray());
 
         // Flash a success message and reset the form
-        session()->flash('message', 'کاربر موفقانه ایجاد گردید');
-        $this->resetForm();
-        $this->loadTableData();
-        $this->isOpen = false;
+        if ($done) {
+            session()->flash('message', 'کاربر موفقانه ایجاد گردید');
+            $this->resetForm();
+            $this->loadTableData();
+            $this->isOpen = false;
+        }
     }
 
     public function editUser($id)
@@ -145,6 +148,8 @@ class Register extends Component
             return;
         }
 
+        $beforeState = $user->toArray();
+
         // Handle profile image if changed
         if ($this->profile_image) {
             // Delete the old profile photo if it exists
@@ -189,6 +194,10 @@ class Register extends Component
         $user->updated_by = auth()->user()->id;
         $done = $user->save();
 
+        logActivity('update', 'app\Models\User', $user->id, [
+            'before' => $beforeState,
+            'after' => $user->toArray()
+        ]);
         if ($done) {
             $this->isOpen = false;
             session()->flash('message', 'کاربر موفقانه ویرایش گردید');
@@ -202,6 +211,7 @@ class Register extends Component
         $user = User::find($this->idToDelete);
         if ($user) {
             $user->delete();
+            logActivity('delete', 'app\Models\User', $user->id);
             $request->session()->flash('message', 'کاربر موفقانه حذف شد');
             $this->confirm = false;
             $this->loadTableData();
@@ -296,6 +306,8 @@ class Register extends Component
         $user = User::find($this->userId);
         if ($user) {
             $user->syncRoles($this->roles);
+            logActivity('add roles to user', 'app\Models\User', $user->id, $this->roles);
+
             $request->session()->flash('message', 'وظایف کاربر موفقانه ویرایش گردید');
             $this->showRoles = false;
         }
@@ -314,7 +326,7 @@ class Register extends Component
     {
         $this->selectAllRoles = count($this->roles) === $this->allRoles->count();
     }
-    
+
     //Table data section
     public function tableData()
     {
@@ -328,13 +340,14 @@ class Register extends Component
             $data = User::all();
         }
 
-        if ($this->perPage != 0 && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-
-            session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
-        }
-
         return $data;
     }
+    //life cycle hooks
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
     public function loadTableData()
     {
         $this->isDataLoaded = true;

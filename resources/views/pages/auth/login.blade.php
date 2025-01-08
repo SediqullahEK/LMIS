@@ -20,6 +20,9 @@
     <!-- Content Wrapper -->
     <div
         class="relative z-10 flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8 md:space-y-0">
+        <div id="loader" class="hidden">
+            <x-loader />
+        </div>
         <!-- Form Section -->
         <div class="w-full md:w-1/3 bg-white rounded-lg shadow-lg m-8 p-8 md:p-8">
             <div class="text-center mb-6">
@@ -75,7 +78,7 @@
                     </a>
                 </div>
                 <div>
-                    <button type="submit"
+                    <button id="submitBtn" type="submit"
                         class="w-full px-4 py-3 mt-2 mb-4 text-white bg-[#D4AF37] hover:bg-[#F6BF0C] rounded-lg focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
                         ورود به سیستم
                     </button>
@@ -96,6 +99,13 @@
             </div>
         </div>
     </div>
+    <script>
+        const submitBtn = document.querySelector('#submitBtn');
+        const loader = document.querySelector('#loader');
+        submitBtn.addEventListener('click', function() {
+            loader.classList.remove('hidden');
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const field = document.querySelector('#password');

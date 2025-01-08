@@ -25,6 +25,7 @@ class Profile extends Component
 
     public $profile_image;
 
+    //profile photo section
     public function updatedProfileImage()
     {
         // Wait until the file is fully uploaded before validating and processing
@@ -43,7 +44,7 @@ class Profile extends Component
     public function updateProfilePhoto()
     {
         $user = User::find(auth()->user()->id);
-
+        $previous_path = $user->profile_photo_path;
         if ($this->profile_image) {
             // Delete the previous photo if it exists and isn't the default one
             if ($user->profile_photo_path && $user->profile_photo_path !== 'user_profiles/profileIcon.png') {
@@ -55,9 +56,12 @@ class Profile extends Component
                 $imagePath = $this->profile_image->storeAs('user_profiles', $imageName, 'public');
                 $user->profile_photo_path = $imagePath;
                 $user->save();
+                logActivity('profile Photo update', 'App\Models\User', $user->id, [
+                    'before' => $previous_path,
+                    'after' => $user->profile_photo_path,
+                ]);
                 $this->dispatch('profilePhotoUpdated', $user->profile_photo_path);
                 session()->flash('message', 'عکس پروفایل کاربر موفقانه تجدید گردید');
-                
             } catch (\Exception $e) {
                 session()->flash('error', 'مشکلی در تجدید عکس پروفایل رخ داد');
             } finally {
@@ -67,12 +71,30 @@ class Profile extends Component
         }
     }
 
+    public function deleteProfileImage()
+    {
+        $user = User::find(auth()->user()->id);
 
+        if ($user->profile_photo_path && $user->profile_photo_path !== 'user_profiles/profileIcon.png') {
+            if (Storage::disk('public')->exists($user->profile_photo_path)) {
+                if (Storage::disk('public')->delete($user->profile_photo_path)) {
+                    $user->profile_photo_path = 'user_profiles/profileIcon.png';
+                    $user->save();
+                    logActivity('profile photo delete', 'App\Models\User', $user->id);
+                    $this->dispatch('profilePhotoUpdated', $user->profile_photo_path);
+                    session()->flash('message', 'عکس پروفایل کاربر موفقانه حذف گردید');
+                }
+            }
+        }
+    }
+
+    //chage password section
     public function toggleChangePassword($p)
     {
         $this->changePassword = $p;
     }
 
+    //profile details section
     public function updateProfile()
     {
 
@@ -99,6 +121,7 @@ class Profile extends Component
             // No fields changed, nothing to validate or update
             return;
         }
+        $beforeState = $user->toArray();
 
         if (isset($validatedData['full_name'])) {
             $user->full_name = $validatedData['full_name'];
@@ -112,31 +135,20 @@ class Profile extends Component
             $user->email = $validatedData['email'];
         }
 
-        $done = $user->save();
+        $user->save();
+        logActivity('profile details update', 'App\Models\User', $user->id, [
+            'before' => $beforeState,
+            'after' => $user->toArray(),
+        ]);
         session()->flash('message', 'معلومات کاربر موفقانه تجدید گردید');
 
         $this->dispatch('nameUpdated', [
             'full_name' => $user->full_name
         ]);
     }
-    public function deleteProfileImage()
-    {
-        $user = User::find(auth()->user()->id);
 
-        if ($user->profile_photo_path && $user->profile_photo_path !== 'user_profiles/profileIcon.png') {
-            if (Storage::disk('public')->exists($user->profile_photo_path)) {
-                if (Storage::disk('public')->delete($user->profile_photo_path)) {
-                    $user->profile_photo_path = 'user_profiles/profileIcon.png';
-                    $user->save();
-                    $this->dispatch('profile-photo-updated', [
-                        'src' => url('storage/user_profiles/profileIcon.png')
-                    ]);
-                }
-            }
-        }
-    }
-
-    public function render()
+    //load data section
+    public function loadData()
     {
         $user = User::find(@auth()->user()->id);
         $this->full_name = $user->full_name;
@@ -144,6 +156,11 @@ class Profile extends Component
         $this->email = $user->email;
         $this->position = $user->position;
         $this->profile = $user->profile_photo_path;
+    }
+
+    public function render()
+    {
+        $this->loadData();
         return view('livewire.user.profile');
     }
 }

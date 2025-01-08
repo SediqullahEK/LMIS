@@ -72,7 +72,7 @@
                 class="px-4 py-1 mb-1 bg-[#189197] rounded-lg text-2xl text-white"><i class="fa fa-plus"></i></button>
         @endcan
         <!-- Search Input -->
-        <div class="relative flex items-center mt-4 text-left {{ $currentPage > 1 ? 'hidden' : '' }}">
+        <div class="relative flex items-center mt-4 text-left">
             <span class="absolute left-3">
                 <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                     class="w-6 h-6 text-gray-300 mt-2">

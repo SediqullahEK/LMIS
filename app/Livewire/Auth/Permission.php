@@ -34,6 +34,7 @@ class Permission extends Component
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
+        logActivity('create', 'Spatie\Permission\Models\Permission', $permission->id, $permission->toArray());
 
         if ($permission) {
             $request->session()->flash('message', 'صلاحیت موفقانه ایجاد گردید');
@@ -62,11 +63,14 @@ class Permission extends Component
 
         ]);
         $permission = permissions::find($this->permissionId);
-
+        $beforeState = $permission->toArray();
         $permission->name = $validatedData['permission'];
         $permission->updated_by = auth()->user()->id;
         $done = $permission->save();
-
+        logActivity('update', 'Spatie\Permission\Models\Permission', $permission->id, [
+            'before' => $beforeState,
+            'after' => $permission->toArray()
+        ]);
         if ($done) {
             $request->session()->flash('message', 'صلاحیت موفقانه ویرایش گردید');
             $this->resetForm();
@@ -105,6 +109,7 @@ class Permission extends Component
         $permission = permissions::find($this->idToDelete);
         if ($permission) {
             $permission->delete();
+            logActivity('delete', 'Spatie\Permission\Models\Permission', $permission->id);
             $request->session()->flash('message', 'صلاحیت موفقانه حذف شد');
             $this->confirm = false;
         } else {
@@ -117,7 +122,7 @@ class Permission extends Component
     {
         session()->forget('message');
     }
-
+    //Table data section
     public function tableData()
     {
         $data;
@@ -152,6 +157,15 @@ class Permission extends Component
 
         return $data;
         return $data;
+    }
+    //life cycle hooks
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
     public function loadTableData()
     {

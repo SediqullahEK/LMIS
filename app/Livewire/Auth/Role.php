@@ -26,10 +26,7 @@ class Role extends Component
     public $isEditing = false;
     public $idToDelete;
 
-
-
     //Role CRUD Section
-
     public function addRole(Request $request)
     {
         $validatedData = $this->validate([
@@ -42,6 +39,7 @@ class Role extends Component
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
         ]);
+        logActivity('create', 'Spatie\Permission\Models\Role', $role->id, $role->toArray());
 
         if ($role) {
             $request->session()->flash('message', 'وظیفه موفقانه ایجاد گردید');
@@ -62,7 +60,6 @@ class Role extends Component
 
         $this->isOpen = true;
     }
-
     public function updateRole(Request $request)
     {
         $validatedData = $this->validate([
@@ -70,23 +67,26 @@ class Role extends Component
 
         ]);
         $role = roles::find($this->roleId);
-
+        $beforeState = $role->toArray();
         $role->name = $validatedData['role'];
         $role->updated_by = auth()->user()->id;
         $done = $role->save();
-
+        logActivity('update', 'Spatie\Permission\Models\Role', $permission->id, [
+            'before' => $beforeState,
+            'after' => $role->toArray()
+        ]);
         if ($done) {
             $request->session()->flash('message', 'وظیفه موفقانه ویرایش گردید');
             $this->resetForm();
             $this->isOpen = false;
         }
     }
-
     public function deleteRole(Request $request)
     {
         $role = roles::find($this->idToDelete);
         if ($role) {
             $role->delete();
+            logActivity('delete', 'Spatie\Permission\Models\Role', $role->id);
             $request->session()->flash('message', 'وظیفه موفقانه حذف شد');
             $this->confirm = false;
         } else {
@@ -96,7 +96,6 @@ class Role extends Component
     }
 
     //Modal section
-
     public function openForm($fs)
     {
         if ($fs) {
@@ -107,7 +106,6 @@ class Role extends Component
             $this->isOpen = true;
         }
     }
-
     public function resetForm()
     {
         $this->role = '';
@@ -149,26 +147,23 @@ class Role extends Component
     {
         $this->searchPermissions();
     }
-
     public function searchPermissions()
     {
         $this->allPermissions = Permission::when($this->searchedPermission, function ($query) {
             $query->where('name', 'like', '%' . $this->searchedPermission . '%');
         })->get();
     }
-
-
     public function addPermissionsToRole()
     {
         $role = roles::find($this->roleId);
         if ($role) {
 
             $role->syncPermissions($this->permissions);
+            logActivity('add permissions to role', 'Spatie\Permission\Models\Role', $role->id, $this->permissions);
             session()->flash('message', 'صلاحیت ها موفقانه ویرایش گردید');
             $this->showPermissions = false;
         }
     }
-
     public function toggleSelectAllPermissions()
     {
         if ($this->selectAllPermissions) {
@@ -177,7 +172,6 @@ class Role extends Component
             $this->permissions = [];
         }
     }
-
     public function updatedPermissions()
     {
 
