@@ -110,11 +110,6 @@
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>تغییرات</span>
-                                </div>
-                            </th>
-                            <th scope="col" class="px-3 py-2 border border-slate-200">
-                                <div class="flex justify-center">
                                     <span>آی پی آدرس</span>
                                 </div>
                             </th>
@@ -154,19 +149,27 @@
                                     @endif
                                 </div>
                             </th>
-                            <th scope="col" class="px-3 py-2 border border-slate-200 ">
+                            <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer "
+                                wire:click="sortBy('activity_logs.created_at')">
                                 <div class="flex justify-center">
-                                    <span>شهر</span>
+                                    <span>تاریخ</span>
+                                    @if ($sortField === 'activity_logs.created_at')
+                                        <span
+                                            class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
+                                    @else
+                                        <span class="text-gray-400 mr-2"><i class="fa fa-sort"></i></span>
+                                    @endif
                                 </div>
                             </th>
-                            <th scope="col" class="px-3 py-2 border border-slate-200 ">
+
+                            <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>کشور</span>
+                                    <span>توضیحات</span>
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>توضیحات</span>
+                                    <span>بیشتر</span>
                                 </div>
                             </th>
                         </tr>
@@ -191,9 +194,9 @@
                                     <td class="px-3 py-2 border border-slate-200">
                                         {{ $log->model ?? '' }}
                                     </td>
-                                    <td class="px-3 py-2 border border-slate-200">
+                                    {{-- <td class="px-3 py-2 border border-slate-200">
                                         {{ $log->changes ?? '' }}
-                                    </td>
+                                    </td> --}}
                                     <td class="px-3 py-2 border border-slate-200">
                                         {{ $log->ip_address ?? '' }}
                                     </td>
@@ -207,21 +210,74 @@
                                         {{ $log->device_type ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                        {{ $log->country ?? '' }}
+                                        {{ $log->created_at ?? '' }}
                                     </td>
-                                    <td class="px-3 py-2 border border-slate-200">
-                                        {{ $log->city ?? '' }}
-                                    </td>
-
-
                                     <td class="px-2 py-2 border border-slate-200 ">
                                         {{ $log->description }}
                                     </td>
+                                    <td>
+                                        <button @click=" @this.call('toggleMore', {{ $log->id }})"
+                                            {{ $log->changes ? '' : 'disabled' }}
+                                            class="flex items-center justify-center w-8 h-4 text-gray-100 {{ $log->changes ? 'bg-[#D4AF37] hover:bg-sky-900' : 'bg-gray-300' }}  rounded-full mr-2">
+                                            <span class="text-xl">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </span>
+                                        </button>
+                                    </td>
+
                                 </tr>
                             @endforeach
                         @endif
                     </tbody>
                 </table>
+
+                {{-- detials modal --}}
+                <div x-data="{ more: @entangle('more') }">
+                    <!-- Modal Overlay -->
+                    <div x-show="more" id="moreModal" x-cloak
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                        <!-- Modal Container -->
+                        <div id="modal" x-show="more" x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 scale-90"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-90"
+                            class="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full mx-4">
+                            @if ($details)
+                                <!-- Modal Header -->
+                                <div class="flex justify-between items-center pb-4 border-b w-full">
+                                    <h2 class="text-xl font-semibold text-gray-800">
+                                        جزئیات لاگ
+                                    </h2>
+                                    <button @click="more = false"
+                                        class="text-gray-500 hover:text-gray-700 text-2xl focus:outline-none">&times;</button>
+                                </div>
+
+                                <!-- Modal Body -->
+                                <div class="mt-4">
+                                    <h3 class="font-medium text-lg text-gray-700">تغییرات:</h3>
+                                    <div
+                                        class="mt-2 bg-gray-100 p-4 rounded-md text-sm text-gray-600 leading-relaxed overflow-x-auto">
+                                        <pre class="whitespace-pre-wrap break-words">
+                                            {{ json_encode(json_decode($details->changes), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}
+                                        </pre>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Footer -->
+                                <div class="mt-6 text-right">
+                                    <button @click="more = false"
+                                        class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring focus:ring-gray-300">
+                                        بستن
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
                 @if ($noData)
                     <h1 class="font-bold text-xl text-red-900">معلومات موجود نمیباشد! </h1>
                 @endif

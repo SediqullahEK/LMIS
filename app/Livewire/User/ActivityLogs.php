@@ -24,8 +24,20 @@ class ActivityLogs extends Component
 
     public $search;
     public $noData = false;
-    public $logDetails = [];
+    public $details;
+    public $more = false;
 
+    public function toggleMore($id)
+    {
+        if ($id) {
+
+            $this->details = ActivityLog::find($id);
+
+            $this->more = true;
+        } else {
+            $this->more = false;
+        }
+    }
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -36,7 +48,7 @@ class ActivityLogs extends Component
         }
         $this->tableData();
     }
-    
+
     public function showModal($logId)
     {
         // Fetch the log details based on the ID
@@ -59,7 +71,8 @@ class ActivityLogs extends Component
         $data;
         $dataCount;
 
-        $query = ActivityLog::query()->join('users', 'users.id', '=', 'activity_logs.user_id');
+        $query = ActivityLog::query()->join('users', 'users.id', '=', 'activity_logs.user_id')
+            ->select('activity_logs.*', 'users.full_name', 'activity_logs.created_at as created_at');
 
         if (!empty($this->search)) {
             $columns = ['users.full_name', 'activity_logs.ip_address', 'activity_logs.device_type'];
@@ -96,7 +109,6 @@ class ActivityLogs extends Component
     {
         $this->isDataLoaded = true;
     }
-
 
     public function render()
     {
