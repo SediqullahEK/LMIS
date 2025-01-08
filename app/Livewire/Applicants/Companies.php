@@ -159,7 +159,7 @@ class Companies extends Component
 
         $company->updated_by = auth()->user()->id;
         $done = $company->save();
-        // logActivity('update', 'App\Models\Companies', $company->id, $company->toarray());
+        logActivity('update', 'App\Models\Companies', $company->id, $company->toarray());
         if ($done) {
             $this->isOpen = false;
             session()->flash('message', 'شرکت موفقانه ویرایش گردید');
