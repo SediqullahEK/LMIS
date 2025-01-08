@@ -69,7 +69,7 @@ class Companies extends Component
         ]);
 
 
-        Company::create([
+        $done = Company::create([
             'name' => $validatedData['name'],
             'tin_num' => $validatedData['tin_num'],
             'license_num' => $validatedData['license_num'],
@@ -79,6 +79,7 @@ class Companies extends Component
             'updated_by' => auth()->user()->id
         ]);
 
+        logActivity('create', 'App\Models\Companies');
         // Flash a success message and reset the form
         session()->flash('message', 'شرکت موفقانه اضافه گردید');
         $this->resetForm();
@@ -158,7 +159,7 @@ class Companies extends Component
 
         $company->updated_by = auth()->user()->id;
         $done = $company->save();
-
+        logActivity('update', 'App\Models\Companies', $company->id, $company->toarray());
         if ($done) {
             $this->isOpen = false;
             session()->flash('message', 'شرکت موفقانه ویرایش گردید');
@@ -170,6 +171,7 @@ class Companies extends Component
         $company = Company::find($this->idToDelete);
         if ($company) {
             $company->delete();
+            logActivity('delete', 'App\Models\Companies', $company->id);
             $request->session()->flash('message', 'شرکت موفقانه حذف شد');
             $this->confirm = false;
             $this->loadTableData();
@@ -333,17 +335,29 @@ class Companies extends Component
                 ->pluck('individual_id')
                 ->toArray();
 
-            // Prepare shareholders to add or update
             $shareholdersToAddOrUpdate = [];
+            $addedShareholders = [];
+            $updatedShareholders = [];
+
             foreach ($shareholders as $shareholderId) {
                 if (isset($sharePercentages[$shareholderId])) {
-                    $shareholdersToAddOrUpdate[$shareholderId] = [
+                    $data = [
                         'company_id' => $company->id,
                         'individual_id' => $shareholderId,
                         'shares_in_percentage' => $sharePercentages[$shareholderId],
                         'updated_at' => now(),
                         'created_at' => now(),
                     ];
+
+                    // If shareholder already exists, it's an update
+                    if (in_array($shareholderId, $currentShareholders)) {
+                        $updatedShareholders[] = $data;
+                    } else {
+                        // Otherwise, it's a new shareholder
+                        $addedShareholders[] = $data;
+                    }
+
+                    $shareholdersToAddOrUpdate[$shareholderId] = $data;
                 }
             }
 
@@ -364,6 +378,19 @@ class Companies extends Component
                     ->where('company_id', $company->id)
                     ->whereIn('individual_id', $shareholdersToRemove)
                     ->delete();
+            }
+
+            // Log activity with detailed actions
+            if (!empty($addedShareholders)) {
+                logActivity('Shareholders Added', 'CompanyShareholders', $company->id, $addedShareholders);
+            }
+
+            if (!empty($updatedShareholders)) {
+                logActivity('Shareholders Updated', 'CompanyShareholders', $company->id, $updatedShareholders);
+            }
+
+            if (!empty($shareholdersToRemove)) {
+                logActivity('Shareholders Removed', 'CompanyShareholders', $company->id, $shareholdersToRemove);
             }
         });
     }

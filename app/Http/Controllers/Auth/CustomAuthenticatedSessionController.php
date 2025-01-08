@@ -37,6 +37,7 @@ class CustomAuthenticatedSessionController extends  AuthenticatedSessionControll
         $user = User::find(auth()->user()->id);
         $user->last_login_on = now();
         $user->save();
+        logActivity('login', 'User', $user->id);
 
 
         return redirect()->intended(config('fortify.home'));
