@@ -35,6 +35,10 @@ class AppController extends Controller
     {
         return view('pages.applicants.companies');
     }
+    public function preciouseStonesLicenses()
+    {
+        return view('pages.PreciousStonesLicenses.preciousStonesLicenses');
+    }
     public function activityLog()
     {
         return view('pages.user.activityLogs');

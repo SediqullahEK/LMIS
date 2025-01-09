@@ -26,9 +26,9 @@ Route::group(['middleware' => ['auth', 'redirect.unauthenticated', 'checkFirstLo
     Route::get('/register', [CustomRegisteredUserController::class, 'create'])->name('register');
     Route::get('/user/management', [AppController::class, 'userManagement'])->middleware('permission:مدیریت کاربران')->name('user_management');
 
-    Route::get('/activity-logs', [AppController::class, 'activityLog'])->name('activity_logs');
+    Route::get('/dashboard', [AppController::class, 'dashboard'])->name('dashboard');
     Route::get('/applicants/individuals', [AppController::class, 'individuals'])->name('individuals');
     Route::get('/applicants/companies', [AppController::class, 'companies'])->name('companies');
-
-    Route::get('/dashboard', [AppController::class, 'dashboard'])->name('dashboard');
+    Route::get('/preciouse-stones-licenses', [AppController::class, 'preciouseStonesLicenses'])->name('preciouse_stones_licenses');
+    Route::get('/activity-logs', [AppController::class, 'activityLog'])->name('activity_logs');
 });

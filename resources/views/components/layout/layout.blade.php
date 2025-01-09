@@ -148,6 +148,15 @@
                     </li>
                 </ul>
             </li>
+            <li
+                class="{{ request()->routeIs('preciouse_stones_licenses') ? '!bg-[#D4AF37] text-gray-900  rounded-lg' : '' }}">
+                <a href="{{ route('preciouse_stones_licenses') }}"
+                    class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('preciouse_stones_licenses') ? 'text-gray-900' : 'text-white' }}">
+                    <i class="fa fa-gem ml-1"></i> / <i class="fa fa-diamond mr-1"></i>
+
+                    <p class="mr-3 hidden">جواز سنگ های قیمتی/نیمه قیمتی</p>
+                </a>
+            </li>
 
             <li>
                 {{-- href="http://172.20.3.17:3030" target="_blank" rel="noopener noreferrer" --}}
@@ -226,7 +235,7 @@
                 if (sidebar.classList.contains('w-20')) {
                     content.style.marginRight = '5rem'; // Reduced margin-right for collapsed state
                 } else {
-                    content.style.marginRight = '16rem'; // Original margin-right for expanded state
+                    content.style.marginRight = '20rem'; // Original margin-right for expanded state
                 }
             } else {
                 // Ensure no margin adjustment in mobile view
@@ -239,7 +248,7 @@
             if (window.innerWidth < 1024) {
                 content.style.marginRight = '0'; // No margin in mobile view
             } else if (!sidebar.classList.contains('w-20')) {
-                content.style.marginRight = '16rem'; // Expanded sidebar margin for desktop
+                content.style.marginRight = '20rem'; // Expanded sidebar margin for desktop
             } else {
                 content.style.marginRight = '5rem'; // Collapsed sidebar margin for desktop
             }
