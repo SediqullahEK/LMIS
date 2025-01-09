@@ -221,11 +221,13 @@
         const toggleBtn = document.getElementById('sidebarToggle');
 
         toggleBtn.addEventListener('click', () => {
+            // Toggle the sidebar visibility
             sidebar.classList.toggle('translate-x-full');
 
             // Check if screen size is desktop
             if (window.innerWidth >= 1024) {
                 sidebar.classList.toggle('w-20'); // Toggle collapsed width of sidebar
+
                 const links = sidebar.querySelectorAll('p');
                 links.forEach(link => {
                     link.classList.toggle('hidden'); // Toggle text visibility
@@ -238,13 +240,21 @@
                     content.style.marginRight = '20rem'; // Original margin-right for expanded state
                 }
             } else {
-                // Ensure no margin adjustment in mobile view
-                content.style.marginRight = '0';
+                if (sidebar.classList.contains('translate-x-full')) {
+                    content.style.marginRight = '0'; // No margin when sidebar is hidden
+                } else {
+                    sidebar.classList.remove('w-20');
+                    const links = sidebar.querySelectorAll('p');
+                    links.forEach(link => {
+                        link.classList.remove('hidden');
+                    });
+                }
             }
         });
 
         // Reset margin-right when resizing window
         window.addEventListener('resize', () => {
+            z
             if (window.innerWidth < 1024) {
                 content.style.marginRight = '0'; // No margin in mobile view
             } else if (!sidebar.classList.contains('w-20')) {
@@ -254,6 +264,7 @@
             }
         });
     </script>
+
 
     <script>
         const userMenuToggle = document.getElementById('userMenuToggle');
