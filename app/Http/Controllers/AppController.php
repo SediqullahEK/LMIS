@@ -43,4 +43,8 @@ class AppController extends Controller
     {
         return view('pages.user.activityLogs');
     }
+    public function verification()
+    {
+        return view('pages.website.licensesVerification');
+    }
 }

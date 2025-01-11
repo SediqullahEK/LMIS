@@ -15,6 +15,8 @@ Route::post('/login', [CustomAuthenticatedSessionController::class, 'store'])->n
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
+Route::get('/verification', [AppController::class, 'verification'])->name('verification');
+
 Route::get('/changePassword', [AppController::class, 'changePassword'])->middleware('auth')->name('first_login_change_password');
 
 Route::group(['middleware' => ['auth', 'redirect.unauthenticated', 'checkFirstLogin']], function () {

@@ -72,8 +72,8 @@ class Role extends Component
         $role->updated_by = auth()->user()->id;
         $done = $role->save();
         logActivity('update', 'Spatie\Permission\Models\Role', $permission->id, [
-            'before' => $beforeState,
-            'after' => $role->toArray()
+            'قبلا' => $beforeState,
+            'بعدا' => $role->toArray()
         ]);
         if ($done) {
             $request->session()->flash('message', 'وظیفه موفقانه ویرایش گردید');

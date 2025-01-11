@@ -68,8 +68,8 @@ class Permission extends Component
         $permission->updated_by = auth()->user()->id;
         $done = $permission->save();
         logActivity('update', 'Spatie\Permission\Models\Permission', $permission->id, [
-            'before' => $beforeState,
-            'after' => $permission->toArray()
+            'قبلا' => $beforeState,
+            'بعدا' => $permission->toArray()
         ]);
         if ($done) {
             $request->session()->flash('message', 'صلاحیت موفقانه ویرایش گردید');

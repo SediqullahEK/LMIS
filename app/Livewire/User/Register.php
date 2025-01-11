@@ -195,8 +195,8 @@ class Register extends Component
         $done = $user->save();
 
         logActivity('update', 'app\Models\User', $user->id, [
-            'before' => $beforeState,
-            'after' => $user->toArray()
+            'قبلا' => $beforeState,
+            'بعدا' => $user->toArray()
         ]);
         if ($done) {
             $this->isOpen = false;

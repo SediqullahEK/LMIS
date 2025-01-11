@@ -57,8 +57,8 @@ class Profile extends Component
                 $user->profile_photo_path = $imagePath;
                 $user->save();
                 logActivity('profile Photo update', 'App\Models\User', $user->id, [
-                    'before' => $previous_path,
-                    'after' => $user->profile_photo_path,
+                    'قبلا' => $previous_path,
+                    'بعدا' => $user->profile_photo_path,
                 ]);
                 $this->dispatch('profilePhotoUpdated', $user->profile_photo_path);
                 session()->flash('message', 'عکس پروفایل کاربر موفقانه تجدید گردید');
@@ -137,8 +137,8 @@ class Profile extends Component
 
         $user->save();
         logActivity('profile details update', 'App\Models\User', $user->id, [
-            'before' => $beforeState,
-            'after' => $user->toArray(),
+            'قبلا' => $beforeState,
+            'بعدا' => $user->toArray(),
         ]);
         session()->flash('message', 'معلومات کاربر موفقانه تجدید گردید');
 

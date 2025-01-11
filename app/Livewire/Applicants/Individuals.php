@@ -220,8 +220,8 @@ class Individuals extends Component
         $done = $individual->save();
 
         logActivity('update', 'App\Models\Individual', $individual->id, [
-            'before' => $beforeState,
-            'after' => $individual,
+            'قبلا' => $beforeState,
+            'بعدا' => $individual,
         ]);
         if ($done) {
             $this->isOpen = false;
