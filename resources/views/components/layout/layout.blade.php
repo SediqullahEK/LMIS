@@ -108,7 +108,7 @@
 
     <!-- Sidebar -->
     <aside id="sidebar"
-        class="fixed top-0 right-0 z-40 w-20 h-full pt-16 transition-transform translate-x-full bg-[#2C3E50] border-l border-gray-200 sm:translate-x-0"
+        class="fixed top-0 right-0 z-40 w-22 h-full pt-16 transition-transform translate-x-full bg-[#2C3E50] border-l border-gray-200 sm:translate-x-0"
         dir="rtl">
 
         <ul class="space-y-2 p-2">
@@ -123,8 +123,13 @@
             <li x-data="{ open: {{ request()->routeIs('individuals') || request()->routeIs('companies') ? 'true' : 'false' }} }" class="group">
                 <a href="#" @click.prevent="open = !open"
                     class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('individuals') || request()->routeIs('companies') ? '!bg-[#D4AF37] text-gray-900' : 'text-white' }}">
-                    <i class="fa-solid fa-address-card ml-2"></i>
-                    <p class="hidden">متقاضیان</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                        <path d="M4.5 3.75a3 3 0 0 0-3 3v.75h21v-.75a3 3 0 0 0-3-3h-15Z" />
+                        <path fill-rule="evenodd"
+                            d="M22.5 9.75h-21v7.5a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3v-7.5Zm-18 3.75a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm.75 2.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p class="mr-3 hidden">متقاضیان</p>
                     <i class="mr-2 mt-1 fa {{ !(request()->routeIs('individuals') || request()->routeIs('companies')) ? 'text-gray-400' : '' }} "
                         :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                 </a>
@@ -148,21 +153,50 @@
                     </li>
                 </ul>
             </li>
-            <li
-                class="{{ request()->routeIs('preciouse_stones_licenses') ? '!bg-[#D4AF37] text-gray-900  rounded-lg' : '' }}">
-                <a href="{{ route('preciouse_stones_licenses') }}"
-                    class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('preciouse_stones_licenses') ? 'text-gray-900' : 'text-white' }}">
+            <li x-data="{ psl: {{ request()->routeIs('ps_licenses') || request()->routeIs('ps_maktoobs') || request()->routeIs('ps_stones') ? 'true' : 'false' }} }" class="group">
+                <a href="#" @click.prevent="psl = !psl"
+                    class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') || request()->routeIs('ps_maktoobs') || request()->routeIs('ps_stones') ? '!bg-[#D4AF37] text-gray-900' : 'text-white' }}">
                     <i class="fa fa-gem ml-1"></i> / <i class="fa fa-diamond mr-1"></i>
-
                     <p class="mr-3 hidden">جواز سنگ های قیمتی/نیمه قیمتی</p>
+                    <i class="ml-auto mr-2 fa" :class="psl ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                 </a>
+
+                <ul x-show="psl" x-transition class="mt-2 space-y-1 pl-6">
+                    <li
+                        class="group {{ request()->routeIs('ps_maktoobs') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_maktoobs') }}"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_maktoobs') ? 'text-gray-900' : 'text-white' }}">
+                            <i class="fa fa-file"></i>
+                            <p class="mr-3 hidden">مکاتیب</p>
+                        </a>
+                    </li>
+                    <li
+                        class="group {{ request()->routeIs('ps_licenses') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_licenses') }}"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') ? 'text-gray-900' : 'text-white' }}">
+                            <i class="fa-solid fa-address-card "></i>
+                            <p class="mr-3 hidden">جواز ها</p>
+                        </a>
+                    </li>
+                    <li
+                        class="group {{ request()->routeIs('ps_stones') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_stones') }}"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_stones') ? 'text-gray-900' : 'text-white' }}">
+                            <i class="fa-solid fa-stroopwafel"></i>
+
+
+                            <p class="mr-3 hidden">سنگ ها</p>
+                        </a>
+                    </li>
+                </ul>
             </li>
+
 
             <li>
                 {{-- href="http://172.20.3.17:3030" target="_blank" rel="noopener noreferrer" --}}
                 <a class="flex items-center p-2 text-white text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg">
                     <i class="fa fa-mountain"></i>
-                    <p class="mr-3 hidden"> جواز های حرفه یی</p>
+                    <p class="mr-4 hidden"> جواز های حرفه یی</p>
                 </a>
             </li>
 
@@ -196,16 +230,17 @@
                 <a href="{{ route('activity_logs') }}"
                     class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('activity_logs') ? 'text-gray-900' : 'text-white' }}">
                     <i class="fas fa-clipboard-list"></i>
-                    <p class="mr-3 hidden">فعالیت ها</p>
+                    <p class="mr-4 hidden">فعالیت ها</p>
                 </a>
             </li>
         </ul>
     </aside>
 
     <!-- Content -->
-    <main id="content" class="pt-16 lg:mr-20 transition-all">
+    <main id="content" class="pt-16 transition-all lg:mr-24">
         {{ $slot }}
     </main>
+
 
     @livewireScripts
 
@@ -226,7 +261,7 @@
 
             // Check if screen size is desktop
             if (window.innerWidth >= 1024) {
-                sidebar.classList.toggle('w-20'); // Toggle collapsed width of sidebar
+                sidebar.classList.toggle('w-22'); // Toggle collapsed width of sidebar
 
                 const links = sidebar.querySelectorAll('p');
                 links.forEach(link => {
@@ -234,16 +269,16 @@
                 });
 
                 // Adjust content margin-right only in desktop view
-                if (sidebar.classList.contains('w-20')) {
-                    content.style.marginRight = '5rem'; // Reduced margin-right for collapsed state
+                if (sidebar.classList.contains('w-22')) {
+                    content.style.marginRight = '6rem'; // Reduced margin-right for collapsed state
                 } else {
-                    content.style.marginRight = '20rem'; // Original margin-right for expanded state
+                    content.style.marginRight = '21rem'; // Original margin-right for expanded state
                 }
             } else {
                 if (sidebar.classList.contains('translate-x-full')) {
                     content.style.marginRight = '0'; // No margin when sidebar is hidden
                 } else {
-                    sidebar.classList.remove('w-20');
+                    sidebar.classList.remove('w-22');
                     const links = sidebar.querySelectorAll('p');
                     links.forEach(link => {
                         link.classList.remove('hidden');
@@ -257,10 +292,10 @@
             z
             if (window.innerWidth < 1024) {
                 content.style.marginRight = '0'; // No margin in mobile view
-            } else if (!sidebar.classList.contains('w-20')) {
-                content.style.marginRight = '20rem'; // Expanded sidebar margin for desktop
+            } else if (!sidebar.classList.contains('w-22')) {
+                content.style.marginRight = '21rem'; // Expanded sidebar margin for desktop
             } else {
-                content.style.marginRight = '5rem'; // Collapsed sidebar margin for desktop
+                content.style.marginRight = '6rem'; // Collapsed sidebar margin for desktop
             }
         });
     </script>

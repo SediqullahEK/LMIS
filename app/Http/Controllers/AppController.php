@@ -35,9 +35,17 @@ class AppController extends Controller
     {
         return view('pages.applicants.companies');
     }
-    public function preciouseStonesLicenses()
+    public function pSLicenses()
     {
-        return view('pages.PreciousStonesLicenses.preciousStonesLicenses');
+        return view('pages.precious-stones-licenses.licenses');
+    }
+    public function pSMaktoobs()
+    {
+        return view('pages.precious-stones-licenses.maktoobs');
+    }
+    public function pSStones()
+    {
+        return view('pages.precious-stones-licenses.stones');
     }
     public function activityLog()
     {
