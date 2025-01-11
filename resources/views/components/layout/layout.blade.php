@@ -113,7 +113,7 @@
 
         <ul class="space-y-2 p-2">
             <li class="{{ request()->routeIs('dashboard') ? '!bg-[#D4AF37] text-gray-900  rounded-lg' : '' }}">
-                <a href="{{ route('dashboard') }}"
+                <a href="{{ route('dashboard') }}" title="داشبورد سیستم"
                     class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('dashboard') ? 'text-gray-900' : 'text-white' }}">
                     <i class="fa fa-home"></i>
                     <p class="mr-3 hidden">داشبورد سیستم</p>
@@ -121,7 +121,7 @@
                 </a>
             </li>
             <li x-data="{ open: {{ request()->routeIs('individuals') || request()->routeIs('companies') ? 'true' : 'false' }} }" class="group">
-                <a href="#" @click.prevent="open = !open"
+                <a href="#" @click.prevent="open = !open" title="متقاضیان"
                     class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('individuals') || request()->routeIs('companies') ? '!bg-[#D4AF37] text-gray-900' : 'text-white' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
                         <path d="M4.5 3.75a3 3 0 0 0-3 3v.75h21v-.75a3 3 0 0 0-3-3h-15Z" />
@@ -137,64 +137,67 @@
                 <ul x-show="open" x-transition class="mt-2 space-y-1 pl-6">
                     <li
                         class="group {{ request()->routeIs('individuals') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('individuals') }}"
+                        <a href="{{ route('individuals') }}" title="اشخاص"
                             class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('individuals') ? 'text-gray-900' : 'text-white' }}">
-                            <i class="fa fa-user"></i>
+                            <span class="mr-4 ml-2">-</span><i class="fa fa-user"></i>
                             <p class="mr-3 hidden">اشخاص</p>
                         </a>
                     </li>
                     <li
                         class="group {{ request()->routeIs('companies') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('companies') }}"
+                        <a href="{{ route('companies') }}" title="شرکت ها"
                             class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('companies') ? 'text-gray-900' : 'text-white' }}">
-                            <i class="fa fa-building"></i>
+                            <span class="mr-4 ml-2">-</span><i class="fa fa-building"></i>
                             <p class="mr-3 hidden">شرکت ها</p>
                         </a>
                     </li>
                 </ul>
             </li>
             <li x-data="{ psl: {{ request()->routeIs('ps_licenses') || request()->routeIs('ps_maktoobs') || request()->routeIs('ps_stones') ? 'true' : 'false' }} }" class="group">
-                <a href="#" @click.prevent="psl = !psl"
+                <a href="#" @click.prevent="psl = !psl" title="جواز سنگ های قیمتی/نیمه قیمتی"
                     class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') || request()->routeIs('ps_maktoobs') || request()->routeIs('ps_stones') ? '!bg-[#D4AF37] text-gray-900' : 'text-white' }}">
                     <i class="fa fa-gem ml-1"></i> / <i class="fa fa-diamond mr-1"></i>
                     <p class="mr-3 hidden">جواز سنگ های قیمتی/نیمه قیمتی</p>
-                    <i class="ml-auto mr-2 fa" :class="psl ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    <i class="ml-auto mr-2 fa {{ !(request()->routeIs('ps_licenses') || request()->routeIs('ps_maktoobs') || request()->routeIs('ps_stones')) ? 'text-gray-400' : '' }}"
+                        :class="psl ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                 </a>
 
                 <ul x-show="psl" x-transition class="mt-2 space-y-1 pl-6">
                     <li
-                        class="group {{ request()->routeIs('ps_maktoobs') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('ps_maktoobs') }}"
-                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_maktoobs') ? 'text-gray-900' : 'text-white' }}">
-                            <i class="fa fa-file"></i>
-                            <p class="mr-3 hidden">مکاتیب</p>
-                        </a>
-                    </li>
-                    <li
-                        class="group {{ request()->routeIs('ps_licenses') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('ps_licenses') }}"
-                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') ? 'text-gray-900' : 'text-white' }}">
-                            <i class="fa-solid fa-address-card "></i>
-                            <p class="mr-3 hidden">جواز ها</p>
-                        </a>
-                    </li>
-                    <li
                         class="group {{ request()->routeIs('ps_stones') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('ps_stones') }}"
+                        <a href="{{ route('ps_stones') }}" title="سنگ ها"
                             class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_stones') ? 'text-gray-900' : 'text-white' }}">
-                            <i class="fa-solid fa-stroopwafel"></i>
+                            <span class="mr-4 ml-2">-</span><i class="fa-solid fa-stroopwafel"></i>
 
 
                             <p class="mr-3 hidden">سنگ ها</p>
                         </a>
                     </li>
+                    <li
+                        class="group {{ request()->routeIs('ps_maktoobs') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_maktoobs') }}" title="مکاتیب"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_maktoobs') ? 'text-gray-900' : 'text-white' }}">
+                            <span class="mr-4 ml-2">-</span><i class="fa fa-file"></i>
+                            <p class="mr-3 hidden">مکاتیب</p>
+                        </a>
+                    </li>
+                    <li
+                        class="group {{ request()->routeIs('ps_licenses') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_licenses') }}" title="جواز ها"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') ? 'text-gray-900' : 'text-white' }}">
+                            <span class="mr-4 ml-2">-</span><i class="fa-solid fa-address-card "></i>
+                            <p class="mr-3 hidden">جواز ها</p>
+                        </a>
+                    </li>
+
                 </ul>
             </li>
 
 
             <li>
                 {{-- href="http://172.20.3.17:3030" target="_blank" rel="noopener noreferrer" --}}
-                <a class="flex items-center p-2 text-white text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg">
+                <a class="flex items-center p-2 text-white text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg"
+                    title=" جواز های حرفه یی">
                     <i class="fa fa-mountain"></i>
                     <p class="mr-4 hidden"> جواز های حرفه یی</p>
                 </a>
@@ -202,7 +205,7 @@
 
 
             <li class="group">
-                <a href="#"
+                <a href="#" title="جواز های مواد ساختمانی"
                     class="flex items-center p-2 text-white hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg">
                     <svg class="text-gray-100 w-[1.25rem] h-[1.25rem]  fill-current group-hover:text-gray-900"
                         xmlns="http://www.w3.org/2000/svg"
@@ -214,7 +217,7 @@
                 </a>
             </li>
             <li class="group">
-                <a href="#"
+                <a href="#" title="جواز پروسس برای فابریکه ها"
                     class="flex items-center p-2 text-white hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg">
                     <svg class="text-gray-100 w-[1.25rem] h-[1.25rem]  fill-current group-hover:text-gray-900"
                         xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
@@ -227,7 +230,7 @@
             </li>
             <li
                 class="group {{ request()->routeIs('activity_logs') ? '!bg-[#D4AF37] text-gray-900  rounded-lg' : '' }}">
-                <a href="{{ route('activity_logs') }}"
+                <a href="{{ route('activity_logs') }}" title="فعالیت ها"
                     class="flex items-center p-2 hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('activity_logs') ? 'text-gray-900' : 'text-white' }}">
                     <i class="fas fa-clipboard-list"></i>
                     <p class="mr-4 hidden">فعالیت ها</p>
