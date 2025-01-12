@@ -252,6 +252,7 @@
 
     <script src="{{ asset('assets/Latest_Persian_Datepicker/persian-date.min.js') }}"></script>
     <script src="{{ asset('assets/Latest_Persian_Datepicker/persain-datepicker.js') }}"></script>
+    
     @stack('customJs')
     <script>
         const sidebar = document.getElementById('sidebar');

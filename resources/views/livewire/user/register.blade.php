@@ -6,8 +6,7 @@
         <div wire:loading wire:target="addUser, updateUser, deleteUser, toggle">
             <x-loader />
         </div>
-
-        <!-- Sidebar -->
+        
         <aside class="py-4 w-full md:w-1/3 lg:w-1/4">
             <div class="p-4 text-sm border-l border-gray-200">
                 <a href="#" wire:click="toggle('user')"
