@@ -5,10 +5,27 @@ namespace App\Livewire\PreciousStonesLicenses;
 use App\Models\PSStone;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
+
+
 
 class Stones extends Component
 {
     use WithPagination;
+    public $name;
+    public $latin_name;
+    public $quantity;
+    public $estimated_extraction;
+    public $estimated_price_from;
+    public $estimated_price_to;
+    public $offered_royality_by_private_sector;
+    public $final_royality_after_negotiations;
+    public $estimated_revenue_based_on_ORPS;
+    public $estimated_revenue_based_on_FRAN;
+    public $photo;
     public $stone;
     public $currentPage = 1;
     public $search;
@@ -19,22 +36,39 @@ class Stones extends Component
     public $isOpen = false;
     public $isEditing = false;
     public $idToDelete;
+    public $existing_photo_path;
+    public $sortField;
+    public $noData;
 
     //PSStone CRUD section
     public function addStone()
     {
         $validatedData = $this->validate([
-            'name' => 'required|unique:precious_semi_precious_stones,name',
-            'latin_name' => 'required|unique:precious_semi_precious_stones,latin_name',
-            // 'name' => 'required|unique:precious_semi_precious_stones,name',
-        ], [
-            'name.unique' => 'سنگ ذیل موجود است!',
-            'latin_name.unique' => 'سنگ ذیل موجود است!'
+            'name' => 'required',
+            'latin_name' => 'required',
+            'quantity'=>'required',
+            'photo'=>'required',
+            'estimated_extraction'=>'required',
+            'estimated_price_from'=>'required',
+            'estimated_price_to'=>'required',
+            'offered_royality_by_private_sector'=>'required',
+            'final_royality_after_negotiations'=>'required',
+            'estimated_revenue_based_on_ORPS'=>'required',
+            'estimated_revenue_based_on_FRAN'=>'required',
         ]);
+
         $stone = PSStone::create([
+            'photo' => $validatedData['photo'],
             'name' => $validatedData['name'],
-            'created_by' => auth()->user()->id,
-            'updated_by' => auth()->user()->id,
+            'latin_name' => $validatedData['latin_name'],
+            'quantity' => $validatedData['quantity'],
+            'estimated_extraction' => $validatedData['estimated_extraction'],
+            'estimated_price_from' => $validatedData['estimated_price_from'],
+            'estimated_price_to' => $validatedData['estimated_price_to'],
+            'offered_royality_by_private_sector' => $validatedData['offered_royality_by_private_sector'],
+            'final_royality_after_negotiations' => $validatedData['final_royality_after_negotiations'],
+            'estimated_revenue_based_on_ORPS' => $validatedData['estimated_revenue_based_on_ORPS'],
+            'estimated_revenue_based_on_FRAN' => $validatedData['estimated_revenue_based_on_FRAN'],
         ]);
         logActivity('create', 'app\Models\PSStone', $stone->id, $stone->toArray());
 

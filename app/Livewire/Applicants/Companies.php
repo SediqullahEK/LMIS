@@ -130,10 +130,10 @@ class Companies extends Component
         // Only perform validation if there are rules
         if (!empty($validationRules)) {
             $validatedData = $this->validate($validationRules, [
-            'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
-            'license_num.unique' => 'نمبر جواز ذیل در سیستم موجود است.',
+                'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
+                'license_num.unique' => 'نمبر جواز ذیل در سیستم موجود است.',
 
-        ]);
+            ]);
         } else {
             session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
             return;
