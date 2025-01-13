@@ -27,6 +27,7 @@ class Stones extends Component
     public $final_royality_after_negotiations;
     public $estimated_revenue_based_on_ORPS;
     public $estimated_revenue_based_on_FRAN;
+    public $image_path;
     public $photo;
     public $stone;
     public $currentPage = 1;
@@ -48,19 +49,21 @@ class Stones extends Component
         $validatedData = $this->validate([
             'name' => 'required',
             'latin_name' => 'required',
-            'quantity'=>'required',
-            'photo'=>'required',
-            'estimated_extraction'=>'required',
-            'estimated_price_from'=>'required',
-            'estimated_price_to'=>'required',
-            'offered_royality_by_private_sector'=>'required',
-            'final_royality_after_negotiations'=>'required',
-            'estimated_revenue_based_on_ORPS'=>'required',
-            'estimated_revenue_based_on_FRAN'=>'required',
+            'quantity' => 'required',
+            'image_path' => 'nullable|image|max:1024',
+            'estimated_extraction' => 'required',
+            'estimated_price_from' => 'required',
+            'estimated_price_to' => 'required',
+            'offered_royality_by_private_sector' => 'required',
+            'final_royality_after_negotiations' => 'required',
+            'estimated_revenue_based_on_ORPS' => 'required',
+            'estimated_revenue_based_on_FRAN' => 'required',
         ]);
 
+        $imagPath = '';
+
         $stone = PSStone::create([
-            'photo' => $validatedData['photo'],
+            'image_path' =>  $imagPath,
             'name' => $validatedData['name'],
             'latin_name' => $validatedData['latin_name'],
             'quantity' => $validatedData['quantity'],

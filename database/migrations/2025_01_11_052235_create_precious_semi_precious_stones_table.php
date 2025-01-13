@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('latin_name')->unique();
             $table->enum('quantity', ['گرام', 'کیلو گرام', 'تن', 'قیراط']);
-            $table->string('image_path');
+            $table->string('image_path')->nullable();
             $table->unsignedBigInteger('estimated_extraction')->nullable();
             $table->unsignedInteger('estimated_price_from')->nullable();
             $table->unsignedBigInteger('estimated_price_to')->nullable();
