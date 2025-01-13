@@ -15,6 +15,8 @@ use Livewire\Features\SupportFileUploads\WithFileUploads;
 class Stones extends Component
 {
     use WithPagination;
+    use WithFileUploads;
+
     public $name;
     public $latin_name;
     public $quantity;
