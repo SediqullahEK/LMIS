@@ -87,36 +87,145 @@ class Stones extends Component
     public function editStone($id)
     {
         $this->isEditing = true;
+        $this->stoneId = $id;
         $this->resetForm();
 
         $stone = PSStone::find($id);
 
-        $this->stone = $stone->name;
-        $this->stoneId = $stone->id;
+        $this->name = $stone->name;
+        $this->latin_name = $stone->latin_name;
+        $this->quantity = $stone->quantity;
+        $this->estimated_extraction = $stone->estimated_extraction;
+        $this->estimated_price_from = $stone->estimated_price_from;
+        $this->estimated_price_to = $stone->estimated_price_to;
+        $this->offered_royality_by_private_sector = $stone->offered_royality_by_private_sector;
+        $this->final_royality_after_negotiations = $stone->final_royality_after_negotiations;
+        $this->estimated_revenue_based_on_ORPS = $stone->estimated_revenue_based_on_ORPS;
+        $this->estimated_revenue_based_on_FRAN = $stone->estimated_revenue_based_on_FRAN;
 
         $this->isOpen = true;
     }
 
     public function updateStone()
     {
-        $validatedData = $this->validate([
-            'name' => 'required|unique:precious_semi_precious_stones,name',
-
-        ]);
+        // Find the stone by ID
         $stone = PSStone::find($this->stoneId);
-        $beforeState = $stone->toArray();
-        $stone->name = $validatedData['name'];
-        $stone->updated_by = auth()->user()->id;
-        $done = $stone->save();
-        logActivity('update', 'app\Models\PSStone', $stone->id, [
+
+        $validationRules = [];
+
+        if ($this->name !== $stone->name) {
+            $validationRules['name'] = 'required|string|max:255';
+        }
+
+        if ($this->latin_name !== $stone->latin_name){
+            $validationRules['latin_name'] = 'required|string|max:255';
+        }
+
+        if ($this->quantity !== $stone->quantity){
+            $validationRules['quantity'] = 'required';
+        }
+
+        if ($this->estimated_extraction !==$stone->estimated_extraction){
+            $validationRules['estimated_extraction'] = 'required';
+        }
+
+        if ($this->estimated_price_from !==$stone->estimated_price_from){
+            $validatedData['estimated_price_from'] = 'required';
+        }
+
+
+
+        if ($this->photo) {
+            $validationRules['photo'] = 'nullable|image|max:1024';
+        }
+
+
+        // Only perform validation if there are rules
+        if (!empty($validationRules)) {
+            $validatedData = $this->validate($validationRules);
+        } else {
+            session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
+            return;
+        }
+        $beforeState = $individual->toArray();
+
+        // Handle profile image if changed
+        if ($this->photo) {
+            // Delete the old profile photo if it exists
+            if ($individual->photo_path) {
+                Storage::disk('public')->delete($individual->photo_path);
+            }
+            try {
+                // Generate a unique name for the new image
+                $uniqueSuffix = uniqid(); // Generate a unique ID
+                $imageName = $this->name . '_' . $uniqueSuffix . '.' . $this->photo->getClientOriginalExtension();
+                $imagePath = $this->photo->storeAs('individuals_photos', $imageName, 'public');
+
+                // Update the user's profile photo path
+                $individual->photo_path = $imagePath;
+            } catch (\Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+
+        // Update only changed attributes
+        if (isset($validatedData['name'])) {
+            $individual->name = $validatedData['name'];
+        }
+
+        if (isset($validatedData['fathers_name'])) {
+            $individual->f_name = $validatedData['fathers_name'];
+        }
+
+        if (isset($validatedData['tin_num'])) {
+            $individual->tin_num = $validatedData['tin_num'];
+        }
+
+        if (isset($validatedData['tazkira_num'])) {
+            $individual->tazkira_num = $validatedData['tazkira_num'];
+        }
+
+        if (isset($validatedData['province'])) {
+            $individual->province_id = $validatedData['province'];
+        }
+        if (isset($validatedData['date_of_birth'])) {
+            $individual->date_of_birth = $validatedData['date_of_birth'];
+        }
+        if (isset($validatedData['nationality'])) {
+            $individual->nationality = $validatedData['nationality'];
+        }
+
+        if (isset($validatedData['district'])) {
+            $individual->district = $validatedData['district'];
+        }
+
+        $individual->phone = $this->phone;
+        $individual->updated_by = auth()->user()->id;
+        $done = $individual->save();
+
+        logActivity('update', 'App\Models\Individual', $individual->id, [
             'قبلا' => $beforeState,
-            'بعدا' => $stone->toArray()
+            'بعدا' => $individual,
         ]);
         if ($done) {
-            session()->flash('message', 'صلاحیت موفقانه ویرایش گردید');
-            $this->resetForm();
             $this->isOpen = false;
-            // $this->dispatch('recordUpdate');
+            session()->flash('message', 'شخص موفقانه ویرایش گردید');
+            $this->resetForm();
+        }
+    }
+
+    public function deleteStone(Request $request)
+    {
+        $stone = PSStone::find($this->idToDelete);
+        if ($stone) {
+            $stone->delete();
+            logActivity('delete', 'App\Models\Companies', $stone->id);
+            $request->session()->flash('message', 'سنګ موفقانه حذف شد');
+            $this->confirm = false;
+            $this->loadTableData();
+        } else {
+            $request->session()->flash('error', 'خطا در پروسه حذف');
+            $this->confirm = false;
         }
     }
 
@@ -131,6 +240,7 @@ class Stones extends Component
             $this->isOpen = true;
         }
     }
+
     public function toggleConfirm($id)
     {
         if ($id) {
@@ -145,19 +255,7 @@ class Stones extends Component
         $this->name = '';
     }
 
-    public function deleteStone()
-    {
-        $stone = PSStone::find($this->idToDelete);
-        if ($stone) {
-            $stone->delete();
-            logActivity('delete', 'app\Models\PSStone', $stone->id);
-            session()->flash('message', 'صلاحیت موفقانه حذف شد');
-            $this->confirm = false;
-        } else {
-            session()->flash('error', 'خطا در پروسه حذف');
-            $this->confirm = false;
-        }
-    }
+
 
     public function closeAlert()
     {

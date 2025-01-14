@@ -252,7 +252,7 @@
 
     <script src="{{ asset('assets/Latest_Persian_Datepicker/persian-date.min.js') }}"></script>
     <script src="{{ asset('assets/Latest_Persian_Datepicker/persain-datepicker.js') }}"></script>
-    
+
     @stack('customJs')
     <script>
         const sidebar = document.getElementById('sidebar');
@@ -293,7 +293,6 @@
 
         // Reset margin-right when resizing window
         window.addEventListener('resize', () => {
-            z
             if (window.innerWidth < 1024) {
                 content.style.marginRight = '0'; // No margin in mobile view
             } else if (!sidebar.classList.contains('w-22')) {
