@@ -390,7 +390,6 @@
                                 <!-- Form -->
                                 <form wire:submit.prevent="{{ $isEditing ? 'updateCompany' : 'addCompany' }}"
                                     class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
-                                    <!--Name -->
                                     <input type="number" hidden wire:model.live='companyId'>
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نام</label>
@@ -402,9 +401,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
-
-                                    <!-- tin_num -->
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نمبر تشخیصیه</label>
                                         <span class="text-red-700">*</span>
@@ -415,8 +411,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
-                                    <!-- license_num -->
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نمبر جواز</label>
                                         <span class="text-red-700">*</span>
@@ -427,7 +421,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">ولایت</label>
                                         <span class="text-red-700">*</span>
@@ -448,7 +441,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">آدرس</label>
                                         <span class="text-red-700">*</span>
@@ -460,7 +452,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
                                     <div class="col-span-full flex justify-start space-x-4 mt-4">
                                         <button type="submit" wire:loading.attr="disabled"
                                             class="text-sm h-10 ml-2 px-8 bg-[#189197] rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"

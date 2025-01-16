@@ -3,178 +3,282 @@
     {{-- <div wire:loading wire:target='requestId'>
         <x-loader />
     </div> --}}
-    <span class="flex justify-end items-end col-span-3 text-right mt-4">
+    {{-- alerts section --}}
 
-        <label class="inline-flex items-center me-5 cursor-pointer">
-            <input type="checkbox" wire:model.live="passwordUpdate" class="sr-only peer" checked>
-            <div
-                class="relative w-11 h-6 bg-gray-200 rounded-full peer   peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600">
-            </div>
-            <span class="ms-3 text-sm font-medium text-gray-900 ">شرکت</span>
-        </label>
+    @if (session()->has('message'))
+        <div x-data="{ show: @json(session()->has('message')) }" x-init="if (show) { setTimeout(() => { show = false }, 3500); }" x-show="show"
+            class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-green-300 text-green-800 px-3 py-4 shadow-xl flex justify-between items-center rounded-lg w-auto">
+            <button @click="show = false" class="text-gray-500 hover:text-gray-700 text-2xl ">&times;</button>
+            {{ session('message') }}
+            <svg class="h-5 w-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    @endif
 
-        <label class="inline-flex items-center me-5 cursor-pointer">
-            <input type="checkbox" wire:model.live="passwordUpdate" class="sr-only peer" checked>
-            <div
-                class="relative w-11 h-6 bg-gray-200 rounded-full peer   peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600">
-            </div>
-            <span class="ms-3 text-sm font-medium text-gray-900 ">شخص</span>
-        </label>
-    </span>
-    <fieldset class=" shadow-md ring-2 ring-gray-100 p-4 rounded-lg px-4 pb-12 m-5" dir="rtl">
-        <span class="text-lg font-semibold text-right">جزئیات شرکت</span>
+    @if (session()->has('error'))
+        <div x-data="{ show: @json(session()->has('error')) }" x-init="if (show) { setTimeout(() => { show = false }, 3500); }" x-show="show"
+            class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-300 text-gray-800 px-3 py-4 shadow-xl flex justify-between items-center rounded-lg w-auto">
+            <button @click="show = false" class="text-gray-500 hover:text-gray-700 text-2xl ">&times;</button>
+            {{ session('error') }}
+            <svg class="h-5 w-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    @endif
 
+    <div class=" px-4 pb-12 m-5" dir="rtl">
         <form wire:submit.prevent="generateMaktoobs"
-            class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
-            <!--Name -->
-            <input type="number" hidden wire:model.live='companyId'>
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">نام</label>
+            class="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-4 mt-4">
+            <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right">
+                <label class="font-bold text-sm">نمبر عریضه</label>
                 <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="name"
+                <input type="number" required wire:model.live.debounce.500ms="letterNumber" autofocus
+                    placeholder="نمبر عریضه متقاضی را وارد کنید"
                     class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                     autocomplete="off" dir="rtl">
-                @error('name')
+                @error('letterNumber')
                     <p class="text-red-500">{{ $message }}</p>
                 @enderror
-            </span>
-
-
-            <!-- tin_num -->
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">نمبر تشخیصیه</label>
-                <span class="text-red-700">*</span>
-                <input type="number" required wire:model.live="tin_num"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('tin_num')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-            <!-- license_num -->
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">نمبر جواز</label>
-                <span class="text-red-700">*</span>
-                <input type="number" required wire:model.live="license_num"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('license_num')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">ولایت</label>
-                <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="address" placeholder="موقعیت دقیق فعلی شرکت"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('province')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">آدرس</label>
-                <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="address" placeholder="موقعیت دقیق فعلی شرکت"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('address')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-        </form>
-
-    </fieldset>
-    <fieldset class=" shadow-md ring-2 ring-gray-100 p-4 rounded-lg px-4 pb-12 m-5" dir="rtl">
-        <span class="text-lg font-semibold text-right">جزئیات شخص</span>
-
-        <form wire:submit.prevent="generateMaktoobs"
-            class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4 mt-4">
-            <!--Name -->
-            <input type="number" hidden wire:model.live='companyId'>
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">نام</label>
-                <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="name"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('name')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-
-            <!-- tin_num -->
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">نمبر تشخیصیه</label>
-                <span class="text-red-700">*</span>
-                <input type="number" required wire:model.live="tin_num"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('tin_num')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-            <!-- license_num -->
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">نمبر جواز</label>
-                <span class="text-red-700">*</span>
-                <input type="number" required wire:model.live="license_num"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('license_num')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">ولایت</label>
-                <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="address" placeholder="موقعیت دقیق فعلی شرکت"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('province')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-
-            <span class="col-span-1 text-right">
-                <label class="font-bold text-sm">آدرس</label>
-                <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="address" placeholder="موقعیت دقیق فعلی شرکت"
-                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                    autocomplete="off" dir="rtl">
-                @error('address')
-                    <p class="text-red-500">{{ $message }}</p>
-                @enderror
-            </span>
-            {{-- <input type="number" required wire:model.live.debounce.400ms="requestId"
-                    placeholder="نمبر عریضه را وارد کنید"
-                    class="mt-1 peer block h-10 w-64 max-w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] px-4"
-                    autocomplete="off" dir="rtl">
-                <span class="absolute right-56 mt-2">
-                    <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                        class="w-6 h-6 text-gray-300">
-                        <path fill-rule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                            clip-rule="evenodd" />
+                <span wire:loading wire:target="letterNumber">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="black">
+                        <rect width="6" height="14" x="1" y="4">
+                            <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                            <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                            <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
                     </svg>
-                </span> --}}
-            <span class="col-span-1 text-right mt-6">
-                <button type="submit" wire:loading.attr="disabled"
-                    class="text-sm mt-1 h-10 ml-2 px-8 bg-[#189197] rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    title="ایجاد مکاتیب">
+                </span>
+            </span>
+            <span class="col-span-2 sm:col-span-2 md:col-span-2 text-right">
+                <label class="font-bold text-sm">موضوع عریضه</label>
+                <span class="text-red-700">*</span>
+                <input type="text" required wire:model.live="letterSubject" disabled
+                    placeholder="موضوع عریضه متقاضی "
+                    class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl">
+                @error('letterSubject')
+                    <p class="text-red-500">{{ $message }}</p>
+                @enderror
+            </span>
+
+            <span class="flex justify-start items-end col-span-5 text-right my-2 ">
+                <label class="inline-flex items-center me-5 cursor-pointer">
+                    <input type="checkbox" wire:model.live="individualDetails" wire:change='resetIndividualData(1)'
+                        class="sr-only peer" checked>
+                    <div
+                        class="relative w-11 h-6 bg-gray-200 rounded-full peer   peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600">
+                    </div>
+                    <span class="ms-3 text-sm font-medium text-gray-900 ">جزئیات شخص</span>
+                </label>
+            </span>
+
+            {{-- Individual Data section --}}
+            @if ($individualDetails)
+                <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right">
+                    <label class="font-bold text-sm">نمبر تذکره</label>
+                    <span class="text-red-700">*</span>
+                    <input type="number" required wire:model.live.debounce.500ms="tazkiraNumber" name="tazkiraNumber"
+                        placeholder="نمبر تذکره متقاضی را وارد کنید"
+                        class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('tazkiraNumber')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                    <span wire:loading wire:target="tazkiraNumber">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="black">
+                            <rect width="6" height="14" x="1" y="4">
+                                <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                    repeatCount="indefinite" />
+                            </rect>
+                            <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                                <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                    repeatCount="indefinite" />
+                            </rect>
+                            <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                                <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                    repeatCount="indefinite" />
+                            </rect>
+                        </svg>
+                    </span>
+                </span>
+
+                <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right">
+                    <label class="font-bold text-sm">نمبر تشخیصیه</label>
+                    <span class="text-red-700">*</span>
+                    <input type="number" required wire:model.live="tinNumber" disabled
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('tin_num')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">نام</label>
+                    <span class="text-red-700">*</span>
+                    <input type="text" required wire:model.live="name" disabled
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('name')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">نام پدر</label>
+                    <span class="text-red-700">*</span>
+                    <input type="text" required wire:model.live="fathersName"disabled
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('fathers_name')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">ولایت</label>
+                    <span class="text-red-700">*</span>
+                    <input type="text" required wire:model.live="province" disabled
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('province')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+            @else
+                <span wire:loading wire:target="individualDetails">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="black">
+                        <rect width="6" height="14" x="1" y="4">
+                            <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                            <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                            <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                    </svg>
+                </span>
+            @endif
+
+            <span class="flex justify-start items-end col-span-5 text-right my-2">
+                <label class="inline-flex items-center me-5 cursor-pointer">
+                    <input type="checkbox" wire:model.live="companyDetails" wire:change='resetCompanyData(1)'
+                        class="sr-only peer" checked>
+                    <div
+                        class="relative w-11 h-6 bg-gray-200 rounded-full peer   peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600">
+                    </div>
+                    <span class="ms-3 text-sm font-medium text-gray-900 ">جزئیات شرکت</span>
+                </label>
+            </span>
+
+
+            @if ($companyDetails)
+                <input type="number" hidden wire:model.live='companyId'>
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">نمبر جواز</label>
+                    <span class="text-red-700">*</span>
+                    <input type="number" required wire:model.live="licenseNumber"
+                        placeholder="نمبر جواز شرکت را وارد کنید"
+                        class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('licenseNumber')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                    <span wire:loading wire:target="licenseNumber">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="black">
+                            <rect width="6" height="14" x="1" y="4">
+                                <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                    repeatCount="indefinite" />
+                            </rect>
+                            <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                                <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                    repeatCount="indefinite" />
+                            </rect>
+                            <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                                <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                    repeatCount="indefinite" />
+                            </rect>
+                        </svg>
+                    </span>
+                </span>
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">نمبر تشخیصیه</label>
+                    <span class="text-red-700">*</span>
+                    <input type="number" required wire:model.live.debounce.500ms="companyTINNumber" disabled
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('tinNumber')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">نام</label>
+                    <span class="text-red-700">*</span>
+                    <input type="text" required wire:model.live="companyName" disabled
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('companyName')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+                <span class="col-span-1 text-right">
+                    <label class="font-bold text-sm">آدرس</label>
+                    <span class="text-red-700">*</span>
+                    <input type="text" required wire:model.live="address" disabled
+                        placeholder="موقعیت دقیق فعلی شرکت"
+                        class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        autocomplete="off" dir="rtl">
+                    @error('address')
+                        <p class="text-red-500">{{ $message }}</p>
+                    @enderror
+                </span>
+            @else
+                <span wire:loading wire:target="companyDetails">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="black">
+                        <rect width="6" height="14" x="1" y="4">
+                            <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                            <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                            <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                    </svg>
+                </span>
+            @endif
+            <!-- Adjust Button -->
+            <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right mt-1">
+                <button @click=" @this.call('resetForm'); @this.call('openForm',1)"
+                    class="px-4 py-2 mt-6 bg-[#189197] rounded-lg text-md text-white flex items-center justify-center">
                     ایجاد مکاتیب
                 </button>
             </span>
         </form>
-
-    </fieldset>
+    </div>
 
 
     <div class="bg-white w-full flex flex-col gap-5 px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]"

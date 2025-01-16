@@ -139,7 +139,7 @@
                             <!-- Scrollable Modal Content -->
                             <div class="overflow-y-auto max-h-[80vh]">
                                 <!-- Modal Header -->
-                                <div class="flex justify-between items-center pb-4 border-b w-full">
+                                <div class="flex justify-between items-center pb-4 border-b w-full max-w-3xl">
                                     <h2 class="text-xl font-semibold">
                                         {{ $isEditing ? 'ویرایش شخص' : 'افزودن شخص' }}
                                     </h2>
@@ -150,7 +150,6 @@
                                 <!-- Form -->
                                 <form wire:submit.prevent="{{ $isEditing ? 'updateIndividual' : 'addIndividual' }}"
                                     class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
-                                    <!--Name -->
                                     <input type="number" hidden wire:model.live='individualId'>
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نام</label>
@@ -162,8 +161,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
-                                    <!-- User Name -->
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نام پدر</label>
                                         <span class="text-red-700">*</span>
@@ -174,7 +171,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-                                    <!-- tazkira_num -->
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نمبر تذکره</label>
                                         <span class="text-red-700">*</span>
@@ -185,7 +181,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">تاریخ تولد</label>
                                         <span class="text-red-700">*</span>
@@ -197,8 +192,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
-                                    <!-- tin_num -->
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نمبر تشخیصیه</label>
                                         <span class="text-red-700">*</span>
@@ -209,8 +202,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
-                                    <!-- nationality -->
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">تابعیت</label>
                                         <input type="text" wire:model.live="nationality"
@@ -221,8 +212,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
-
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">ولایت</label>
                                         <span class="text-red-700">*</span>
@@ -243,7 +232,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">ولسوالی</label>
                                         <span class="text-red-700">*</span>
@@ -265,7 +253,6 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
-
                                     <div class="flex ">
                                         <span class="w-1/2 text-right ">
                                             <label class="font-bold text-sm">عکس</label>
@@ -317,7 +304,6 @@
 
                                         </span>
                                     </div>
-
                                     <div class="col-span-full flex justify-start space-x-4 mt-4">
                                         <button type="submit"
                                             class="text-sm h-10 ml-2 px-8 bg-[#189197] rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"

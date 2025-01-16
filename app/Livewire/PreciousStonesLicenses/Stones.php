@@ -40,8 +40,9 @@ class Stones extends Component
     public $isEditing = false;
     public $idToDelete;
     public $existing_photo_path;
-    public $sortField;
     public $noData;
+    public $sortField = 'created_at';
+    public $sortDirection = 'asc';
 
     //PSStone CRUD section
     public function addStone()
@@ -51,13 +52,24 @@ class Stones extends Component
             'latin_name' => 'required',
             'quantity' => 'required',
             'image_path' => 'nullable|image|max:1024',
-            'estimated_extraction' => 'required',
-            'estimated_price_from' => 'required',
-            'estimated_price_to' => 'required',
-            'offered_royality_by_private_sector' => 'required',
-            'final_royality_after_negotiations' => 'required',
-            'estimated_revenue_based_on_ORPS' => 'required',
-            'estimated_revenue_based_on_FRAN' => 'required',
+            'estimated_extraction' => 'required|numeric',
+            'estimated_price_from' => 'required|numeric',
+            'estimated_price_to' => 'required|numeric',
+            'offered_royality_by_private_sector' => 'required|numeric',
+            'final_royality_after_negotiations' => 'required|numeric',
+            'estimated_revenue_based_on_ORPS' => 'required|numeric',
+            'estimated_revenue_based_on_FRAN' => 'required|numeric',
+        ],[
+            'name.required' => 'نام سنګ ضروری است',
+            'latin_name.required' => 'نام لاتین سنګ ضروری است',
+            'quantity.required' => 'انتخاب مقیاس ضروری است',
+            'estimated_extraction.required' => 'مقدار تخمینی استخراج ضروری است',
+            'estimated_price_from.required' => 'نرخ تخمینی حد اقل ضروی است',
+            'estimated_price_to.required' => 'نرخ تخمینی  حد اکثر ضروری است',
+            'offered_royality_by_private_sector.required' => 'رویالیتی پیشنهادی ضروری است',
+            'final_royality_after_negotiations.required' => 'رویالیتی نهایی ضروری است',
+            'estimated_revenue_based_on_ORPS.required' => 'عواید تخمینی پیشنهادی ضروری است',
+            'estimated_revenue_based_on_FRAN.required'=> 'عواید تخمینی به اساس رویالیتی ضروری است',
         ]);
 
         $imagPath = '';
@@ -75,15 +87,19 @@ class Stones extends Component
             'estimated_revenue_based_on_ORPS' => $validatedData['estimated_revenue_based_on_ORPS'],
             'estimated_revenue_based_on_FRAN' => $validatedData['estimated_revenue_based_on_FRAN'],
         ]);
+
         logActivity('create', 'app\Models\PSStone', $stone->id, $stone->toArray());
 
         if ($stone) {
-            session()->flash('message', 'صلاحیت موفقانه ایجاد گردید');
+            session()->flash('message', 'سنګ موفقانه ایجاد گردید');
             $this->resetForm();
             // $this->isOpen = false;
             $this->dispatch('recordCreate');
         }
+
+        return redirect('preciouse-stones-stones');
     }
+
     public function editStone($id)
     {
         $this->isEditing = true;
@@ -126,14 +142,32 @@ class Stones extends Component
         }
 
         if ($this->estimated_extraction !==$stone->estimated_extraction){
-            $validationRules['estimated_extraction'] = 'required';
+            $validationRules['estimated_extraction'] = 'required|numeric';
         }
 
         if ($this->estimated_price_from !==$stone->estimated_price_from){
-            $validatedData['estimated_price_from'] = 'required';
+            $validatedData['estimated_price_from'] = 'required|numeric';
         }
 
+        if ($this->estimated_price_to !==$stone->estimated_price_to){
+            $validationRules['estimated_price_to'] = 'required|numeric';
+        }
 
+        if ($this->offered_royality_by_private_sector !== $stone->offered_royality_by_private_sector){
+            $validationRules['offered_royality_by_private_sector'] = 'required|numeric';
+        }
+
+        if ($this->final_royality_after_negotiations !== $stone->final_royality_after_negotiations){
+            $validationRules['final_royality_after_negotiations'] = 'required|numeric';
+        }
+
+        if ($this->estimated_revenue_based_on_ORPS !== $stone->estimated_revenue_based_on_ORPS){
+            $validationRules['estimated_revenue_based_on_ORPS'] = 'required|numeric';
+        }
+
+        if ($this->estimated_revenue_based_on_FRAN !== $stone->estimated_revenue_based_on_FRAN){
+            $validationRules['estimated_revenue_based_on_FRAN'] = 'required|numeric';
+        }
 
         if ($this->photo) {
             $validationRules['photo'] = 'nullable|image|max:1024';
@@ -147,7 +181,8 @@ class Stones extends Component
             session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
             return;
         }
-        $beforeState = $individual->toArray();
+
+        $beforeState = $stone->toArray();
 
         // Handle profile image if changed
         if ($this->photo) {
@@ -170,46 +205,53 @@ class Stones extends Component
 
         // Update only changed attributes
         if (isset($validatedData['name'])) {
-            $individual->name = $validatedData['name'];
+            $stone->name = $validatedData['name'];
         }
 
-        if (isset($validatedData['fathers_name'])) {
-            $individual->f_name = $validatedData['fathers_name'];
+        if (isset($validatedData['latin_name'])) {
+            $stone->latin_name = $validatedData['latin_name'];
         }
 
-        if (isset($validatedData['tin_num'])) {
-            $individual->tin_num = $validatedData['tin_num'];
+        if (isset($validatedData['quantity'])) {
+            $stone->quantity = $validatedData['quantity'];
         }
 
-        if (isset($validatedData['tazkira_num'])) {
-            $individual->tazkira_num = $validatedData['tazkira_num'];
+        if (isset($validatedData['estimated_extraction'])) {
+            $stone->estimated_extraction = $validatedData['estimated_extraction'];
         }
 
-        if (isset($validatedData['province'])) {
-            $individual->province_id = $validatedData['province'];
+        if (isset($validatedData['estimated_price_from'])) {
+            $stone->estimated_price_from = $validatedData['estimated_price_from'];
         }
-        if (isset($validatedData['date_of_birth'])) {
-            $individual->date_of_birth = $validatedData['date_of_birth'];
+        if (isset($validatedData['estimated_price_to'])) {
+            $stone->estimated_price_to = $validatedData['estimated_price_to'];
         }
-        if (isset($validatedData['nationality'])) {
-            $individual->nationality = $validatedData['nationality'];
-        }
-
-        if (isset($validatedData['district'])) {
-            $individual->district = $validatedData['district'];
+        if (isset($validatedData['offered_royality_by_private_sector'])) {
+            $stone->offered_royality_by_private_sector = $validatedData['offered_royality_by_private_sector'];
         }
 
-        $individual->phone = $this->phone;
-        $individual->updated_by = auth()->user()->id;
-        $done = $individual->save();
+        if (isset($validatedData['final_royality_after_negotiations'])) {
+            $stone->final_royality_after_negotiations = $validatedData['final_royality_after_negotiations'];
+        }
 
-        logActivity('update', 'App\Models\Individual', $individual->id, [
+        if (isset($validatedData['estimated_revenue_based_on_ORPS'])) {
+            $stone->estimated_revenue_based_on_ORPS = $validatedData['estimated_revenue_based_on_ORPS'];
+        }
+
+        if (isset($validatedData['estimated_revenue_based_on_FRAN'])) {
+            $stone->estimated_revenue_based_on_FRAN = $validatedData['estimated_revenue_based_on_FRAN'];
+        }
+
+        // $stone->updated_by = auth()->user()->id;
+        $done = $stone->save();
+
+        logActivity('update', 'App\Models\PSStone', $stone->id, [
             'قبلا' => $beforeState,
-            'بعدا' => $individual,
+            'بعدا' => $stone,
         ]);
         if ($done) {
             $this->isOpen = false;
-            session()->flash('message', 'شخص موفقانه ویرایش گردید');
+            session()->flash('message', 'سنګ موفقانه ویرایش گردید');
             $this->resetForm();
         }
     }
@@ -253,14 +295,35 @@ class Stones extends Component
     public function resetForm()
     {
         $this->name = '';
+        $this->latin_name = '';
+        $this->quantity = '';
+        $this->estimated_extraction = '';
+        $this->estimated_price_from = '';
+        $this->estimated_price_to = '';
+        $this->offered_royality_by_private_sector = '';
+        $this->final_royality_after_negotiations = '';
+        $this->estimated_revenue_based_on_ORPS = '';
+        $this->estimated_revenue_based_on_FRAN = '';
+        $this->resetValidation();
     }
 
 
+    // sort data
+    public function sortBy($field){
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'desc' ? 'asc' : 'desc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'desc';
+        }
+        $this->tableData();
+    }
 
     public function closeAlert()
     {
         session()->forget('message');
     }
+
     //Table data section
     public function tableData()
     {
@@ -271,7 +334,9 @@ class Stones extends Component
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $columns = ['name', 'latin_name']; // Replace with your visible column names
+            $query->where('name', 'like', '%' . $this->search . '%')
+            ->orWhere('latin_name', 'like', '%' . $this->search . '%');
         }
 
         if ($query->get()->isEmpty()) {
@@ -282,11 +347,11 @@ class Stones extends Component
 
         // Pagination logic
         if ($this->perPage) {
-            $data = $query->paginate($this->perPage);
+            $data = $query->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
         } else {
-            $data = $query->get();
+            $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
         }
 
         // Handle invalid page number
