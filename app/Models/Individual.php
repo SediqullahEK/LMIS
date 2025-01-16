@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Individual extends Model
 {
     protected $fillable = [
-        'name',
+        'name_dr',
+        'name_en',
         'f_name',
         'photo_path',
         'tin_num',

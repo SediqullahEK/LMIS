@@ -29,8 +29,8 @@ class Individuals extends Component
     public $photo;
     public $existing_photo_path;
     public $idToDelete;
-
-    public $name;
+    public $name_dr;
+    public $name_en;
     public $noData = false;
     public $fathers_name;
     public $tin_num;
@@ -42,37 +42,52 @@ class Individuals extends Component
     public $district;
 
     //Individual CRUD section
+    protected $rules = [
+        'name_dr' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
+        'name_en' => 'required|regex:/^[A-Za-z ]+$/|max:255',
+        'fathers_name' => 'required|string|max:255',
+        'tin_num' => 'required|numeric|unique:individuals,tin_num',
+        'tazkira_num' => 'required|numeric|unique:individuals,tazkira_num',
+        'province' => 'required',
+        'date_of_birth' => 'required',
+        'nationality' => 'nullable',
+        'district' => 'required|string',
+        'photo' => 'nullable|image|max:1024',
+    ];
+
+    protected $messages = [
+        'name_dr.required' => 'نام دری لازمی میباشد.',
+        'name_dr.regex' => 'نام را به زبان دری وارد کنید.',
+        'name_en.required' => 'نام انگلیسی لازمی میباشد.',
+        'name_en.regex' => 'نام را به زبان انگلیسی وارد کنید.',
+        'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
+        'tazkira_num.unique' => 'نمبر تذکره ذیل در سیستم موجود است.',
+    ];
+
+    // Real-time validation for individual fields
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
+
     public function addIndividual()
     {
-        // Validate form data
-        $validatedData = $this->validate([
-            'name' => 'required|string|max:255',
-            'fathers_name' => 'required|string|max:255',
-            'tin_num' => 'required|numeric|unique:individuals,tin_num',
-            'tazkira_num' => 'required|numeric|unique:individuals,tazkira_num',
-            'province' => 'required',
-            'date_of_birth' => 'required',
-            'nationality' => 'nullable',
-            'district' => 'required|string',
-            'photo' => 'nullable|image|max:1024',
-        ], [
-            'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
-            'tazkira_num.unique' => 'نمبر تذکره ذیل در سیستم موجود است.',
-
-        ]);
+        // Validate all fields
+        $validatedData = $this->validate();
 
         $imagePath = '';
         if ($this->photo != '') {
             try {
-                $imageName = $this->name . time() . '.' . $this->photo->getClientOriginalExtension();
+                $imageName = $this->name_en . time() . '.' . $this->photo->getClientOriginalExtension();
                 $imagePath = $this->photo->storeAs('individuals_photos', $imageName, 'public');
             } catch (\Exception $e) {
-                dd($e->getMessage());  // Catch any errors
+                dd($e->getMessage());
             }
         }
 
         $done = Individual::create([
-            'name' => $validatedData['name'],
+            'name_dr' => $validatedData['name_dr'],
+            'name_en' => $validatedData['name_en'],
             'f_name' => $validatedData['fathers_name'],
             'photo_path' =>  $imagePath ?? null,
             'tin_num' => $validatedData['tin_num'],
@@ -85,12 +100,14 @@ class Individuals extends Component
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id
         ]);
+
         logActivity('create', 'App\Models\Individual', $done->id, $done);
-        // Flash a success message and reset the form
+
         session()->flash('message', 'شخص موفقانه اضافه گردید');
         $this->resetForm();
         $this->isOpen = false;
     }
+
 
     public function editIndividual($id)
     {
@@ -100,7 +117,8 @@ class Individuals extends Component
 
         $individual = Individual::find($id);
 
-        $this->name = $individual->name;
+        $this->name_dr = $individual->name_dr;
+        $this->name_en = $individual->name_en;
         $this->fathers_name = $individual->f_name;
         $this->tin_num = $individual->tin_num;
         $this->tazkira_num = $individual->tazkira_num;
@@ -110,6 +128,8 @@ class Individuals extends Component
         $this->nationality = $individual->nationality;
         $this->province = $individual->province_id;
         $this->district = $individual->district;
+
+        $this->isOpen = true;
     }
 
     public function updateIndividual()
@@ -119,8 +139,11 @@ class Individuals extends Component
 
         $validationRules = [];
 
-        if ($this->name !== $individual->name) {
-            $validationRules['name'] = 'required|string|max:255';
+        if ($this->name_dr !== $individual->name_dr) {
+            $validationRules['name_dr'] = 'required|required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255|max:255';
+        }
+        if ($this->name_en !== $individual->name_en) {
+            $validationRules['name_en'] = 'required|required|regex:/^[A-Za-z ]+$/|max:255|max:255';
         }
 
         if ($this->fathers_name !== $individual->f_name) {
@@ -174,7 +197,7 @@ class Individuals extends Component
             try {
                 // Generate a unique name for the new image
                 $uniqueSuffix = uniqid(); // Generate a unique ID
-                $imageName = $this->name . '_' . $uniqueSuffix . '.' . $this->photo->getClientOriginalExtension();
+                $imageName = $this->name_en . '_' . $uniqueSuffix . '.' . $this->photo->getClientOriginalExtension();
                 $imagePath = $this->photo->storeAs('individuals_photos', $imageName, 'public');
 
                 // Update the user's profile photo path
@@ -185,8 +208,11 @@ class Individuals extends Component
         }
 
         // Update only changed attributes
-        if (isset($validatedData['name'])) {
-            $individual->name = $validatedData['name'];
+        if (isset($validatedData['name_dr'])) {
+            $individual->name_dr = $validatedData['name_dr'];
+        }
+        if (isset($validatedData['name_en'])) {
+            $individual->name_en = $validatedData['name_en'];
         }
 
         if (isset($validatedData['fathers_name'])) {
@@ -270,7 +296,8 @@ class Individuals extends Component
     }
     public function resetForm()
     {
-        $this->name = '';
+        $this->name_dr = '';
+        $this->name_en = '';
         $this->fathers_name = '';
         $this->tin_num = '';
         $this->tazkira_num = '';
@@ -304,7 +331,7 @@ class Individuals extends Component
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
-            $columns = ['name', 'f_name', 'tin_num', 'tazkira_num']; // Replace with your visible column names
+            $columns = ['name_dr', 'f_name', 'tin_num', 'tazkira_num']; // Replace with your visible column names
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'like', $this->search . '%');

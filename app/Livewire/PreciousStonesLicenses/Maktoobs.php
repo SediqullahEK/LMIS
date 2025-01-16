@@ -5,6 +5,7 @@ namespace App\Livewire\PreciousStonesLicenses;
 use App\Models\Company;
 use App\Models\Individual;
 use App\Models\Province;
+use App\Models\PSStone;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -84,21 +85,19 @@ class Maktoobs extends Component
     {
         $letter = DB::connection('momp_mis')
             ->table('letters')
-            ->where('operations.department_id', 30)
+            ->where('department_operation.department_id', 30)
             ->where('letters.id', $this->letterNumber)
             ->join('operations', 'letters.id', '=', 'operations.letter_id')
-            ->select('letters.id', 'letters.subject', 'operations.status')
+            ->join('department_operation', 'operations.department_id', '=', 'department_operation.department_id')
+            ->select('letters.id', 'letters.subject')
             ->first();
         // dd('called', $letter);
         if ($letter) {
-            if ($letter->status === 2) {
-                $this->letterSubject = $letter->subject;
-                $this->resetErrorBag('letterNumber');
-            } else if ($letter->status < 2) {
-                $this->addError('letterNumber', 'عریضه ذیل طی مراحل نشده است!');
-            }
+            $this->letterSubject = $letter->subject;
+            $this->resetErrorBag('letterNumber');
         } else {
             $this->addError('letterNumber', 'عریضه ذیل در سیستم موجود نیست!');
+            $this->letterSubject = '';
         }
     }
     public function resetIndividualData($flag = 0)
@@ -134,6 +133,13 @@ class Maktoobs extends Component
     }
     public function render()
     {
+        if (($this->individualDetails && ! $this->letterSubject) || ($this->companyDetails && ! $this->letterSubject)) {
+            $this->individualDetails = false;
+            $this->companyDetails = false;
+            $this->addError('letterNumber', 'نخست معلومات عریضه را وارد کنید');
+        } else {
+            $this->resetErrorBag('letterNumber');
+        }
         if ($this->tazkiraNumber) {
             $this->loadIndividualData();
         } else {
@@ -146,7 +152,11 @@ class Maktoobs extends Component
         }
         if ($this->letterNumber) {
             $this->checkLetterData();
+        } else {
+            $this->letterSubject = '';
         }
-        return view('livewire.precious-stones-licenses.maktoobs');
+        return view('livewire.precious-stones-licenses.maktoobs', [
+            'stones' => PSStone::all()
+        ]);
     }
 }

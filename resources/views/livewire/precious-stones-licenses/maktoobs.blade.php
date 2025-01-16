@@ -31,10 +31,11 @@
         </div>
     @endif
 
-    <div class=" px-4 pb-12 m-5" dir="rtl">
-        <form wire:submit.prevent="generateMaktoobs"
-            class="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-4 mt-4">
-            <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right">
+    <div class=" px-4 pb-12 " dir="rtl">
+
+        <form wire:submit.prevent="generateMaktoobs" class="grid md:grid-cols-10 sm:grid-cols-1 gap-4">
+
+            <span class="md:col-span-2 sm:col-span-4 text-right">
                 <label class="font-bold text-sm">نمبر عریضه</label>
                 <span class="text-red-700">*</span>
                 <input type="number" required wire:model.live.debounce.500ms="letterNumber" autofocus
@@ -62,7 +63,7 @@
                     </svg>
                 </span>
             </span>
-            <span class="col-span-2 sm:col-span-2 md:col-span-2 text-right">
+            <span class="md:col-span-2 sm:col-span-4 text-right">
                 <label class="font-bold text-sm">موضوع عریضه</label>
                 <span class="text-red-700">*</span>
                 <input type="text" required wire:model.live="letterSubject" disabled
@@ -73,8 +74,58 @@
                     <p class="text-red-500">{{ $message }}</p>
                 @enderror
             </span>
+            <span class="md:col-span-2 sm:col-span-4 text-right">
+                <label class="font-bold text-sm">نوع سنگ</label>
+                <span class="text-red-700">*</span>
+                <select required wire:model.live="stone"
+                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl">
+                    <option value="0" disabled hidden selected>سنگ مورد نظر را انتخاب کنید</option>
+                    @if ($stones)
+                        @foreach ($stones as $st)
+                            <option value="{{ $st->id }}">{{ $st->name }}</option>
+                        @endforeach
+                    @endif
+
+                </select>
+                @error('stone')
+                    <p class="text-red-500">{{ $message }}</p>
+                @enderror
+            </span>
+            <span class="md:col-span-2 sm:col-span-2 text-right">
+                <label class="font-bold text-sm">رنگ سنگ به دری</label>
+                <span class="text-red-700">*</span>
+                <input type="text" required wire:model.live="stoneColorDr" disabled
+                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl">
+                @error('stoneColor')
+                    <p class="text-red-500">{{ $message }}</p>
+                @enderror
+            </span>
+            <span class="md:col-span-2 sm:col-span-1text-right">
+                <label class="font-bold text-sm">رنگ سنگ به انگلیسی</label>
+                <span class="text-red-700">*</span>
+                <input type="text" required wire:model.live="stoneColorEn" disabled
+                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl">
+                @error('stoneColor')
+                    <p class="text-red-500">{{ $message }}</p>
+                @enderror
+            </span>
+            <span class="md:col-span-2 sm:col-span-1text-right">
+                <label class="font-bold text-sm">مقدار سنگ</label>
+                <span class="text-red-700">*</span>
+                <input type="text" required wire:model.live="stoneAmount" disabled
+                    placeholder="موضوع عریضه متقاضی "
+                    class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl">
+                @error('stoneAmount')
+                    <p class="text-red-500">{{ $message }}</p>
+                @enderror
+            </span>
 
             <span class="flex justify-start items-end col-span-5 text-right my-2 ">
+
                 <label class="inline-flex items-center me-5 cursor-pointer">
                     <input type="checkbox" wire:model.live="individualDetails" wire:change='resetIndividualData(1)'
                         class="sr-only peer" checked>
@@ -83,15 +134,16 @@
                     </div>
                     <span class="ms-3 text-sm font-medium text-gray-900 ">جزئیات شخص</span>
                 </label>
+
             </span>
 
             {{-- Individual Data section --}}
             @if ($individualDetails)
-                <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right">
+                <span class="md:col-span-2 sm:col-span-1 text-right">
                     <label class="font-bold text-sm">نمبر تذکره</label>
                     <span class="text-red-700">*</span>
-                    <input type="number" required wire:model.live.debounce.500ms="tazkiraNumber" name="tazkiraNumber"
-                        placeholder="نمبر تذکره متقاضی را وارد کنید"
+                    <input type="number" required wire:model.live.debounce.500ms="tazkiraNumber"
+                        name="tazkiraNumber" placeholder="نمبر تذکره متقاضی را وارد کنید"
                         class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         autocomplete="off" dir="rtl">
                     @error('tazkiraNumber')
@@ -116,7 +168,7 @@
                     </span>
                 </span>
 
-                <span class="col-span-1 sm:col-span-2 md:col-span-1 text-right">
+                <span class="md:col-span-2 sm:col-span-1 text-right">
                     <label class="font-bold text-sm">نمبر تشخیصیه</label>
                     <span class="text-red-700">*</span>
                     <input type="number" required wire:model.live="tinNumber" disabled
@@ -127,7 +179,7 @@
                     @enderror
                 </span>
 
-                <span class="col-span-1 text-right">
+                <span class="md:col-span-2 sm:col-span-1 text-right">
                     <label class="font-bold text-sm">نام</label>
                     <span class="text-red-700">*</span>
                     <input type="text" required wire:model.live="name" disabled
@@ -137,7 +189,7 @@
                         <p class="text-red-500">{{ $message }}</p>
                     @enderror
                 </span>
-                <span class="col-span-1 text-right">
+                <span class="md:col-span-2 sm:col-span-1 text-right">
                     <label class="font-bold text-sm">نام پدر</label>
                     <span class="text-red-700">*</span>
                     <input type="text" required wire:model.live="fathersName"disabled
@@ -148,7 +200,7 @@
                     @enderror
                 </span>
 
-                <span class="col-span-1 text-right">
+                <span class="md:col-span-2 sm:col-span-1 text-right">
                     <label class="font-bold text-sm">ولایت</label>
                     <span class="text-red-700">*</span>
                     <input type="text" required wire:model.live="province" disabled

@@ -44,33 +44,50 @@ class Stones extends Component
     public $sortField = 'created_at';
     public $sortDirection = 'asc';
 
+    protected $rules = [
+
+        'name' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
+        'latin_name' => 'required|regex:/^[A-Za-z ]+$/|max:255',
+        'quantity' => 'required',
+        'image_path' => 'nullable|image|max:1024',
+        'estimated_extraction' => 'required|numeric|min:0',
+        'estimated_price_from' => 'required|numeric|min:0',
+        'estimated_price_to' => 'required|numeric|min:0',
+        'offered_royality_by_private_sector' => 'required|numeric|min:0',
+        'final_royality_after_negotiations' => 'required|numeric|min:0',
+        'estimated_revenue_based_on_ORPS' => 'required|numeric|min:0',
+        'estimated_revenue_based_on_FRAN' => 'required|numeric|min:0',
+    ];
+
+    protected $messages = [
+
+        'name.required' => 'نام سنګ ضروری است',
+        'latin_name.required' => 'نام لاتین سنګ ضروری است',
+        'quantity.required' => 'انتخاب مقیاس ضروری است',
+        'estimated_extraction.required' => 'مقدار تخمینی استخراج ضروری است',
+        'estimated_price_from.required' => 'نرخ تخمینی حد اقل ضروی است',
+        'estimated_price_to.required' => 'نرخ تخمینی  حد اکثر ضروری است',
+        'offered_royality_by_private_sector.required' => 'رویالیتی پیشنهادی ضروری است',
+        'final_royality_after_negotiations.required' => 'رویالیتی نهایی ضروری است',
+        'estimated_revenue_based_on_ORPS.required' => 'عواید تخمینی پیشنهادی ضروری است',
+        'estimated_revenue_based_on_FRAN.required' => 'عواید تخمینی به اساس رویالیتی ضروری است',
+        'name.regex' => 'نام مروج به دری وارد کنید',
+        'latin_name.regex' => 'نام لاتین سنګ به انګلسی وارد کنید',
+    ];
+
+    // Real-time validation for individual fields
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
+
+
     //PSStone CRUD section
     public function addStone()
     {
-        $validatedData = $this->validate([
-            'name' => 'required',
-            'latin_name' => 'required',
-            'quantity' => 'required',
-            'image_path' => 'nullable|image|max:1024',
-            'estimated_extraction' => 'required|numeric',
-            'estimated_price_from' => 'required|numeric',
-            'estimated_price_to' => 'required|numeric',
-            'offered_royality_by_private_sector' => 'required|numeric',
-            'final_royality_after_negotiations' => 'required|numeric',
-            'estimated_revenue_based_on_ORPS' => 'required|numeric',
-            'estimated_revenue_based_on_FRAN' => 'required|numeric',
-        ],[
-            'name.required' => 'نام سنګ ضروری است',
-            'latin_name.required' => 'نام لاتین سنګ ضروری است',
-            'quantity.required' => 'انتخاب مقیاس ضروری است',
-            'estimated_extraction.required' => 'مقدار تخمینی استخراج ضروری است',
-            'estimated_price_from.required' => 'نرخ تخمینی حد اقل ضروی است',
-            'estimated_price_to.required' => 'نرخ تخمینی  حد اکثر ضروری است',
-            'offered_royality_by_private_sector.required' => 'رویالیتی پیشنهادی ضروری است',
-            'final_royality_after_negotiations.required' => 'رویالیتی نهایی ضروری است',
-            'estimated_revenue_based_on_ORPS.required' => 'عواید تخمینی پیشنهادی ضروری است',
-            'estimated_revenue_based_on_FRAN.required'=> 'عواید تخمینی به اساس رویالیتی ضروری است',
-        ]);
+
+        // Validate all fields
+        $validatedData = $this->validate();
 
         $imagPath = '';
 
@@ -87,17 +104,11 @@ class Stones extends Component
             'estimated_revenue_based_on_ORPS' => $validatedData['estimated_revenue_based_on_ORPS'],
             'estimated_revenue_based_on_FRAN' => $validatedData['estimated_revenue_based_on_FRAN'],
         ]);
-
-        logActivity('create', 'app\Models\PSStone', $stone->id, $stone->toArray());
-
-        if ($stone) {
-            session()->flash('message', 'سنګ موفقانه ایجاد گردید');
-            $this->resetForm();
-            // $this->isOpen = false;
-            $this->dispatch('recordCreate');
-        }
-
-        return redirect('preciouse-stones-stones');
+        logActivity('create', 'app\Models\PSStone', $done->id, $doen);
+        // Flash a success message and reset the form
+        session()->flash('message', 'سنک موفقانه اضافه گردید');
+        $this->resetForm();
+        $this->isOpen = false;
     }
 
     public function editStone($id)
@@ -133,39 +144,39 @@ class Stones extends Component
             $validationRules['name'] = 'required|string|max:255';
         }
 
-        if ($this->latin_name !== $stone->latin_name){
+        if ($this->latin_name !== $stone->latin_name) {
             $validationRules['latin_name'] = 'required|string|max:255';
         }
 
-        if ($this->quantity !== $stone->quantity){
+        if ($this->quantity !== $stone->quantity) {
             $validationRules['quantity'] = 'required';
         }
 
-        if ($this->estimated_extraction !==$stone->estimated_extraction){
+        if ($this->estimated_extraction !== $stone->estimated_extraction) {
             $validationRules['estimated_extraction'] = 'required|numeric';
         }
 
-        if ($this->estimated_price_from !==$stone->estimated_price_from){
-            $validatedData['estimated_price_from'] = 'required|numeric';
+        if ($this->estimated_price_from !== $stone->estimated_price_from) {
+            $validationRules['estimated_price_from'] = 'required|numeric';
         }
 
-        if ($this->estimated_price_to !==$stone->estimated_price_to){
+        if ($this->estimated_price_to !== $stone->estimated_price_to) {
             $validationRules['estimated_price_to'] = 'required|numeric';
         }
 
-        if ($this->offered_royality_by_private_sector !== $stone->offered_royality_by_private_sector){
+        if ($this->offered_royality_by_private_sector !== $stone->offered_royality_by_private_sector) {
             $validationRules['offered_royality_by_private_sector'] = 'required|numeric';
         }
 
-        if ($this->final_royality_after_negotiations !== $stone->final_royality_after_negotiations){
+        if ($this->final_royality_after_negotiations !== $stone->final_royality_after_negotiations) {
             $validationRules['final_royality_after_negotiations'] = 'required|numeric';
         }
 
-        if ($this->estimated_revenue_based_on_ORPS !== $stone->estimated_revenue_based_on_ORPS){
+        if ($this->estimated_revenue_based_on_ORPS !== $stone->estimated_revenue_based_on_ORPS) {
             $validationRules['estimated_revenue_based_on_ORPS'] = 'required|numeric';
         }
 
-        if ($this->estimated_revenue_based_on_FRAN !== $stone->estimated_revenue_based_on_FRAN){
+        if ($this->estimated_revenue_based_on_FRAN !== $stone->estimated_revenue_based_on_FRAN) {
             $validationRules['estimated_revenue_based_on_FRAN'] = 'required|numeric';
         }
 
@@ -242,7 +253,7 @@ class Stones extends Component
             $stone->estimated_revenue_based_on_FRAN = $validatedData['estimated_revenue_based_on_FRAN'];
         }
 
-        // $stone->updated_by = auth()->user()->id;
+
         $done = $stone->save();
 
         logActivity('update', 'App\Models\PSStone', $stone->id, [
@@ -309,7 +320,8 @@ class Stones extends Component
 
 
     // sort data
-    public function sortBy($field){
+    public function sortBy($field)
+    {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'desc' ? 'asc' : 'desc';
         } else {
@@ -336,7 +348,7 @@ class Stones extends Component
         if (!empty($this->search)) {
             $columns = ['name', 'latin_name']; // Replace with your visible column names
             $query->where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('latin_name', 'like', '%' . $this->search . '%');
+                ->orWhere('latin_name', 'like', '%' . $this->search . '%');
         }
 
         if ($query->get()->isEmpty()) {

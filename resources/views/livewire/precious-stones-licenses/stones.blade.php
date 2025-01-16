@@ -37,7 +37,8 @@
             @can('حذف وظیفه')
                 <div x-data="{ confirm: @entangle('confirm') }">
                     <!-- Modal Overlay -->
-                    <div x-show="confirm" class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50">
+                    <div x-show="confirm"
+                        class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50">
                         <!-- Modal Container -->
                         <div id="modal" x-show="confirm" x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
@@ -75,12 +76,12 @@
                 @can('ایجاد وظیفه جدید')
                     <div class="mt-2 sm:mt-0">
                         <button @click=" @this.call('resetForm'); @this.call('openForm',1)"
-                        class="px-4 py-1 mb-1 bg-[#189197] rounded-lg text-2xl text-white">
-                        <i class="fa fa-plus"></i>
+                            class="px-4 py-1 mb-1 bg-[#189197] rounded-lg text-2xl text-white">
+                            <i class="fa fa-plus"></i>
                         </button>
                     </div>
                 @endcan
-                    {{-- search section --}}
+                {{-- search section --}}
                 <div class="relative flex items-center mt-4  group text-left ">
                     <span class="absolute left-3">
                         <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -137,34 +138,35 @@
                                     class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
                                     {{-- General Name of ston --}}
                                     <input type="number" hidden wire:model.live='stonesId'>
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نام مروج سنګ</label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text" wire:model="name" name="name"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('name')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">نام مروج سنګ</label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="name" name="name"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('name')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- Name --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نام لاتین سنګ</label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="latin_name" name="latin_name"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('latin_name')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">نام لاتین سنګ</label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="latin_name" name="latin_name"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('latin_name')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- Scal --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">مقیاس </label>
-                                            <span class="text-red-700">*</span>
-                                        <select required wire:model="quantity"
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">مقیاس </label>
+                                        <span class="text-red-700">*</span>
+                                        <select  wire:model.live ="quantity"
                                             class="mt-1 px-2 peer block h-10 w-full bg-blue border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
-                                            <option value="0" disabled selected>مقیاس را انتخاب کنید</option>
+                                            <option value="" disabled hidden selected>مقیاس را انتخاب کنید
+                                            </option>
                                             <option value="گرام">گرام</option>
                                             <option value="کیلو گرام">کیلو گرام</option>
                                             <option value="تن">تن</option>
@@ -172,140 +174,148 @@
 
                                         </select>
 
-                                            @error('quantity')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                        @error('quantity')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- estimated_extraction --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">مقدار تخمینی استخراج</label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="estimated_extraction" name="estimated_extraction"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('estimated_extraction')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">مقدار تخمینی استخراج</label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text"  wire:model.live ="estimated_extraction"
+                                            name="estimated_extraction"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('estimated_extraction')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- estimated_price_from --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نرخ تخمینی حد اقل </label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="estimated_price_from" name="estimated_price_from"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('estimated_price_from')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">نرخ تخمینی حد اقل </label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="estimated_price_from"
+                                            name="estimated_price_from"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('estimated_price_from')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- estimated_price_to --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نرخ تخمینی حداکثر </label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="estimated_price_to" name="estimated_price_to"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('estimated_price_to')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">نرخ تخمینی حداکثر </label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="estimated_price_to"
+                                            name="estimated_price_to"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('estimated_price_to')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- offered_royality_by_private_sector --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">  ریالیتی پیشنهادی </label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="offered_royality_by_private_sector" name="offered_royality_by_private_sector"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('offered_royality_by_private_sector')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm"> ریالیتی پیشنهادی </label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="offered_royality_by_private_sector"
+                                            name="offered_royality_by_private_sector"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('offered_royality_by_private_sector')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- final_royality_after_negotiations --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">  ریالیتی نهایی </label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="final_royality_after_negotiations" name="final_royality_after_negotiations"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('final_royality_after_negotiations')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm"> ریالیتی نهایی </label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="final_royality_after_negotiations"
+                                            name="final_royality_after_negotiations"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('final_royality_after_negotiations')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- estimated_revenue_based_on_ORPS --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">عواید تخمینی به اساس پیشنهاد سکتور خصوصی  </label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="estimated_revenue_based_on_ORPS" name="estimated_revenue_based_on_ORPS"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('estimated_revenue_based_on_ORPS')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">عواید تخمینی به اساس پیشنهاد سکتور خصوصی
+                                        </label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="estimated_revenue_based_on_ORPS"
+                                            name="estimated_revenue_based_on_ORPS"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('estimated_revenue_based_on_ORPS')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- estimated_revenue_based_on_FRAN --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">عواید تخمینی به اساس مزاکره شده     </label>
-                                            <span class="text-red-700">*</span>
-                                            <input type="text"  wire:model="estimated_revenue_based_on_FRAN" name="estimated_revenue_based_on_FRAN"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                                autocomplete="off" dir="rtl">
-                                            @error('estimated_revenue_based_on_FRAN')
-                                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                                            @enderror
-                                        </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">عواید تخمینی به اساس مزاکره شده </label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" wire:model.live ="estimated_revenue_based_on_FRAN"
+                                            name="estimated_revenue_based_on_FRAN"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('estimated_revenue_based_on_FRAN')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
 
                                     {{-- image --}}
-                                        <div class="">
-                                            <span class="w-1/2 text-right ">
-                                                <label class="font-bold text-sm">عکس</label>
-                                                <input type="file" wire:model.live="image_path" id="file-upload" name="image_path"
-                                                    accept="image/*" class="hidden" />
-                                                <label for="file-upload"
-                                                    class="cursor-pointer mt-1 h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm flex items-center justify-center text-gray-700 hover:bg-gray-100 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
-                                                    انتخاب عکس
-                                                </label>
-                                                @error('photo')
-                                                    <p class="text-red-500 text-sm">{{ $message }}</p>
-                                                @enderror
-                                            </span>
+                                    <div class="">
+                                        <span class="w-1/2 text-right ">
+                                            <label class="font-bold text-sm">عکس</label>
+                                            <input type="file" wire:model="image_path" id="file-upload"
+                                                name="image_path" accept="image/*" class="hidden" />
+                                            <label for="file-upload"
+                                                class="cursor-pointer mt-1 h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm flex items-center justify-center text-gray-700 hover:bg-gray-100 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                                                انتخاب عکس
+                                            </label>
+                                            @error('photo')
+                                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                            @enderror
+                                        </span>
 
-                                            <!-- Image Preview -->
-                                            <span class="w-1/2 flex items-center justify-center ">
-                                                <span wire:loading wire:target="photo"
-                                                    class="col-start-5 col-span-1 justify-self-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24">
-                                                        <rect width="6" height="14" x="1" y="4" fill="black">
-                                                            <animate id="svgSpinnersBarsFade0" fill="freeze"
-                                                                attributeName="opacity"
-                                                                begin="0;svgSpinnersBarsFade1.end-0.175s" dur="0.525s"
-                                                                values="1;0.2" />
-                                                        </rect>
-                                                        <rect width="6" height="14" x="9" y="4" fill="black"
-                                                            opacity="0.4">
-                                                            <animate fill="freeze" attributeName="opacity"
-                                                                begin="svgSpinnersBarsFade0.begin+0.105s" dur="0.525s"
-                                                                values="1;0.2" />
-                                                        </rect>
-                                                        <rect width="6" height="14" x="17" y="4" fill="black"
-                                                            opacity="0.3">
-                                                            <animate id="svgSpinnersBarsFade1" fill="freeze"
-                                                                attributeName="opacity"
-                                                                begin="svgSpinnersBarsFade0.begin+0.21s" dur="0.525s"
-                                                                values="1;0.2" />
-                                                        </rect>
-                                                    </svg>
-                                                </span>
-                                                @if ($photo)
-                                                    <img src="{{ $photo->temporaryUrl() }}" width="100"
-                                                        class="rounded mr-4" alt="Uploaded image">
-                                                @elseif ($existing_photo_path)
-                                                    <img src="{{ Storage::url($existing_photo_path) }}" width="100"
-                                                        class="rounded mr-4" alt="Existing image">
-                                                @endif
-
+                                        <!-- Image Preview -->
+                                        <span class="w-1/2 flex items-center justify-center ">
+                                            <span wire:loading wire:target="photo"
+                                                class="col-start-5 col-span-1 justify-self-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24">
+                                                    <rect width="6" height="14" x="1" y="4" fill="black">
+                                                        <animate id="svgSpinnersBarsFade0" fill="freeze"
+                                                            attributeName="opacity"
+                                                            begin="0;svgSpinnersBarsFade1.end-0.175s" dur="0.525s"
+                                                            values="1;0.2" />
+                                                    </rect>
+                                                    <rect width="6" height="14" x="9" y="4" fill="black"
+                                                        opacity="0.4">
+                                                        <animate fill="freeze" attributeName="opacity"
+                                                            begin="svgSpinnersBarsFade0.begin+0.105s" dur="0.525s"
+                                                            values="1;0.2" />
+                                                    </rect>
+                                                    <rect width="6" height="14" x="17" y="4" fill="black"
+                                                        opacity="0.3">
+                                                        <animate id="svgSpinnersBarsFade1" fill="freeze"
+                                                            attributeName="opacity"
+                                                            begin="svgSpinnersBarsFade0.begin+0.21s" dur="0.525s"
+                                                            values="1;0.2" />
+                                                    </rect>
+                                                </svg>
                                             </span>
-                                        </div>
+                                            @if ($photo)
+                                                <img src="{{ $photo->temporaryUrl() }}" width="100"
+                                                    class="rounded mr-4" alt="Uploaded image">
+                                            @elseif ($existing_photo_path)
+                                                <img src="{{ Storage::url($existing_photo_path) }}" width="100"
+                                                    class="rounded mr-4" alt="Existing image">
+                                            @endif
+
+                                        </span>
+                                    </div>
 
                                     <div class="flex justify-center my-7">
                                         <button type="submit"
@@ -396,12 +406,12 @@
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>رویالتی پیشنهاد شده  </span>
+                                    <span>رویالتی پیشنهاد شده </span>
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>رویالتی نهایی  </span>
+                                    <span>رویالتی نهایی </span>
                                 </div>
                             </th>
 
@@ -429,7 +439,7 @@
                     </thead>
                     <tbody wire:init="loadTableData">
                         @if ($stones && count($stones))
-                                @foreach ($stones as $index => $stone)
+                            @foreach ($stones as $index => $stone)
                                 <tr class="border-b hover:bg-warning-400">
                                     <td class="px-3 py-2 border border-slate-200">
                                         @if ($perPage)
@@ -439,48 +449,48 @@
                                         @endif
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->name ?? '' }}
+                                        {{ $stone->name ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->latin_name ?? '' }}
+                                        {{ $stone->latin_name ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->quantity ?? '' }}
+                                        {{ $stone->quantity ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->estimated_extraction ?? '' }}
+                                        {{ $stone->estimated_extraction ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->estimated_price_from ?? '' }}
+                                        {{ $stone->estimated_price_from ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->estimated_price_to ?? '' }}
+                                        {{ $stone->estimated_price_to ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->offered_royality_by_private_sector ?? '' }}
+                                        {{ $stone->offered_royality_by_private_sector ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->final_royality_after_negotiations ?? '' }}
+                                        {{ $stone->final_royality_after_negotiations ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->estimated_revenue_based_on_ORPS ?? '' }}
+                                        {{ $stone->estimated_revenue_based_on_ORPS ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                            {{ $stone->estimated_revenue_based_on_FRAN ?? '' }}
+                                        {{ $stone->estimated_revenue_based_on_FRAN ?? '' }}
                                     </td>
 
 
                                     <td class="px-2 py-2 border border-slate-200 dark:text-white">
                                         @can('ویرایش شخص')
                                             <button
-                                                    @click=" @this.call('editStone', {{ $stone->id }}); @this.call('openForm',0) "
+                                                @click=" @this.call('editStone', {{ $stone->id }}); @this.call('openForm',0) "
                                                 class=" text-gray-900 px-2 py-2 rounded">
                                                 <span class="text-xl px-3 pt-5"><i
                                                         class="fa  fa-edit text-sky-600"></i></span>
                                             </button>
                                         @endcan
                                         @can('حذف شخص')
-                                                <button @click=" @this.call('toggleConfirm', {{ $stone->id }})"
+                                            <button @click=" @this.call('toggleConfirm', {{ $stone->id }})"
                                                 class=" text-gray-900 px-2 py-2 rounded">
                                                 <span class="text-xl px-3 pt-5"><i
                                                         class="fa  fa-trash text-red-600"></i></span>
@@ -515,7 +525,7 @@
                 <nav class="flex justify-between items-center mt-4">
                     @if ($perPage && $stones->isNotEmpty())
                         <div class="flex items-center space-x-2 space-x-reverse">
-                                <span>{{ $stones->links('vendor.pagination.tailwind') }}</span>
+                            <span>{{ $stones->links('vendor.pagination.tailwind') }}</span>
                             <span wire:loading wire:target="previousPage, nextPage, gotoPage">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                     viewBox="0 0 24 24" fill="black">

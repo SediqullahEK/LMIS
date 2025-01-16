@@ -152,12 +152,22 @@
                                     class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
                                     <input type="number" hidden wire:model.live='individualId'>
                                     <span class="col-span-2 text-right">
-                                        <label class="font-bold text-sm">نام</label>
+                                        <label class="font-bold text-sm">نام دری</label>
                                         <span class="text-red-700">*</span>
-                                        <input type="text" required wire:model.live="name"
+                                        <input type="text" required wire:model.live="name_dr"
                                             class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                             autocomplete="off" dir="rtl">
-                                        @error('name')
+                                        @error('name_dr')
+                                            <p class="text-red-500">{{ $message }}</p>
+                                        @enderror
+                                    </span>
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">نام انگلیسی</label>
+                                        <span class="text-red-700">*</span>
+                                        <input type="text" required wire:model.live="name_en"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                            autocomplete="off" dir="rtl">
+                                        @error('name_en')
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
@@ -171,6 +181,7 @@
                                             <p class="text-red-500">{{ $message }}</p>
                                         @enderror
                                     </span>
+
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">نمبر تذکره</label>
                                         <span class="text-red-700">*</span>
@@ -344,10 +355,22 @@
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
-                                wire:click="sortBy('name')">
+                                wire:click="sortBy('name_dr')">
                                 <div class="flex justify-center">
-                                    <span>نام</span>
-                                    @if ($sortField === 'name')
+                                    <span>نام دری</span>
+                                    @if ($sortField === 'name_dr')
+                                        <span
+                                            class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
+                                    @else
+                                        <span class="text-gray-400 mr-2"><i class="fa fa-sort"></i></span>
+                                    @endif
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
+                                wire:click="sortBy('name_en')">
+                                <div class="flex justify-center">
+                                    <span>نام انگلیسی</span>
+                                    @if ($sortField === 'name_en')
                                         <span
                                             class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
                                     @else
@@ -447,7 +470,10 @@
                                         @endif
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
-                                        {{ $individual->name ?? '' }}
+                                        {{ $individual->name_dr ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 border border-slate-200">
+                                        {{ $individual->name_en ?? '' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
                                         {{ $individual->f_name ?? '' }}

@@ -14,7 +14,8 @@ return new class extends Migration
     {
         Schema::create('individuals', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name_dr');
+            $table->string('name_en');
             $table->string('f_name');
             $table->string('tin_num');
             $table->string('tazkira_num');
