@@ -43,12 +43,14 @@ class Stones extends Component
     public $noData;
     public $sortField = 'created_at';
     public $sortDirection = 'asc';
+    public $is_precious = '';
 
     protected $rules = [
 
-        'name' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
-        'latin_name' => 'required|regex:/^[A-Za-z ]+$/|max:255',
+        'name' => 'required|unique:precious_semi_precious_stones|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
+        'latin_name' => 'required|unique:precious_semi_precious_stones|regex:/^[A-Za-z ]+$/|max:255',
         'quantity' => 'required',
+        'is_precious' => 'required',
         'image_path' => 'nullable|image|max:1024',
         'estimated_extraction' => 'required|numeric|min:0',
         'estimated_price_from' => 'required|numeric|min:0',
@@ -64,6 +66,7 @@ class Stones extends Component
         'name.required' => 'نام سنګ ضروری است',
         'latin_name.required' => 'نام لاتین سنګ ضروری است',
         'quantity.required' => 'انتخاب مقیاس ضروری است',
+        'is_precious.requirde' => 'نوع سنګ ضروری است',
         'estimated_extraction.required' => 'مقدار تخمینی استخراج ضروری است',
         'estimated_price_from.required' => 'نرخ تخمینی حد اقل ضروی است',
         'estimated_price_to.required' => 'نرخ تخمینی  حد اکثر ضروری است',
@@ -73,6 +76,8 @@ class Stones extends Component
         'estimated_revenue_based_on_FRAN.required' => 'عواید تخمینی به اساس رویالیتی ضروری است',
         'name.regex' => 'نام مروج به دری وارد کنید',
         'latin_name.regex' => 'نام لاتین سنګ به انګلسی وارد کنید',
+        'name.unique' => 'نام سنګ موجود است',
+        'latin_name.unique' => 'نام لاتین سنګ موجود است',
     ];
 
     // Real-time validation for individual fields
@@ -91,8 +96,20 @@ class Stones extends Component
 
         $imagPath = '';
 
-        $stone = PSStone::create([
-            'image_path' =>  $imagPath,
+        if ($this->photo != '') {
+            try {
+                $imageName = $this->latin_name . time() . '.' . $this->photo->getClientOriginalExtension();
+                $imagePath = $this->photo->storeAs('stones_photos', $imageName, 'public');
+            } catch (\Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+
+
+
+        $done = PSStone::create([
+            'image_path' =>  $imagePath ?? null,
+            'is_precious' => (int)$this->is_precious,
             'name' => $validatedData['name'],
             'latin_name' => $validatedData['latin_name'],
             'quantity' => $validatedData['quantity'],
@@ -104,7 +121,8 @@ class Stones extends Component
             'estimated_revenue_based_on_ORPS' => $validatedData['estimated_revenue_based_on_ORPS'],
             'estimated_revenue_based_on_FRAN' => $validatedData['estimated_revenue_based_on_FRAN'],
         ]);
-        logActivity('create', 'app\Models\PSStone', $done->id, $doen);
+
+        logActivity('create', 'app\Models\PSStone', $done->id, $done);
         // Flash a success message and reset the form
         session()->flash('message', 'سنک موفقانه اضافه گردید');
         $this->resetForm();
@@ -122,6 +140,7 @@ class Stones extends Component
         $this->name = $stone->name;
         $this->latin_name = $stone->latin_name;
         $this->quantity = $stone->quantity;
+        $this->is_precious = $stone->is_precious;
         $this->estimated_extraction = $stone->estimated_extraction;
         $this->estimated_price_from = $stone->estimated_price_from;
         $this->estimated_price_to = $stone->estimated_price_to;
@@ -129,6 +148,7 @@ class Stones extends Component
         $this->final_royality_after_negotiations = $stone->final_royality_after_negotiations;
         $this->estimated_revenue_based_on_ORPS = $stone->estimated_revenue_based_on_ORPS;
         $this->estimated_revenue_based_on_FRAN = $stone->estimated_revenue_based_on_FRAN;
+        $this->existing_photo_path = $stone->image_path;
 
         $this->isOpen = true;
     }
@@ -152,6 +172,10 @@ class Stones extends Component
             $validationRules['quantity'] = 'required';
         }
 
+        if ($this->is_precious !== $stone->is_precious) {
+            $validationRules['is_precious'] = 'required';
+        }
+
         if ($this->estimated_extraction !== $stone->estimated_extraction) {
             $validationRules['estimated_extraction'] = 'required|numeric';
         }
@@ -164,29 +188,34 @@ class Stones extends Component
             $validationRules['estimated_price_to'] = 'required|numeric';
         }
 
-        if ($this->offered_royality_by_private_sector !== $stone->offered_royality_by_private_sector) {
+        if ((float)$this->offered_royality_by_private_sector !== $stone->offered_royality_by_private_sector) {
+
             $validationRules['offered_royality_by_private_sector'] = 'required|numeric';
         }
 
-        if ($this->final_royality_after_negotiations !== $stone->final_royality_after_negotiations) {
+        if ((float)$this->final_royality_after_negotiations !== $stone->final_royality_after_negotiations) {
             $validationRules['final_royality_after_negotiations'] = 'required|numeric';
         }
 
         if ($this->estimated_revenue_based_on_ORPS !== $stone->estimated_revenue_based_on_ORPS) {
+
             $validationRules['estimated_revenue_based_on_ORPS'] = 'required|numeric';
         }
 
         if ($this->estimated_revenue_based_on_FRAN !== $stone->estimated_revenue_based_on_FRAN) {
+
             $validationRules['estimated_revenue_based_on_FRAN'] = 'required|numeric';
         }
 
-        if ($this->photo) {
+        if ($this->existing_photo_path !== $stone->image_path) {
+
             $validationRules['photo'] = 'nullable|image|max:1024';
         }
 
 
         // Only perform validation if there are rules
         if (!empty($validationRules)) {
+
             $validatedData = $this->validate($validationRules);
         } else {
             session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
@@ -198,17 +227,17 @@ class Stones extends Component
         // Handle profile image if changed
         if ($this->photo) {
             // Delete the old profile photo if it exists
-            if ($individual->photo_path) {
-                Storage::disk('public')->delete($individual->photo_path);
+            if ($stone->image_path) {
+                Storage::disk('public')->delete($stone->image_path);
             }
             try {
                 // Generate a unique name for the new image
                 $uniqueSuffix = uniqid(); // Generate a unique ID
                 $imageName = $this->name . '_' . $uniqueSuffix . '.' . $this->photo->getClientOriginalExtension();
-                $imagePath = $this->photo->storeAs('individuals_photos', $imageName, 'public');
+                $imagePath = $this->photo->storeAs('stones_photos', $imageName, 'public');
 
                 // Update the user's profile photo path
-                $individual->photo_path = $imagePath;
+                $stone->image_path = $imagePath;
             } catch (\Exception $e) {
                 dd($e->getMessage());
             }
@@ -225,6 +254,10 @@ class Stones extends Component
 
         if (isset($validatedData['quantity'])) {
             $stone->quantity = $validatedData['quantity'];
+        }
+
+        if (isset($validatedData['is_precious'])) {
+            $stone->is_precious = $validatedData['is_precious'];
         }
 
         if (isset($validatedData['estimated_extraction'])) {
@@ -254,6 +287,7 @@ class Stones extends Component
         }
 
 
+        // $stone->updated_by = auth()->user()->id;
         $done = $stone->save();
 
         logActivity('update', 'App\Models\PSStone', $stone->id, [

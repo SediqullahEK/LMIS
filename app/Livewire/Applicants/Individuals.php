@@ -101,6 +101,7 @@ class Individuals extends Component
             'updated_by' => auth()->user()->id
         ]);
 
+
         logActivity('create', 'App\Models\Individual', $done->id, $done);
 
         session()->flash('message', 'شخص موفقانه اضافه گردید');

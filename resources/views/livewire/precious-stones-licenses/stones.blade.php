@@ -98,7 +98,7 @@
                         class="absolute top-12 left-0 hidden group-hover:block bg-white border border-[#D4AF37] text-gray-700 px-4 py-1 rounded-lg shadow-md">
                         <div class="flex items-center">
 
-                            <span> جستجو به اساس نام سنګ</span>
+                            <span> جستجو به اساس نام مروج و لاتین سنگ</span>
                         </div>
                     </div>
                     <!-- Disable on pages other than the first -->
@@ -132,7 +132,19 @@
                                     <button @click="isOpen = false; @this.call('resetForm');"
                                         class="text-gray-500 hover:text-gray-700 text-4xl p-2">&times;</button>
                                 </div>
-
+                                @if (session()->has('error'))
+                                    <div x-data="{ show: @json(session()->has('error')) }" x-init="if (show) { setTimeout(() => { show = false }, 3000); }" x-show="show"
+                                        class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-300 text-gray-800 px-3 py-4 shadow-xl flex justify-between items-center rounded-lg w-auto">
+                                        <button @click="show = false"
+                                            class="text-gray-500 hover:text-gray-700 text-2xl ">&times;</button>
+                                        {{ session('error') }}
+                                        <svg class="h-5 w-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                @endif
                                 <!-- Form -->
                                 <form wire:submit.prevent="{{ $isEditing ? 'updateStone' : 'addStone' }}"
                                     class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
@@ -163,7 +175,7 @@
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">مقیاس </label>
                                         <span class="text-red-700">*</span>
-                                        <select  wire:model.live ="quantity"
+                                        <select wire:model.live ="quantity"
                                             class="mt-1 px-2 peer block h-10 w-full bg-blue border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
                                             <option value="" disabled hidden selected>مقیاس را انتخاب کنید
                                             </option>
@@ -178,11 +190,27 @@
                                             <p class="text-red-500 text-sm">{{ $message }}</p>
                                         @enderror
                                     </span>
+                                    {{-- is precious --}}
+                                    <span class="col-span-2 text-right">
+                                        <label class="font-bold text-sm">نوع سنګ </label>
+                                        <span class="text-red-700">*</span>
+                                        <select wire:model.live ="is_precious"
+                                            class="mt-1 px-2 peer block h-10 w-full bg-blue border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                                            <option value="" disabled hidden selected>نوع سنګ را انتخاب کنید
+                                            </option>
+                                            <option value="1">قیمتی</option>
+                                            <option value="0">نیمه قیمتی </option>
+                                        </select>
+
+                                        @error('is_precious')
+                                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                                        @enderror
+                                    </span>
                                     {{-- estimated_extraction --}}
                                     <span class="col-span-2 text-right">
                                         <label class="font-bold text-sm">مقدار تخمینی استخراج</label>
                                         <span class="text-red-700">*</span>
-                                        <input type="text"  wire:model.live ="estimated_extraction"
+                                        <input type="text" wire:model.live ="estimated_extraction"
                                             name="estimated_extraction"
                                             class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                             autocomplete="off" dir="rtl">
@@ -265,11 +293,11 @@
                                     </span>
 
                                     {{-- image --}}
-                                    <div class="">
+                                    <div class="flex">
                                         <span class="w-1/2 text-right ">
                                             <label class="font-bold text-sm">عکس</label>
-                                            <input type="file" wire:model="image_path" id="file-upload"
-                                                name="image_path" accept="image/*" class="hidden" />
+                                            <input type="file" wire:model="photo" id="file-upload" name="photo"
+                                                accept="image/*" class="hidden" />
                                             <label for="file-upload"
                                                 class="cursor-pointer mt-1 h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm flex items-center justify-center text-gray-700 hover:bg-gray-100 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
                                                 انتخاب عکس
@@ -319,13 +347,13 @@
 
                                     <div class="flex justify-center my-7">
                                         <button type="submit"
-                                            class="text-sm h-10 px-8 bg-[#189197]  rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                            class="text-sm h-10 px-4 bg-[#189197]  rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
                                             title="{{ $isEditing ? 'به‌روزرسانی' : 'ذخیره' }}">
                                             {{ $isEditing ? 'به‌روزرسانی' : 'ذخیره' }}
                                         </button>
 
                                         <button type="button"
-                                            class="text-sm h-10 px-8 bg-red-800 rounded-lg text-white hover:bg-red-700 hover:text-black focus:outline-none focus:ring-2 focus:ring-red-600"
+                                            class="text-sm h-10 px-4 bg-red-800 rounded-lg text-white hover:bg-red-700 hover:text-black focus:outline-none focus:ring-2 focus:ring-red-600"
                                             x-on:click="isOpen = false; $wire.call('resetForm')" title="لفو">
                                             لفو
                                         </button>
@@ -386,6 +414,12 @@
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
                                     <span>مقیاس</span>
+                                </div>
+                            </th>
+
+                            <th scope="col" class="px-3 py-2 border border-slate-200">
+                                <div class="flex justify-center">
+                                    <span>نوع سنګ</span>
                                 </div>
                             </th>
 
@@ -456,6 +490,9 @@
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
                                         {{ $stone->quantity ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 border border-slate-200">
+                                        {{ $stone->is_precious ? 'قیمتی' : 'نیمه قیمتی' }}
                                     </td>
                                     <td class="px-3 py-2 border border-slate-200">
                                         {{ $stone->estimated_extraction ?? '' }}

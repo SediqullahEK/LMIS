@@ -9,6 +9,8 @@ class PSStone extends Model
     protected $table = 'precious_semi_precious_stones';
     protected $fillable = [
             'name',
+            'is_precious',
+            'image_path',
             'photo',
             'latin_name',
             'quantity',
