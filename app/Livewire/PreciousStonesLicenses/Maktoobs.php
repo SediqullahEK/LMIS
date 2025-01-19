@@ -28,16 +28,48 @@ class Maktoobs extends Component
     public $licenseNumber;
     public $address;
     public $companyId;
+    public $individualId;
+    public $stoneColorDr;
+    public $stoneColorEn;
+    public $stoneAmount;
 
+    public function generateMaktoobs()
+    {
+
+        $validatedData = $this->validate([
+            'letterNumber' => 'required|numeric',
+            'stone' => 'required',
+            'stoneColorDr' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
+            'stoneColorEn' => 'required|regex:/^[A-Za-z ]+$/|max:255',
+            'stoneAmount' => 'required|string',
+
+        ], [
+            'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
+            'license_num.unique' => 'نمبر جواز ذیل در سیستم موجود است.',
+
+        ]);
+        if ($individualDetails) {
+            $this->validate(['tazkiraNumber' => 'required']);
+        }
+        if ($companyDetails) {
+            $this->validate(['licenseNumber' => 'required']);
+        }
+        if (!$companyDetails && !$individualDetails) {
+            $this->validate(['tazkiraNumber' => 'required']);
+        }
+
+        $licenseDetaisl = psp::where('tazkira_num', $this->tazkiraNumber)->first();
+    }
     public function loadIndividualData()
     {
         if ($this->tazkiraNumber) {
             $individual = Individual::where('tazkira_num', $this->tazkiraNumber)->first();
             if ($individual) {
                 $this->province = Province::where('id', $individual->province_id)->first()->name;
-                $this->name = $individual->name;
+                $this->name = $individual->name_dr;
                 $this->fathersName = $individual->f_name;
                 $this->tinNumber = $individual->tin_num;
+                $this->individualId = $individual->id;
                 $this->companyId = DB::connection('LMIS')->table('company_shareholders')
                     ->select('company_id')->where('individual_id', $individual->id)->first();
                 $this->loadCompanyData();
@@ -57,6 +89,7 @@ class Maktoobs extends Component
             $company = Company::find($this->companyId->company_id);
 
             if ($company) {
+                $this->companyId = $company->id;
                 $this->companyName = $company->name;
                 $this->companyTINNumber = $company->tin_num;
                 $this->address = $company->tin_num;

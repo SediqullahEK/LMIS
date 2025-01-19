@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_psp_licenses', function (Blueprint $table) {
+        Schema::create('psp_licenses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('letter_id');
             $table->unsignedBigInteger('individual_id');
-            $table->unsignedBigInteger('company_id');
+            $table->unsignedBigInteger('company_id')->nullable();
             $table->unsignedBigInteger('stone_id');
             $table->string('stone_color_dr');
             $table->string('stone_color_en');
@@ -25,6 +25,20 @@ return new class extends Migration
             $table->string('expire_date');
             $table->boolean('is_valid')->default(false);
             $table->text('signed_version_image_path');
+            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('updated_by');
+
+            $table->foreign('created_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('updated_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
 
             $table->foreign('individual_id')
                 ->references('id')
