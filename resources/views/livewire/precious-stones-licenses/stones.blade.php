@@ -6,7 +6,6 @@
             <div wire:loading wire:target="openForm, updateRole, addStone, toggleConfirm">
                 <x-loader />
             </div>
-
             {{-- Alerts section --}}
             @if (session()->has('message'))
                 <div x-data="{ show: @json(session()->has('message')) }" x-init="if (show) { setTimeout(() => { show = false }, 3000); }" x-show="show"
@@ -34,13 +33,13 @@
                 </div>
             @endif
 
-            @can('حذف وظیفه')
+            @can('حذف سنگ')
                 <div x-data="{ confirm: @entangle('confirm') }">
                     <!-- Modal Overlay -->
-                    <div x-show="confirm"
+                    <div x-show="confirm" x-cloak
                         class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50">
                         <!-- Modal Container -->
-                        <div id="modal" x-show="confirm" x-transition:enter="transition ease-out duration-300"
+                        <div id="modal" x-show="confirm" x-cloak x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                             x-transition:leave="transition ease-in duration-200"
                             x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
@@ -69,11 +68,9 @@
                 </div>
             @endcan
 
-
             <div class="flex flex-wrap items-center justify-between mb-2">
-
                 {{-- Add and Edit stone section --}}
-                @can('ایجاد وظیفه جدید')
+                @can('ایجاد سنگ جدید')
                     <div class="mt-2 sm:mt-0">
                         <button @click=" @this.call('resetForm'); @this.call('openForm',1)"
                             class="px-4 py-1 mb-1 bg-[#189197] rounded-lg text-2xl text-white">
@@ -109,7 +106,7 @@
 
 
 
-            @if (auth()->user()->can('ایجاد وظیفه جدید') || auth()->user()->can('ویرایش وظیفه'))
+            @if (auth()->user()->can('ایجاد سنگ جدید') || auth()->user()->can('ویرایش سنگ'))
                 <div x-data="{ isOpen: @entangle('isOpen') }" dir="rtl">
                     <div x-show="isOpen" style="display: none;"
                         class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50">
@@ -119,13 +116,13 @@
                             x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                             x-transition:leave="transition ease-in duration-200"
                             x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
-                            class="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl mt-12">
+                            class="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mt-12">
                             <!-- Added mt-12 for margin from top -->
 
                             <!-- Modal Content -->
                             <div>
                                 <!-- Modal Header -->
-                                <div class="flex justify-between items-center pb-4 border-b w-full max-w-3xl">
+                                <div class="flex justify-between items-center border-b w-full max-w-4xl">
                                     <h2 class="text-xl font-semibold">
                                         {{ $isEditing ? 'ویرایش سنگ' : 'افزودن سنگ جدید' }}
                                     </h2>
@@ -146,13 +143,13 @@
                                     </div>
                                 @endif
                                 <!-- Form -->
-                                <div class="overflow-y-auto max-h-[70vh]">
+                                <div class="overflow-y-auto max-h-[70vh] mt-4">
                                     <form wire:submit.prevent="{{ $isEditing ? 'updateStone' : 'addStone' }}"
-                                        class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-4">
-                                        {{-- General Name of ston --}}
-                                        <input type="number" hidden wire:model.live='stonesId'>
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نام مروج سنګ</label>
+                                        class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4">
+                                        {{-- General Name of stone --}}
+                                        <input type="text" hidden wire:model.live='stonesId'>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">نام مروج</label>
                                             <span class="text-red-700">*</span>
                                             <input type="text" wire:model.live ="name" name="name"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
@@ -162,8 +159,8 @@
                                             @enderror
                                         </span>
                                         {{-- Name --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نام لاتین سنګ</label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">نام لاتین</label>
                                             <span class="text-red-700">*</span>
                                             <input type="text" wire:model.live ="latin_name" name="latin_name"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
@@ -172,19 +169,18 @@
                                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                                             @enderror
                                         </span>
-                                        {{-- Scal --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">مقیاس </label>
+                                        {{-- Scale --}}
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">مقیاس</label>
                                             <span class="text-red-700">*</span>
                                             <select wire:model.live ="quantity"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-blue border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                                                class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
                                                 <option value="" disabled hidden selected>مقیاس را انتخاب کنید
                                                 </option>
+                                                <option value="قیراط">قیراط</option>
                                                 <option value="گرام">گرام</option>
                                                 <option value="کیلو گرام">کیلو گرام</option>
                                                 <option value="تن">تن</option>
-                                                <option value="قیراط">قیراط</option>
-
                                             </select>
 
                                             @error('quantity')
@@ -192,12 +188,12 @@
                                             @enderror
                                         </span>
                                         {{-- is precious --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نوع سنګ </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">نوع سنگ </label>
                                             <span class="text-red-700">*</span>
                                             <select wire:model.live ="is_precious"
-                                                class="mt-1 px-2 peer block h-10 w-full bg-blue border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
-                                                <option value="" disabled hidden selected>نوع سنګ را انتخاب کنید
+                                                class="mt-1 px-2 peer block h-10 w-full bg-white  border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                                                <option value="" disabled hidden selected>نوع سنگ را انتخاب کنید
                                                 </option>
                                                 <option value="1">قیمتی</option>
                                                 <option value="0">نیمه قیمتی </option>
@@ -208,10 +204,10 @@
                                             @enderror
                                         </span>
                                         {{-- estimated_extraction --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">مقدار تخمینی استخراج</label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">مقدار استخراج شده (تخمینی)</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="estimated_extraction"
+                                            <input type="number" wire:model.live ="estimated_extraction"
                                                 name="estimated_extraction"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
@@ -220,11 +216,11 @@
                                             @enderror
                                         </span>
                                         {{-- estimated_price_from --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نرخ تخمینی حد اقل </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">حداقل نرخ (تخمینی)</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="estimated_price_from"
-                                                name="estimated_price_from"
+                                            <input type="number" wire:model.live ="estimated_price_from"
+                                                placeholder="افغانی" name="estimated_price_from"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
                                             @error('estimated_price_from')
@@ -232,11 +228,11 @@
                                             @enderror
                                         </span>
                                         {{-- estimated_price_to --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">نرخ تخمینی حداکثر </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">حداکثر نرخ (تخمینی)</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="estimated_price_to"
-                                                name="estimated_price_to"
+                                            <input type="number" wire:model.live ="estimated_price_to"
+                                                placeholder="افغانی" name="estimated_price_to"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
                                             @error('estimated_price_to')
@@ -244,10 +240,11 @@
                                             @enderror
                                         </span>
                                         {{-- offered_royality_by_private_sector --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm"> ریالیتی پیشنهادی </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">رویالیتی پیشنهادی سکتور خصوصی</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="offered_royality_by_private_sector"
+                                            <input type="number" step="0.01" placeholder="افغانی (فی واحد مقیاس)"
+                                                wire:model.live ="offered_royality_by_private_sector"
                                                 name="offered_royality_by_private_sector"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
@@ -256,24 +253,25 @@
                                             @enderror
                                         </span>
                                         {{-- final_royality_after_negotiations --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm"> ریالیتی نهایی </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">رویالیتی نهایی بعد از مذاکرات</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="final_royality_after_negotiations"
-                                                name="final_royality_after_negotiations"
+                                            <input type="number" step="0.01"
+                                                wire:model.live="final_royality_after_negotiations"
+                                                placeholder="افغانی" name="final_royality_after_negotiations"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
+
                                             @error('final_royality_after_negotiations')
                                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                                             @enderror
                                         </span>
                                         {{-- estimated_revenue_based_on_ORPS --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">عواید تخمینی به اساس پیشنهاد سکتور خصوصی
-                                            </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">عواید به اساس پیشنهاد سکتور خصوصی</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="estimated_revenue_based_on_ORPS"
-                                                name="estimated_revenue_based_on_ORPS"
+                                            <input type="number" wire:model.live ="estimated_revenue_based_on_ORPS"
+                                                placeholder="افغانی" name="estimated_revenue_based_on_ORPS"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
                                             @error('estimated_revenue_based_on_ORPS')
@@ -281,11 +279,11 @@
                                             @enderror
                                         </span>
                                         {{-- estimated_revenue_based_on_FRAN --}}
-                                        <span class="col-span-2 text-right">
-                                            <label class="font-bold text-sm">عواید تخمینی به اساس مزاکره شده </label>
+                                        <span class="col-span-1 text-right">
+                                            <label class="font-bold text-sm">عواید به اساس رویالیتی مذاکره شده</label>
                                             <span class="text-red-700">*</span>
-                                            <input type="text" wire:model.live ="estimated_revenue_based_on_FRAN"
-                                                name="estimated_revenue_based_on_FRAN"
+                                            <input type="number" wire:model.live ="estimated_revenue_based_on_FRAN"
+                                                placeholder="افغانی" name="estimated_revenue_based_on_FRAN"
                                                 class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                                 autocomplete="off" dir="rtl">
                                             @error('estimated_revenue_based_on_FRAN')
@@ -296,9 +294,9 @@
                                         {{-- image --}}
                                         <div class="flex">
                                             <span class="w-1/2 text-right ">
-                                                <label class="font-bold text-sm">عکس</label>
-                                                <input type="file" wire:model="photo" id="file-upload" name="photo"
-                                                    accept="image/*" class="hidden" />
+                                                <label class="font-bold text-sm">عکس سنگ</label>
+                                                <input type="file" wire:model="photo" id="file-upload"
+                                                    name="photo" accept="image/*" class="hidden" />
                                                 <label for="file-upload"
                                                     class="cursor-pointer mt-1 h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm flex items-center justify-center text-gray-700 hover:bg-gray-100 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
                                                     انتخاب عکس
@@ -312,26 +310,27 @@
                                             <span class="w-1/2 flex items-center justify-center ">
                                                 <span wire:loading wire:target="photo"
                                                     class="col-start-5 col-span-1 justify-self-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24">
-                                                        <rect width="6" height="14" x="1" y="4" fill="black">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                        height="24" viewBox="0 0 24 24">
+                                                        <rect width="6" height="14" x="1" y="4"
+                                                            fill="black">
                                                             <animate id="svgSpinnersBarsFade0" fill="freeze"
                                                                 attributeName="opacity"
-                                                                begin="0;svgSpinnersBarsFade1.end-0.175s" dur="0.525s"
-                                                                values="1;0.2" />
+                                                                begin="0;svgSpinnersBarsFade1.end-0.175s"
+                                                                dur="0.525s" values="1;0.2" />
                                                         </rect>
-                                                        <rect width="6" height="14" x="9" y="4" fill="black"
-                                                            opacity="0.4">
+                                                        <rect width="6" height="14" x="9" y="4"
+                                                            fill="black" opacity="0.4">
                                                             <animate fill="freeze" attributeName="opacity"
-                                                                begin="svgSpinnersBarsFade0.begin+0.105s" dur="0.525s"
-                                                                values="1;0.2" />
+                                                                begin="svgSpinnersBarsFade0.begin+0.105s"
+                                                                dur="0.525s" values="1;0.2" />
                                                         </rect>
-                                                        <rect width="6" height="14" x="17" y="4" fill="black"
-                                                            opacity="0.3">
+                                                        <rect width="6" height="14" x="17" y="4"
+                                                            fill="black" opacity="0.3">
                                                             <animate id="svgSpinnersBarsFade1" fill="freeze"
                                                                 attributeName="opacity"
-                                                                begin="svgSpinnersBarsFade0.begin+0.21s" dur="0.525s"
-                                                                values="1;0.2" />
+                                                                begin="svgSpinnersBarsFade0.begin+0.21s"
+                                                                dur="0.525s" values="1;0.2" />
                                                         </rect>
                                                     </svg>
                                                 </span>
@@ -339,25 +338,25 @@
                                                     <img src="{{ $photo->temporaryUrl() }}" width="100"
                                                         class="rounded mr-4" alt="Uploaded image">
                                                 @elseif ($existing_photo_path)
-                                                    <img src="{{ Storage::url($existing_photo_path) }}" width="100"
-                                                        class="rounded mr-4" alt="Existing image">
+                                                    <img src="{{ Storage::url($existing_photo_path) }}"
+                                                        width="100" class="rounded mr-4" alt="Existing image">
                                                 @endif
 
                                             </span>
                                         </div>
 
                                         <div class="col-span-full flex justify-start space-x-4 mt-4">
-                                            <button type="submit"
-                                                class="text-sm h-10 px-8 bg-[#189197]  rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                            <button type="submit" wire:loading.attr="disabled"
+                                                class="text-sm h-10 ml-2 px-8 bg-[#189197] rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
                                                 title="{{ $isEditing ? 'به‌روزرسانی' : 'ذخیره' }}">
                                                 {{ $isEditing ? 'به‌روزرسانی' : 'ذخیره' }}
                                             </button>
-
                                             <button type="button"
-                                                class="text-sm h-10 px-8 bg-red-800 rounded-lg text-white hover:bg-red-700 hover:text-black focus:outline-none focus:ring-2 focus:ring-red-600"
+                                                class="text-sm h-10 px-8 bg-red-800 rounded-lg text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600"
                                                 x-on:click="isOpen = false; $wire.call('resetForm')" title="لفو">
                                                 لفو
                                             </button>
+
                                         </div>
 
                                     </form>
@@ -392,7 +391,7 @@
                             <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
                                 wire:click="sortBy('name')">
                                 <div class="flex justify-center">
-                                    <span>نام سنګ</span>
+                                    <span>نام مروج</span>
                                     @if ($sortField === 'name')
                                         <span
                                             class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
@@ -404,7 +403,7 @@
                             <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
                                 wire:click="sortBy('latin_name')">
                                 <div class="flex justify-center">
-                                    <span>نام لاتین سنګ</span>
+                                    <span>نام لاتین</span>
                                     @if ($sortField === 'latin_name')
                                         <span
                                             class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
@@ -420,9 +419,10 @@
                                 </div>
                             </th>
 
-                            <th scope="col" class="px-3 py-2 border border-slate-200">
+                            <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
+                                wire:click="sortBy('is_precious')">
                                 <div class="flex justify-center">
-                                    <span>نوع سنګ</span>
+                                    <span>نوع سنگ</span>
                                     @if ($sortField === 'is_precious')
                                         <span
                                             class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
@@ -434,44 +434,42 @@
 
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>مقدار تخمینی</span>
+                                    <span>مقدار تخمینی استخراج شده</span>
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>نرخ حداقل </span>
+                                    <span>حداقل نرخ</span>
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>نرخ حداکثر </span>
+                                    <span>حداکثر نرخ</span>
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>رویالتی پیشنهاد شده </span>
+                                    <span>رویالتی پیشنهادی سکتور خصوصی</span>
                                 </div>
                             </th>
                             <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>رویالتی نهایی </span>
+                                    <span>رویالیتی نهایی بعد از مذاکرات</span>
                                 </div>
                             </th>
 
                             <th scope="col" class="px-3 py-2 border border-slate-200 ">
                                 <div class="flex justify-center">
-                                    <span>عواید پیشنهادی </span>
+                                    <span>عواید به اساس پیشنهاد سکتور خصوصی</span>
                                 </div>
                             </th>
-                            <th scope="col" class="px-3 py-2 border border-slate-200 ">
+                            <th scope="col" class="px-3 py-2 border border-slate-200">
                                 <div class="flex justify-center">
-                                    <span>عواید مزاکره </span>
+                                    <span>عواید به اساس رویالیتی مذاکره شده</span>
                                 </div>
                             </th>
-
-
-                            @if (auth()->user()->can('ویرایش شخص') || auth()->user()->can('حذف شخص'))
-                                <th scope="col" class="px-3 py-2 border border-slate-200">
+                            @if (auth()->user()->can('ویرایش سنگ') || auth()->user()->can('حذف سنگ'))
+                                <th scope="col" class="px-3 py-2 border border-slate-200 w-[150px]">
                                     <div class="flex justify-center">
                                         <span>اعمال</span>
                                     </div>
@@ -526,8 +524,8 @@
                                     </td>
 
 
-                                    <td class="px-2 py-2 border border-slate-200 dark:text-white">
-                                        @can('ویرایش شخص')
+                                    <td class="px-2 py-2 border border-slate-200">
+                                        @can('ویرایش سنگ')
                                             <button
                                                 @click=" @this.call('editStone', {{ $stone->id }}); @this.call('openForm',0) "
                                                 class=" text-gray-900 px-2 py-2 rounded">
@@ -535,7 +533,7 @@
                                                         class="fa  fa-edit text-sky-600"></i></span>
                                             </button>
                                         @endcan
-                                        @can('حذف شخص')
+                                        @can('حذف سنگ')
                                             <button @click=" @this.call('toggleConfirm', {{ $stone->id }})"
                                                 class=" text-gray-900 px-2 py-2 rounded">
                                                 <span class="text-xl px-3 pt-5"><i

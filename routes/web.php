@@ -33,6 +33,6 @@ Route::group(['middleware' => ['auth', 'redirect.unauthenticated', 'checkFirstLo
     Route::get('/applicants/companies', [AppController::class, 'companies'])->name('companies');
     Route::get('/preciouse-stones-licenses', [AppController::class, 'pSLicenses'])->name('ps_licenses');
     Route::get('/preciouse-stones-maktoobs', [AppController::class, 'pSMaktoobs'])->name('ps_maktoobs');
-    Route::get('/preciouse-stones-stones', [AppController::class, 'pSStones'])->name('ps_stones');
+    Route::get('/preciouse-stones-stones', [AppController::class, 'pSStones'])->middleware('permission:سنگ های قیمتی و نیمه قیمتی')->name('ps_stones');
     Route::get('/activity-logs', [AppController::class, 'activityLog'])->name('activity_logs');
 });

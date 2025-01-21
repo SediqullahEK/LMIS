@@ -25,6 +25,31 @@ return new class extends Migration
             $table->unsignedBigInteger('estimated_revenue_based_on_ORPS')->nullable();
             $table->unsignedBigInteger('estimated_revenue_based_on_FRAN')->nullable();
             $table->boolean('is_precious')->default(false);
+
+            $table->boolean('is_deleted')->default(false);
+            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('updated_by');
+            $table->timestamp('deleted_at')->nullable();
+
+            $table->foreign('created_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('updated_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('deleted_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

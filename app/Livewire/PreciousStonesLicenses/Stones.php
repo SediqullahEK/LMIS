@@ -45,6 +45,7 @@ class Stones extends Component
     public $sortDirection = 'asc';
     public $is_precious = '';
 
+
     protected $rules = [
 
         'name' => 'required|unique:precious_semi_precious_stones|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
@@ -80,14 +81,14 @@ class Stones extends Component
         'latin_name.unique' => 'نام لاتین سنګ موجود است',
     ];
 
-    // Real-time validation for individual fields
+    // Real-time validation for stones fields
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
     }
 
 
-    //PSStone CRUD section
+    //Stones CRUD section
     public function addStone()
     {
 
@@ -120,6 +121,8 @@ class Stones extends Component
             'final_royality_after_negotiations' => $validatedData['final_royality_after_negotiations'],
             'estimated_revenue_based_on_ORPS' => $validatedData['estimated_revenue_based_on_ORPS'],
             'estimated_revenue_based_on_FRAN' => $validatedData['estimated_revenue_based_on_FRAN'],
+            'created_by' => auth()->user()->id,
+            'updated_by' => auth()->user()->id
         ]);
 
         logActivity('create', 'app\Models\PSStone', $done->id, $done);
@@ -207,8 +210,7 @@ class Stones extends Component
             $validationRules['estimated_revenue_based_on_FRAN'] = 'required|numeric';
         }
 
-        if ($this->existing_photo_path !== $stone->image_path) {
-
+        if ($this->photo) {
             $validationRules['photo'] = 'nullable|image|max:1024';
         }
 
@@ -287,7 +289,7 @@ class Stones extends Component
         }
 
 
-        // $stone->updated_by = auth()->user()->id;
+        $stone->updated_by = auth()->user()->id;
         $done = $stone->save();
 
         logActivity('update', 'App\Models\PSStone', $stone->id, [
@@ -305,7 +307,10 @@ class Stones extends Component
     {
         $stone = PSStone::find($this->idToDelete);
         if ($stone) {
-            $stone->delete();
+            $stone->is_deleted = true;
+            $stone->deleted_by = auth()->user()->id;
+            $stone->deleted_at = now();
+            $stone->save();
             logActivity('delete', 'App\Models\Companies', $stone->id);
             $request->session()->flash('message', 'سنګ موفقانه حذف شد');
             $this->confirm = false;
@@ -393,17 +398,19 @@ class Stones extends Component
 
         // Pagination logic
         if ($this->perPage) {
-            $data = $query->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
+            $data = $query->where('is_deleted', false)
+                ->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
         } else {
             $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
         }
+       
 
         // Handle invalid page number
-        if (!$this->search && $this->perPage != 0 && isset($dataCount) && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-            session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
-        }
+        // if (!$this->search && $this->perPage != 0 && isset($dataCount) && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
+        //     session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
+        // }
 
         return $data;
     }

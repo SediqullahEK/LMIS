@@ -5,6 +5,7 @@ namespace App\Livewire\PreciousStonesLicenses;
 use App\Models\Company;
 use App\Models\Individual;
 use App\Models\Province;
+use App\Models\PSPLicense;
 use App\Models\PSStone;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -29,37 +30,78 @@ class Maktoobs extends Component
     public $address;
     public $companyId;
     public $individualId;
+    public $stone = 0;
     public $stoneColorDr;
+    public $quantity;
     public $stoneColorEn;
     public $stoneAmount;
 
     public function generateMaktoobs()
     {
-
+        // dd('called');
         $validatedData = $this->validate([
             'letterNumber' => 'required|numeric',
             'stone' => 'required',
             'stoneColorDr' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
-            'stoneColorEn' => 'required|regex:/^[A-Za-z ]+$/|max:255',
-            'stoneAmount' => 'required|string',
+            'stoneColorEn' => 'required|regex:/^[A-Za-z\s]+$/|max:255',
+            'stoneAmount' => 'required|numeric',
 
         ], [
-            'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
-            'license_num.unique' => 'نمبر جواز ذیل در سیستم موجود است.',
-
+            'stone.required' => 'انتخاب سنگ لازمی میباشد',
+            'stoneColorDr.regex' => 'رنگ سنگ را به زبان دری وارد کنید',
+            'stoneColorEn.regex' => 'رنگ سنگ را به زبان انگلیسی وارد کنید',
         ]);
-        if ($individualDetails) {
-            $this->validate(['tazkiraNumber' => 'required']);
-        }
-        if ($companyDetails) {
-            $this->validate(['licenseNumber' => 'required']);
-        }
-        if (!$companyDetails && !$individualDetails) {
-            $this->validate(['tazkiraNumber' => 'required']);
-        }
 
-        $licenseDetaisl = psp::where('tazkira_num', $this->tazkiraNumber)->first();
+        if ($this->individualDetails) {
+            $this->resetErrorBag('tazkiraNumber');
+            $this->validate(['tazkiraNumber' => 'required'], [
+                'tazkiraNumber.required' => 'نمبر تذکره متقاضی لازمی میباشد',
+            ]);
+        }
+        if ($this->companyDetails) {
+            $this->validate(['licenseNumber' => 'required'], [
+                'licenseNumber.required' => 'نمبر جواز متقاضی لازمی میباشد',
+            ]);
+        }
+        if (!$this->companyDetails && !$this->individualDetails) {
+            $this->validate(['tazkiraNumber' => 'required'], [
+                'tazkiraNumber.required' => 'مشخصات متقاضی لازمی میباشد',
+            ]);
+        }
+        // dd(auth()->user()->id);
+        $license = PSPLicense::create([
+            'created_by' => auth()->user()->id,
+            'letter_id' => $this->letterNumber,
+            'individual_id' => $this->individualId,
+            'company_id' => $this->companyId ?? null,
+            'stone_color_dr' => $this->stoneColorDr,
+            'stone_color_en' => $this->stoneColorEn,
+            'stone_id' => $this->stone,
+            'stone_amount' => $this->stoneAmount,
+        ]);
+
+        $license->update([
+            'serial_number' => 'momplcs0' . $license->id,
+        ]);
+        if ($license) {
+            logActivity('create', 'app\Models\PSPLicense', $license->id);
+            session()->flash('message', 'مکاتیب موفقانه ایجاد گردید.');
+            $this->resetForm();
+        }
     }
+
+    public function loadQauntity()
+    {
+        if ($this->stone) {
+            $stone = PSStone::find($this->stone);
+            if ($stone) {
+                $this->quantity = $stone->quantity;
+            } else {
+                session()->flash('error', 'خطا در پروسه جستجوی معلومات سنگ');
+            }
+        }
+    }
+
     public function loadIndividualData()
     {
         if ($this->tazkiraNumber) {
@@ -70,8 +112,10 @@ class Maktoobs extends Component
                 $this->fathersName = $individual->f_name;
                 $this->tinNumber = $individual->tin_num;
                 $this->individualId = $individual->id;
-                $this->companyId = DB::connection('LMIS')->table('company_shareholders')
-                    ->select('company_id')->where('individual_id', $individual->id)->first();
+                $this->companyId = DB::connection('LMIS')
+                    ->table('company_shareholders')
+                    ->where('individual_id', $individual->id)
+                    ->value('company_id');
                 $this->loadCompanyData();
                 $this->resetErrorBag('tazkiraNumber');
             } else {
@@ -86,7 +130,8 @@ class Maktoobs extends Component
     {
 
         if ($this->companyId) {
-            $company = Company::find($this->companyId->company_id);
+            // dd('called', $this->companyId);
+            $company = Company::find($this->companyId);
 
             if ($company) {
                 $this->companyId = $company->id;
@@ -149,6 +194,7 @@ class Maktoobs extends Component
             $this->tinNumber = '';
         }
     }
+
     public function resetCompanyData($flag = 0)
     {
         //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
@@ -163,6 +209,20 @@ class Maktoobs extends Component
             $this->companyTINNumber = '';
             $this->address = '';
         }
+    }
+    public function resetForm()
+    {
+        $this->resetCompanyData();
+        $this->resetIndividualData();
+        $this->letterNumber = null;
+        $this->letterSubject = '';
+        $this->stone = 0;
+        $this->quantity = '';
+        $this->stoneColorDr = '';
+        $this->stoneColorEn = '';
+        $this->stoneAmount = '';
+        $this->individualDetails = false;
+        $this->companyDetails = false;
     }
     public function render()
     {

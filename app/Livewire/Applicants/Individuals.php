@@ -103,7 +103,6 @@ class Individuals extends Component
 
 
         logActivity('create', 'App\Models\Individual', $done->id, $done);
-
         session()->flash('message', 'شخص موفقانه اضافه گردید');
         $this->resetForm();
         $this->isOpen = false;
@@ -260,10 +259,13 @@ class Individuals extends Component
     {
         $individual = Individual::find($this->idToDelete);
         if ($individual) {
-            if ($individual->photo_path) {
-                Storage::disk('public')->delete($individual->photo_path);
-            }
-            $individual->delete();
+            // if ($individual->photo_path) {
+            //     Storage::disk('public')->delete($individual->photo_path);
+            // }
+            $individual->is_deleted = true;
+            $individual->deleted_by = auth()->user()->id;
+            $individual->deleted_at = now();
+            $individual->save();
             logActivity('delete', 'App\Models\Companies', $individual->id);
             $request->session()->flash('message', 'شخص موفقانه حذف شد');
             $this->confirm = false;
@@ -347,16 +349,12 @@ class Individuals extends Component
 
         // Pagination logic
         if ($this->perPage) {
-            $data = $query->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
+            $data = $query->where('is_deleted', false)
+                ->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
         } else {
             $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
-        }
-
-        // Handle invalid page number
-        if (!$this->search && $this->perPage != 0 && $dataCount && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-            session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
         }
 
         return $data;

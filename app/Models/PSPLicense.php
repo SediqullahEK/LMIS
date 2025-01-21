@@ -21,5 +21,6 @@ class PSPLicense extends Model
         'expire_date',
         'is_valid',
         'signed_version_image_path',
+        'created_by',
     ];
 }

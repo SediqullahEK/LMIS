@@ -1,8 +1,8 @@
 <div class="relative bg-white shadow-md sm:rounded-lg mx-4 my-4">
     <x-topHeader pageTitle='مکتوب ها' />
-    {{-- <div wire:loading wire:target='requestId'>
+    <div wire:loading wire:target='generateMaktoobs'>
         <x-loader />
-    </div> --}}
+    </div>
     {{-- alerts section --}}
 
     @if (session()->has('message'))
@@ -39,7 +39,7 @@
                 <label class="font-bold text-sm">نمبر عریضه</label>
                 <span class="text-red-700">*</span>
                 <input type="number" required wire:model.live.debounce.500ms="letterNumber" autofocus
-                    name="letterNumber" placeholder="نمبر عریضه متقاضی را وارد کنید"
+                    oninput="validateNumber(this)" name="letterNumber" placeholder="نمبر عریضه متقاضی را وارد کنید"
                     class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                     autocomplete="off" dir="rtl">
                 @error('letterNumber')
@@ -77,7 +77,7 @@
             <span class="md:col-span-2 sm:col-span-4 text-right w-full">
                 <label class="font-bold text-sm">نوع سنگ</label>
                 <span class="text-red-700">*</span>
-                <select required wire:model.live="stone" name='stone'
+                <select required wire:model.live="stone" name='stone' wire:change='loadQauntity'
                     class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                     autocomplete="off" dir="rtl">
                     <option value="0" disabled hidden selected>سنگ مورد نظر را انتخاب کنید</option>
@@ -93,12 +93,22 @@
                 @enderror
             </span>
             <span class="md:col-span-2 sm:col-span-2 text-right w-full">
+                <label class="font-bold text-sm">مقیاس</label>
+                <span class="text-red-700">*</span>
+                <input type="text" required wire:model.live="quantity" name="quantity" disabled readonly
+                    class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl">
+                @error('quantity')
+                    <p class="text-red-500">{{ $message }}</p>
+                @enderror
+            </span>
+            <span class="md:col-span-2 sm:col-span-2 text-right w-full">
                 <label class="font-bold text-sm">رنگ سنگ به دری</label>
                 <span class="text-red-700">*</span>
                 <input type="text" required wire:model.live="stoneColorDr" name="stoneColorDr"
                     class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                     autocomplete="off" dir="rtl">
-                @error('stoneColor')
+                @error('stoneColorDr')
                     <p class="text-red-500">{{ $message }}</p>
                 @enderror
             </span>
@@ -108,15 +118,15 @@
                 <input type="text" required wire:model.live="stoneColorEn" name="stoneColorEn"
                     class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                     autocomplete="off" dir="rtl">
-                @error('stoneColor')
+                @error('stoneColorEn')
                     <p class="text-red-500">{{ $message }}</p>
                 @enderror
             </span>
-            <span class="md:col-span-10 sm:col-span-1 text-right w-full">
+            <span class="md:col-span-8 sm:col-span-1 text-right w-full">
                 <label class="font-bold text-sm">مقدار سنگ</label>
                 <span class="text-red-700">*</span>
-                <input type="text" required wire:model.live="stoneAmount" name="stoneAmount"
-                    placeholder="مقدار سنگ را وارد کنید "
+                <input type="number" required wire:model.live="stoneAmount" name="stoneAmount"
+                    oninput="validateNumber(this)" placeholder="مقدار سنگ را وارد کنید "
                     class="mt-1 px-2 peer block h-10 w-full md:w-[260px] bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                     autocomplete="off" dir="rtl">
                 @error('stoneAmount')
@@ -135,15 +145,21 @@
                     <span class="ms-3 text-sm font-medium text-gray-900 ">جزئیات شخص</span>
                 </label>
 
-            </span>
 
+            </span>
+            @error('tazkiraNumber')
+                <span class="flex justify-start items-end md:col-span-10 text-right my-2 w-full ">
+                    <p class="text-red-500">{{ $message }}</p>
+                </span>
+            @enderror
             {{-- Individual Data section --}}
             @if ($individualDetails)
                 <span class="md:col-span-2 sm:col-span-1 text-right w-full">
                     <label class="font-bold text-sm">نمبر تذکره</label>
                     <span class="text-red-700">*</span>
-                    <input type="number" required wire:model.live.debounce.500ms="tazkiraNumber"
-                        name="tazkiraNumber" name="tazkiraNumber" placeholder="نمبر تذکره متقاضی را وارد کنید"
+                    <input type="number" wire:model.live.debounce.500ms="tazkiraNumber"
+                        oninput="validateNumber(this)" name="tazkiraNumber" name="tazkiraNumber"
+                        placeholder="نمبر تذکره متقاضی را وارد کنید"
                         class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         autocomplete="off" dir="rtl">
                     @error('tazkiraNumber')
@@ -173,7 +189,7 @@
                     <input type="number" required wire:model.live="tinNumber" disabled
                         class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         autocomplete="off" dir="rtl">
-                    @error('tin_num')
+                    @error('tinNumber')
                         <p class="text-red-500">{{ $message }}</p>
                     @enderror
                 </span>
@@ -193,7 +209,7 @@
                     <input type="text" required wire:model.live="fathersName"disabled
                         class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         autocomplete="off" dir="rtl">
-                    @error('fathers_name')
+                    @error('fathersName')
                         <p class="text-red-500">{{ $message }}</p>
                     @enderror
                 </span>
@@ -243,7 +259,7 @@
                     <label class="font-bold text-sm">نمبر جواز</label>
                     <span class="text-red-700">*</span>
                     <input type="number" required wire:model.live="licenseNumber" name="licenseNumber"
-                        placeholder="نمبر جواز شرکت را وارد کنید"
+                        oninput="validateNumber(this)" placeholder="نمبر جواز شرکت را وارد کنید"
                         class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         autocomplete="off" dir="rtl">
                     @error('licenseNumber')
@@ -491,7 +507,15 @@
         چاپ
     </button>
 </div>
-
+@push('customJs')
+    <script>
+        function validateNumber(input) {
+            if (input.value < 0) {
+                input.value = 0;
+            }
+        }
+    </script>
+@endpush
 
 
 {{-- <aside class="py-4 w-full md:w-1/3 lg:w-1/4">

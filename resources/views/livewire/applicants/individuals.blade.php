@@ -227,7 +227,7 @@
                                         <label class="font-bold text-sm">ولایت</label>
                                         <span class="text-red-700">*</span>
                                         <select required wire:model.live="province"
-                                            class="mt-1 px-2 peer block h-10 w-full bg-blue border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
+                                            class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500">
                                             <option value="0" disabled hidden selected>ولایت متقاضی را
                                                 انتخاب
                                                 کنید</option>
@@ -316,7 +316,7 @@
                                         </span>
                                     </div>
                                     <div class="col-span-full flex justify-start space-x-4 mt-4">
-                                        <button type="submit"
+                                        <button type="submit" wire:loading.attr="disabled"
                                             class="text-sm h-10 ml-2 px-8 bg-[#189197] rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
                                             title="{{ $isEditing ? 'به‌روزرسانی' : 'ذخیره' }}">
                                             {{ $isEditing ? 'به‌روزرسانی' : 'ذخیره' }}

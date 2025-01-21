@@ -23,9 +23,13 @@ return new class extends Migration
             $table->rememberToken();
             $table->boolean('first_logged_in')->default(false);
             $table->timestamp('last_login_on')->nullable();
+
+            $table->boolean('is_deleted')->default(false);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
-
+            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->timestamp('deleted_at')->nullable();
+            
             $table->foreign('department_id')
                 ->references('id')
                 ->on('departments')

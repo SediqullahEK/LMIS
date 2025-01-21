@@ -20,13 +20,17 @@ return new class extends Migration
             $table->string('stone_color_dr');
             $table->string('stone_color_en');
             $table->unsignedInteger('stone_amount');
-            $table->unsignedInteger('serial_number')->unique();
-            $table->string('issue_date');
-            $table->string('expire_date');
-            $table->boolean('is_valid')->default(false);
-            $table->text('signed_version_image_path');
+            $table->string('serial_number')->unique()->nullable();
+            $table->string('issue_date')->nullable();
+            $table->string('expire_date')->nullable();
+            $table->enum('status', ['in_process', 'printed', 'expired'])->default('in_process');
+            $table->text('signed_version_image_path')->nullable();
+
+            $table->boolean('is_deleted')->default(false);
             $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('updated_by');
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->timestamp('deleted_at')->nullable();
 
             $table->foreign('created_by')
                 ->references('id')
@@ -35,6 +39,12 @@ return new class extends Migration
                 ->onUpdate('cascade');
 
             $table->foreign('updated_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('deleted_by')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade')

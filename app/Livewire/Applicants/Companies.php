@@ -36,13 +36,15 @@ class Companies extends Component
     public $individuals = [];
     public $shareholders = []; //newly selected shareholders
     public $sharePercentages = [];
+    public $selectedShareholders = [];
     public $search;
     public $searchedIndividual;
     public $idToDelete;
 
     public $noData = false;
 
-    public $name;
+    public $name_dr;
+    public $name_en;
     public $tin_num;
     public $license_num;
     public $province;
@@ -50,19 +52,23 @@ class Companies extends Component
 
     protected $listeners = ['inputUpdated'];
 
-
     //company CRUD section
     public function addCompany()
     {
         // Validate form data
         $validatedData = $this->validate([
-            'name' => 'required|string|max:255',
+            'name_dr' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
+            'name_en' => 'required|regex:/^[A-Za-z\s]+$/|max:255',
             'tin_num' => 'required|numeric|unique:companies,tin_num',
             'license_num' => 'required|numeric|unique:companies,license_num',
             'province' => 'required',
             'address' => 'required|string',
 
         ], [
+            'name_dr.required' => 'نام دری لازمی میباشد.',
+            'name_dr.regex' => 'نام را به زبان دری وارد کنید.',
+            'name_en.required' => 'نام انگلیسی لازمی میباشد.',
+            'name_en.regex' => 'نام را به زبان انگلیسی وارد کنید.',
             'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
             'license_num.unique' => 'نمبر جواز ذیل در سیستم موجود است.',
 
@@ -70,7 +76,8 @@ class Companies extends Component
 
 
         $done = Company::create([
-            'name' => $validatedData['name'],
+            'name_dr' => $validatedData['name_dr'],
+            'name_en' => $validatedData['name_en'],
             'tin_num' => $validatedData['tin_num'],
             'license_num' => $validatedData['license_num'],
             'province_id' => $validatedData['province'],
@@ -94,7 +101,8 @@ class Companies extends Component
 
         $company = Company::find($id);
 
-        $this->name = $company->name;
+        $this->name_dr = $company->name_dr;
+        $this->name_en = $company->name_en;
         $this->tin_num = $company->tin_num;
         $this->license_num = $company->license_num;
         $this->province = $company->province_id;
@@ -108,8 +116,11 @@ class Companies extends Component
 
         $validationRules = [];
 
-        if ($this->name !== $company->name) {
-            $validationRules['name'] = 'required|string|max:255';
+        if ($this->name_dr !== $company->name_dr) {
+            $validationRules['name_dr'] = 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255';
+        }
+        if ($this->name_en !== $company->name_en) {
+            $validationRules['name_en'] = 'required|regex:/^[A-Za-z\s.@]+$/|max:255';
         }
 
         if ($this->tin_num !== $company->tin_num) {
@@ -130,6 +141,10 @@ class Companies extends Component
         // Only perform validation if there are rules
         if (!empty($validationRules)) {
             $validatedData = $this->validate($validationRules, [
+                'name_dr.required' => 'نام دری لازمی میباشد.',
+                'name_dr.regex' => 'نام را به زبان دری وارد کنید.',
+                'name_en.required' => 'نام انگلیسی لازمی میباشد.',
+                'name_en.regex' => 'نام را به زبان انگلیسی وارد کنید.',
                 'tin_num.unique' => 'نمبر تشخیصه ذیل در سیستم موجود است.',
                 'license_num.unique' => 'نمبر جواز ذیل در سیستم موجود است.',
 
@@ -141,8 +156,11 @@ class Companies extends Component
         $beforeState = $company->toArray();
 
         // Update only changed attributes
-        if (isset($validatedData['name'])) {
-            $company->name = $validatedData['name'];
+        if (isset($validatedData['name_dr'])) {
+            $company->name_dr = $validatedData['name_dr'];
+        }
+        if (isset($validatedData['name_en'])) {
+            $company->name_en = $validatedData['name_en'];
         }
 
         if (isset($validatedData['tin_num'])) {
@@ -178,7 +196,10 @@ class Companies extends Component
     {
         $company = Company::find($this->idToDelete);
         if ($company) {
-            $company->delete();
+            $company->is_deleted = true;
+            $company->deleted_by = auth()->user()->id;
+            $company->deleted_at = now();
+            $company->save();
             logActivity('delete', 'App\Models\Companies', $company->id);
             $request->session()->flash('message', 'شرکت موفقانه حذف شد');
             $this->confirm = false;
@@ -236,7 +257,7 @@ class Companies extends Component
             ->orderBy('company_shareholders.shares_in_percentage', 'desc');
 
         if (!empty($this->searchedIndividual)) {
-            $columns = ['individuals.name', 'individuals.tin_num', 'individuals.tazkira_num'];
+            $columns = ['individuals.name_dr', 'individuals.tin_num', 'individuals.tazkira_num'];
 
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
@@ -246,7 +267,7 @@ class Companies extends Component
         }
 
         $data = $this->modalPerPage
-            ? $query->paginate($this->modalPerPage)
+            ? $query->paginate($this->modalPerPage, ['*'], 'individuals')
             : $query->get();
 
         $this->noData = $data->isEmpty();
@@ -267,7 +288,7 @@ class Companies extends Component
     public function openShareholders($id)
     {
         $company = Company::find($id);
-
+        $this->resetPage('individuals');
         if ($company) {
             $this->companyShareholders = DB::table('company_shareholders')
                 ->join('individuals', 'company_shareholders.individual_id', '=', 'individuals.id')
@@ -284,7 +305,7 @@ class Companies extends Component
 
 
             $this->companyId = $company->id;
-            $this->company = $company->name;
+            $this->company = $company->name_dr;
 
             $this->shareholders = collect($this->companyShareholders)->pluck('id')->toArray();
 
@@ -453,7 +474,7 @@ class Companies extends Component
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
-            $columns = ['name', 'license_num', 'tin_num']; // Replace with your visible column names
+            $columns = ['name_dr', 'license_num', 'tin_num']; // Replace with your visible column names
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'like', $this->search . '%');
@@ -468,16 +489,12 @@ class Companies extends Component
 
         // Pagination logic
         if ($this->perPage) {
-            $data = $query->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
+            $data = $query->where('is_deleted', false)
+                ->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage, ['*'], 'companies');
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
         } else {
             $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
-        }
-
-        // Handle invalid page number
-        if (!$this->search && $this->perPage != 0 && $dataCount && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-            session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
         }
 
         return $data;
@@ -490,11 +507,19 @@ class Companies extends Component
     //life cycle hooks
     public function updatedPerPage()
     {
-        $this->resetPage();
+        $this->resetPage('companies');
     }
     public function updatedSearch()
     {
-        $this->resetPage();
+        $this->resetPage('companies');
+    }
+    public function updatedModalPerPage()
+    {
+        $this->resetPage('individuals');
+    }
+    public function updatedSearchedIndividual()
+    {
+        $this->resetPage('individuals');
     }
 
     public function render()
