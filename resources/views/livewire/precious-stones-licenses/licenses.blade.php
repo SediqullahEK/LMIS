@@ -65,7 +65,22 @@
 
                         <th scope="col" class="px-3 py-2 border border-slate-200">
                             <div class="flex justify-center">
+                                <span>نمبر مسلسل</span>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-3 py-2 border border-slate-200">
+                            <div class="flex justify-center">
+                                <span>حالت</span>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-3 py-2 border border-slate-200">
+                            <div class="flex justify-center">
                                 <span>چاپ</span>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-3 py-2 border border-slate-200">
+                            <div class="flex justify-center">
+                                <span>اعمال</span>
                             </div>
                         </th>
                     </tr>
@@ -74,7 +89,7 @@
                     @if ($licenses && count($licenses))
                         @foreach ($licenses as $index => $license)
                             <tr class="border-b hover:bg-warning-400">
-                                {{ dd($license) }}
+                                {{-- {{ dd($license) }} --}}
                                 <td class="px-3 py-2 border border-slate-200">
                                     @if ($perPage)
                                         {{ $licenses->firstItem() + $index }}
@@ -83,42 +98,48 @@
                                     @endif
                                 </td>
                                 <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->company->name_dr ?? '' }}
+                                    {{ $license->individual_name ?? ($license->company_name ?? '') }}
                                 </td>
                                 <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->name_en ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->f_name ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{-- @if ($provinces && count($provinces))
-                                        @foreach ($provinces as $pr)
-                                            @if ($individual->province_id == $pr->id)
-                                                {{ $pr->name ?? '' }}
-                                            @endif
-                                        @endforeach
-                                    @endif --}}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->district ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->date_of_birth ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->nationality ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->tin_num ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->tazkira_num ?? '' }}
-                                </td>
-                                <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->phone ?? '' }}
+                                    {{ $license->tin_num ?? ($license->license_num ?? '') }}
                                 </td>
 
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->letter_id ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->stone ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->stone_amount ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->stone_color_dr ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->serial_number ?? '' }}
+                                </td>
+                                <td class="px-8 py-2 border border-slate-200">
+                                    @if ($license->status == 'in_process')
+                                        <p class="pb-1 px-1 text-white bg-[#D4AF37] rounded-full text-sm">در حال
+                                            پروسس</p>
+                                    @elseif ($license->status == 'printed')
+                                        <p class="py-1 px-1 text-white bg-green-500 rounded-full text-sm">چاپ شده</p>
+                                    @elseif ($license->status == 'expired')
+                                        <p class="py-1 px-1 text-white bg-red-900 rounded-full text-sm">منقضی شده</p>
+                                    @endif
+                                </td>
+
+
+                                <td class="px-2 py-2 border border-slate-200 dark:text-white">
+                                    @can('ویرایش شخص')
+                                        <button
+                                            @click=" @this.call('editIndividual', {{ $license->id }}); @this.call('openForm',0) "
+                                            class=" text-gray-900 px-2 py-2 rounded">
+                                            <span class="text-xl px-3 pt-5"><i class="fa  fa-print text-sky-800"></i></span>
+                                        </button>
+                                    @endcan
+                                </td>
 
                                 <td class="px-2 py-2 border border-slate-200 dark:text-white">
                                     @can('ویرایش شخص')

@@ -55,6 +55,15 @@ class Licenses extends Component
             $data = $query->where('psp_licenses.is_deleted', false)
                 ->join('individuals', 'psp_licenses.individual_id', 'individuals.id')
                 ->join('companies', 'psp_licenses.company_id', 'companies.id')
+                ->join('precious_semi_precious_stones', 'precious_semi_precious_stones.id', 'psp_licenses.stone_id')
+                ->select(
+                    'psp_licenses.*',
+                    'individuals.name_dr as individual_name',
+                    'companies.name_dr as company_name',
+                    'individuals.tin_num as tin_num',
+                    'companies.license_num as license_num',
+                    'precious_semi_precious_stones.name as stone'
+                )
                 ->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
