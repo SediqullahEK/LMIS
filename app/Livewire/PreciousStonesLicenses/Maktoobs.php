@@ -137,7 +137,7 @@ class Maktoobs extends Component
                 $this->companyId = $company->id;
                 $this->companyName = $company->name;
                 $this->companyTINNumber = $company->tin_num;
-                $this->address = $company->tin_num;
+                $this->address = $company->address;
                 $this->licenseNumber = $company->license_num;
             } else {
                 $this->addError('licenseNumber', 'معلومات جواز نمبر ذیل موجود نیست');
@@ -149,7 +149,7 @@ class Maktoobs extends Component
             if ($company) {
                 $this->companyName = $company->name;
                 $this->companyTINNumber = $company->tin_num;
-                $this->address = $company->tin_num;
+                $this->address = $company->address;
                 $this->resetErrorBag('licenseNumber');
             } else {
                 $this->addError('licenseNumber', 'معلومات جواز نمبر ذیل موجود نیست');

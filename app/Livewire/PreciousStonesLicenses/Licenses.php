@@ -2,18 +2,319 @@
 
 namespace App\Livewire\PreciousStonesLicenses;
 
+use App\Models\Company;
+use App\Models\Individual;
+use App\Models\Province;
 use App\Models\PSPLicense;
+use App\Models\PSStone;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Licenses extends Component
 {
+    use WithPagination;
     public $perPage = 5;
     public $currentPage = 1;
     public $isDataLoaded = false;
     public $noData = false;
     public $sortField = 'psp_licenses.created_at';
     public $sortDirection = 'asc';
+    public $isEditing = false;
+    public $isOpen = false;
+    public $confirm = false;
+    public $individualId;
+    public $search;
 
+
+    public $quantity;
+    public $stone;
+    public $stoneColorDr;
+    public $stoneColorEn;
+    public $stoneAmount;
+    public $requestId;
+    public $licenseId;
+    public $letterNumber;
+    public $letterNumberError;
+    public $letterSubject;
+    public $individualDetails = false;
+    public $name;
+    public $province;
+    public $tinNumber;
+    public $fathersName;
+    public $tazkiraNumber;
+    public $companyDetails = false;
+    public $companyName;
+    public $companyTINNumber;
+    public $licenseNumber;
+    public $address;
+    public $companyId;
+
+    //Individual CRUD section
+    protected $rules = [
+        'letterNumber' => 'required|numeric|unique:psp_licenses,letter_id',
+        'stone' => 'required|not_in:0',
+        'stoneColorDr' => 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255',
+        'stoneColorEn' => 'required|regex:/^[A-Za-z\s]+$/|max:255',
+        'stoneAmount' => 'required|numeric',
+
+    ];
+
+    protected $messages = [
+        'stone.*' => 'انتخاب سنگ لازمی میباشد',
+        'letterNumber.required' => 'نمبر عریضه لازمی میباشد',
+        'letterNumber.unique' => 'مشخصات ذیل در سیستم از قبل موجود است',
+        'stoneColorDr.required' => 'رنگ سنگ دری لازمی میباشد',
+        'stoneColorEn.required' => 'رنگ سنگ انگلیسی لازمی میباشد',
+        'stoneAmount.required' => 'مقدار سنگ لازمی میباشد',
+        'stoneColorDr.regex' => 'رنگ سنگ را به زبان دری وارد کنید',
+        'stoneColorEn.regex' => 'رنگ سنگ را به زبان انگلیسی وارد کنید',
+    ];
+
+    // Real-time validation for individual fields
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
+    //CRUD section
+    public function addLicense()
+    {
+        // dd('called');
+        $validatedData = $this->validate();
+
+
+
+        if ($this->individualDetails) {
+            $this->resetErrorBag('tazkiraNumber');
+            $this->validate(['tazkiraNumber' => 'required'], [
+                'tazkiraNumber.required' => 'نمبر تذکره متقاضی لازمی میباشد',
+            ]);
+        }
+        if ($this->companyDetails) {
+            $this->validate(['licenseNumber' => 'required'], [
+                'licenseNumber.required' => 'نمبر جواز متقاضی لازمی میباشد',
+            ]);
+        }
+        if (!$this->companyDetails && !$this->individualDetails) {
+            $this->validate(['individualDetails' => 'required|accepted'], [
+                'individualDetails.*' => 'مشخصات متقاضی لازمی میباشد',
+            ]);
+        }
+
+
+        DB::transaction(
+            function () {
+                $license = PSPLicense::create([
+                    'created_by' => auth()->user()->id,
+                    'letter_id' => $this->letterNumber,
+                    'individual_id' => $this->individualId,
+                    'company_id' => $this->companyId ?? null,
+                    'stone_color_dr' => $this->stoneColorDr,
+                    'stone_color_en' => $this->stoneColorEn,
+                    'stone_id' => $this->stone,
+                    'stone_amount' => $this->stoneAmount,
+                ]);
+                $license->update([
+                    'serial_number' => 'momplcs0' . $license->id,
+                ]);
+                logActivity('create', 'app\Models\PSPLicense', $license->id);
+                session()->flash('message', 'مکاتیب موفقانه ایجاد گردید.');
+                $this->isOpen = false;
+                $this->resetForm();
+            }
+        );
+    }
+    public function editLicense($id)
+    {
+        $this->isEditing = true;
+        $this->licenseId = $id;
+        $this->resetForm();
+
+        $license = PSPLicense::find($id);
+        $this->letterNumber = $license->letter_id;
+        $this->checkLetterData();
+
+        $this->stone = $license->stone_id;
+        $this->loadQauntity();
+        $this->stoneColorDr = $license->stone_color_dr;
+        $this->stoneColorEn = $license->stone_color_en;
+        $this->stoneAmount = $license->stone_amount;
+        $this->individualId = $license->individual_id;
+        $this->loadIndividualData();
+        $this->individualDetails = true;
+    }
+
+    public function loadQauntity()
+    {
+        if ($this->stone) {
+            $stone = PSStone::find($this->stone);
+            if ($stone) {
+                $this->quantity = $stone->quantity;
+            } else {
+                session()->flash('error', 'خطا در پروسه جستجوی معلومات سنگ');
+            }
+        }
+    }
+
+    public function loadIndividualData()
+    {
+        if ($this->tazkiraNumber || $this->individualId) {
+            $individual = Individual::when($this->tazkiraNumber, function ($query) {
+                $query->where('tazkira_num', $this->tazkiraNumber);
+            })->when($this->individualId, function ($query) {
+                $query->where('id', $this->individualId);
+            })->first();
+
+            if ($individual) {
+                $this->province = Province::where('id', $individual->province_id)->first()->name;
+                $this->name = $individual->name_dr;
+                $this->fathersName = $individual->f_name;
+                $this->tinNumber = $individual->tin_num;
+                $this->individualId = $individual->id;
+                $this->tazkiraNumber = $individual->tazkira_num;
+                $this->companyId = DB::connection('LMIS')
+                    ->table('company_shareholders')
+                    ->where('individual_id', $individual->id)
+                    ->value('company_id');
+                $this->loadCompanyData();
+                $this->resetErrorBag('tazkiraNumber');
+            } else {
+                $this->addError('tazkiraNumber', 'معلومات تذکره نمبر ذیل موجود نیست');
+                $this->companyId = null;
+                $this->resetIndividualData();
+                return;
+            }
+        }
+    }
+    public function loadCompanyData()
+    {
+
+        if ($this->companyId) {
+            // dd('called', $this->companyId);
+            $company = Company::find($this->companyId);
+
+            if ($company) {
+                $this->companyId = $company->id;
+                $this->companyName = $company->name_dr;
+                $this->companyTINNumber = $company->tin_num;
+                $this->address = $company->address;
+                $this->licenseNumber = $company->license_num;
+            } else {
+                $this->addError('licenseNumber', 'معلومات جواز نمبر ذیل موجود نیست');
+                $this->resetCompanyData();
+                return;
+            }
+        } elseif ($this->licenseNumber) {
+            $company = Company::where('license_num', $this->licenseNumber)->first();
+            if ($company) {
+                $this->companyName = $company->name_dr;
+                $this->companyTINNumber = $company->tin_num;
+                $this->address = $company->address;
+                $this->resetErrorBag('licenseNumber');
+            } else {
+                $this->addError('licenseNumber', 'معلومات جواز نمبر ذیل موجود نیست');
+                $this->resetCompanyData();
+                return;
+            }
+        }
+    }
+
+    public function checkLetterData()
+    {
+        $letter = DB::connection('momp_mis')
+            ->table('letters')
+            ->where('department_operation.department_id', 30)
+            ->where('letters.id', $this->letterNumber)
+            ->join('operations', 'letters.id', '=', 'operations.letter_id')
+            ->join('department_operation', 'operations.department_id', '=', 'department_operation.department_id')
+            ->select('letters.id', 'letters.subject')
+            ->first();
+        // dd('called', $letter);
+        if ($letter) {
+            $this->letterSubject = $letter->subject;
+            $this->letterNumberError = '';
+        } else {
+            if (!session()->has('errors') || !session('errors')->has('letterNumber')) {
+                $this->letterNumberError = 'عریضه ذیل در سیستم موجود نیست!';
+            } else {
+                $this->letterNumberError = '';
+            }
+            $this->letterSubject = '';
+        }
+    }
+    public function resetIndividualData($flag = 0)
+    {
+        //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
+        if ($this->individualDetails) {
+        } else if ($flag) {
+            $this->tazkiraNumber = null; //data search field
+            $this->province = '';
+            $this->name = '';
+            $this->individualId = null;
+            $this->fathersName = '';
+            $this->tinNumber = '';
+        } else {
+            $this->individualId = null;
+            $this->province = '';
+            $this->name = '';
+            $this->fathersName = '';
+            $this->tinNumber = '';
+        }
+    }
+
+    public function resetCompanyData($flag = 0)
+    {
+        //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
+        if ($this->companyDetails) {
+        } else if ($flag) {
+            $this->licenseNumber = null; //data search field
+            $this->companyName = '';
+            $this->companyTINNumber = '';
+            $this->address = '';
+        } else {
+
+            $this->companyName = '';
+            $this->companyTINNumber = '';
+            $this->address = '';
+        }
+    }
+    // alerts/modals section
+    public function openForm($fs)
+    {
+        if ($fs) {
+            $this->isEditing = false;
+            $this->isOpen = true;
+        } else {
+            $this->isEditing = true;
+            $this->isOpen = true;
+        }
+    }
+    public function toggleConfirm($id)
+    {
+        if ($id) {
+            $this->idToDelete = $id;
+            $this->confirm = true;
+        } else {
+            $this->confirm = false;
+        }
+    }
+    public function resetForm()
+    {
+        $this->resetCompanyData();
+        $this->resetIndividualData();
+        $this->stone = 0;
+        $this->reset([
+            'letterNumber',
+            'letterSubject',
+            'quantity',
+            'stoneColorDr',
+            'stoneColorEn',
+            'stoneAmount'
+        ]);
+        $this->resetValidation();
+        $this->individualDetails = false;
+        $this->companyDetails = false;
+    }
 
     public function sortBy($field)
     {
@@ -31,46 +332,46 @@ class Licenses extends Component
         $data;
         $dataCount;
 
-        // Start building the query
-        $query = PSPLicense::query();
+        // Start building the base query
+        $query = PSPLicense::query()
+            ->where('psp_licenses.is_deleted', false)
+            ->join('individuals', 'psp_licenses.individual_id', '=', 'individuals.id')
+            ->join('companies', 'psp_licenses.company_id', '=', 'companies.id')
+            ->join('precious_semi_precious_stones', 'precious_semi_precious_stones.id', '=', 'psp_licenses.stone_id')
+            ->select(
+                'psp_licenses.*',
+                'individuals.name_dr as individual_name',
+                'companies.name_dr as company_name',
+                'individuals.tin_num as tin_num',
+                'companies.license_num as license_num',
+                'precious_semi_precious_stones.name as stone'
+            );
+
 
         // Apply search filter if the search input is not empty
-        // if (!empty($this->search)) {
-        //     $columns = ['name_dr', 'f_name', 'tin_num', 'tazkira_num']; // Replace with your visible column names
-        //     $query->where(function ($q) use ($columns) {
-        //         foreach ($columns as $column) {
-        //             $q->orWhere($column, 'like', $this->search . '%');
-        //         }
-        //     });
-        // }
-
-        if ($query->get()->isEmpty()) {
-            $this->noData = true;
-        } else {
-            $this->noData = false;
+        if (!empty($this->search)) {
+            $columns = ['individuals.name_dr', 'companies.name_dr', 'individuals.tin_num', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
+            $query->where(function ($q) use ($columns) {
+                foreach ($columns as $column) {
+                    $q->orWhere($column, 'like', '%' . $this->search . '%');
+                }
+            });
         }
+
+        // Check if query has any results
+        $this->noData = $query->get()->isEmpty();
 
         // Pagination logic
         if ($this->perPage) {
-            $data = $query->where('psp_licenses.is_deleted', false)
-                ->join('individuals', 'psp_licenses.individual_id', 'individuals.id')
-                ->join('companies', 'psp_licenses.company_id', 'companies.id')
-                ->join('precious_semi_precious_stones', 'precious_semi_precious_stones.id', 'psp_licenses.stone_id')
-                ->select(
-                    'psp_licenses.*',
-                    'individuals.name_dr as individual_name',
-                    'companies.name_dr as company_name',
-                    'individuals.tin_num as tin_num',
-                    'companies.license_num as license_num',
-                    'precious_semi_precious_stones.name as stone'
-                )
-                ->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
+            $data = $query->orderBy($this->sortField, $this->sortDirection)
+                ->paginate($this->perPage);
+
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
         } else {
-            $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
+            $data = $query->orderBy($this->sortField, $this->sortDirection)
+                ->get();
         }
-
 
         return $data;
     }
@@ -80,6 +381,14 @@ class Licenses extends Component
         $this->isDataLoaded = true;
     }
     //life cycle hooks
+
+    public function updatedIndividualDetails()
+    {
+        if (!$this->letterNumber) {
+            $this->individualDetails = false;
+            $this->addError('letterNumber', 'نخست معلومات عریضه را وارد کنید');
+        }
+    }
     public function updatedPerPage()
     {
         $this->resetPage();
@@ -91,8 +400,24 @@ class Licenses extends Component
 
     public function render()
     {
+        if ($this->tazkiraNumber) {
+            $this->loadIndividualData();
+        } else {
+            $this->resetIndividualData();
+        }
+        if ($this->licenseNumber) {
+            $this->loadCompanyData();
+        } else {
+            $this->resetCompanyData();
+        }
+        if ($this->letterNumber) {
+            $this->checkLetterData();
+        } else {
+            $this->letterSubject = '';
+        }
         return view('livewire.precious-stones-licenses.licenses', [
             'licenses' => $this->isDataLoaded ? $this->tableData() : collect(),
+            'stones' => PSStone::all()
         ]);
     }
 }

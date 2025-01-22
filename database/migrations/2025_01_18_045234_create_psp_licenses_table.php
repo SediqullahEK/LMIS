@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('psp_licenses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('letter_id');
+            $table->unsignedBigInteger('letter_id')->unique();
             $table->unsignedBigInteger('individual_id');
             $table->unsignedBigInteger('company_id')->nullable();
             $table->unsignedBigInteger('stone_id');
@@ -68,6 +68,7 @@ return new class extends Migration
                 ->onDelete('restrict')
                 ->onUpdate('cascade');
             $table->timestamps();
+            $table->unique(['letter_id', 'individual_id', 'company_id', 'stone_id'], 'unique_psp_license');
         });
     }
 
