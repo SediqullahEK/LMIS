@@ -255,7 +255,7 @@ class Individuals extends Component
             $this->resetForm();
         }
     }
-    public function deleteIndividual(Request $request)
+    public function deleteIndividual()
     {
         $individual = Individual::find($this->idToDelete);
         if ($individual) {
@@ -267,11 +267,11 @@ class Individuals extends Component
             $individual->deleted_at = now();
             $individual->save();
             logActivity('delete', 'App\Models\Companies', $individual->id);
-            $request->session()->flash('message', 'شخص موفقانه حذف شد');
+            session()->flash('message', 'شخص موفقانه حذف شد');
             $this->confirm = false;
             $this->loadTableData();
         } else {
-            $request->session()->flash('error', 'خطا در پروسه حذف');
+            session()->flash('error', 'خطا در پروسه حذف');
             $this->confirm = false;
         }
     }

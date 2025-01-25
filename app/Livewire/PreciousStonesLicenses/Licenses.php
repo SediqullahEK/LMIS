@@ -9,11 +9,14 @@ use App\Models\PSPLicense;
 use App\Models\PSStone;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Livewire\WithPagination;
+use Illuminate\Validation\Rule;
 
 class Licenses extends Component
 {
     use WithPagination;
+    use WithFileUploads;
     public $perPage = 5;
     public $currentPage = 1;
     public $isDataLoaded = false;
@@ -37,6 +40,7 @@ class Licenses extends Component
     public $letterNumber;
     public $letterNumberError;
     public $letterSubject;
+    public $maktoobsScans;
     public $individualDetails = false;
     public $name;
     public $province;
@@ -144,6 +148,102 @@ class Licenses extends Component
         $this->individualDetails = true;
     }
 
+
+    public function updateLicense()
+    {
+        $license = PSPLicense::findOrFail($this->licenseId);
+
+        $validationRules = [];
+        $messages = [];
+        $changedFields = [];
+
+        if ($this->individualDetails && $this->individualId != $license->individual_id) {
+            $this->resetErrorBag('tazkiraNumber');
+            $validationRules['tazkiraNumber'] = 'required|numeric';
+            $messages['tazkiraNumber.required'] = 'نمبر تذکره متقاضی لازمی میباشد';
+
+            $changedFields['individual_id'] = $this->individualId;
+        }
+        if ($this->companyDetails && $this->companyId != $license->company_id) {
+            $validationRules['licenseNumber'] = 'required|numeric';
+            $messages['licenseNumber.required'] = 'نمبر جواز متقاضی لازمی میباشد';
+            $changedFields['company_id'] = $this->companyId;
+        } else {
+            $changedFields['company_id'] = $this->companyId;
+        }
+        if (!$this->companyDetails && !$this->individualDetails) {
+            $validationRules['individualDetails'] = 'required|accepted';
+            $messages['individualDetails.required'] = 'مشخصات متقاضی لازمی میباشد';
+            $changedFields['company_id'] = $this->companyId;
+        }
+
+        if ($this->letterNumber !== $license->letter_id) {
+            $validationRules['letterNumber'] = [
+                'required',
+                'numeric',
+                Rule::unique('psp_licenses', 'letter_id')->ignore($this->licenseId)
+            ];
+            $messages['letterNumber.required'] = 'نمبر عریضه لازمی میباشد';
+            $messages['letterNumber.unique'] = 'مشخصات ذیل در سیستم از قبل موجود است';
+            $changedFields['letter_id'] = $this->letterNumber;
+        }
+
+        if ($this->stone !== $license->stone_id) {
+            $validationRules['stone'] = 'required|not_in:0';
+            $messages['stone.*'] = 'انتخاب سنگ لازمی میباشد';
+            $changedFields['stone_id'] = $this->stone;
+        }
+
+        if ($this->stoneColorDr !== $license->stone_color_dr) {
+            $validationRules['stoneColorDr'] = 'required|regex:/^[\p{Script=Arabic}\s]+$/u|max:255';
+            $messages['stoneColorDr.required'] = 'رنگ سنگ دری لازمی میباشد';
+            $messages['stoneColorDr.regex'] = 'رنگ سنگ را به زبان دری وارد کنید';
+            $changedFields['stone_color_dr'] = $this->stoneColorDr;
+        }
+
+
+        if ($this->stoneColorEn !== $license->stone_color_en) {
+            $validationRules['stoneColorEn'] = 'required|regex:/^[A-Za-z\s]+$/|max:255';
+            $messages['stoneColorEn.required'] = 'رنگ سنگ انگلیسی لازمی میباشد';
+            $messages['stoneColorEn.regex'] = 'رنگ سنگ را به زبان انگلیسی وارد کنید';
+            $changedFields['stone_color_en'] = $this->stoneColorEn;
+        }
+
+        if ($this->stoneAmount !== $license->stone_amount) {
+            $validationRules['stoneAmount'] = 'required|numeric';
+            $messages['stoneAmount.required'] = 'مقدار سنگ لازمی میباشد';
+            $changedFields['stone_amount'] = $this->stoneAmount;
+        }
+
+        if (empty($changedFields)) {
+            session()->flash('error', 'هیچ تغییر جدید در معلومات ایجاد نشده!');
+            return;
+        } else {
+
+            $validatedData = $this->validate($validationRules, $messages);
+        }
+
+        $beforeState = $license->toArray();
+
+        $license->fill($changedFields);
+        $license->updated_by = auth()->id();
+        // dd($license);
+        $done = $license->save();
+
+        logActivity('update', 'App\Models\PSPLicense', $license->id, [
+            'قبلا' => $beforeState,
+            'بعدا' => $license->toArray(),
+        ]);
+
+        if ($done) {
+            $this->isOpen = false;
+            session()->flash('message', 'جواز موفقانه ویرایش گردید');
+            $this->resetForm();
+        }
+    }
+
+
+
     public function loadQauntity()
     {
         if ($this->stone) {
@@ -161,10 +261,9 @@ class Licenses extends Component
         if ($this->tazkiraNumber || $this->individualId) {
             $individual = Individual::when($this->tazkiraNumber, function ($query) {
                 $query->where('tazkira_num', $this->tazkiraNumber);
-            })->when($this->individualId, function ($query) {
+            })->when(!$this->tazkiraNumber && $this->individualId, function ($query) {
                 $query->where('id', $this->individualId);
             })->first();
-
             if ($individual) {
                 $this->province = Province::where('id', $individual->province_id)->first()->name;
                 $this->name = $individual->name_dr;
@@ -176,7 +275,12 @@ class Licenses extends Component
                     ->table('company_shareholders')
                     ->where('individual_id', $individual->id)
                     ->value('company_id');
-                $this->loadCompanyData();
+                if ($this->companyId) {
+                    $this->loadCompanyData();
+                } else {
+                    $this->resetCompanyData(2);
+                }
+
                 $this->resetErrorBag('tazkiraNumber');
             } else {
                 $this->addError('tazkiraNumber', 'معلومات تذکره نمبر ذیل موجود نیست');
@@ -194,6 +298,7 @@ class Licenses extends Component
             $company = Company::find($this->companyId);
 
             if ($company) {
+                $this->companyDetails = true;
                 $this->companyId = $company->id;
                 $this->companyName = $company->name_dr;
                 $this->companyTINNumber = $company->tin_num;
@@ -261,11 +366,16 @@ class Licenses extends Component
             $this->tinNumber = '';
         }
     }
-
     public function resetCompanyData($flag = 0)
     {
         //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
-        if ($this->companyDetails) {
+        if ($flag == 2) {
+            $this->licenseNumber = null; //data search field
+            $this->companyName = '';
+            $this->companyTINNumber = '';
+            $this->address = '';
+            $this->companyDetails = false;
+        } else if ($this->companyDetails) {
         } else if ($flag) {
             $this->licenseNumber = null; //data search field
             $this->companyName = '';
@@ -335,18 +445,17 @@ class Licenses extends Component
         // Start building the base query
         $query = PSPLicense::query()
             ->where('psp_licenses.is_deleted', false)
-            ->join('individuals', 'psp_licenses.individual_id', '=', 'individuals.id')
-            ->join('companies', 'psp_licenses.company_id', '=', 'companies.id')
-            ->join('precious_semi_precious_stones', 'precious_semi_precious_stones.id', '=', 'psp_licenses.stone_id')
+            ->leftJoin('individuals', 'psp_licenses.individual_id', '=', 'individuals.id')
+            ->leftJoin('companies', 'psp_licenses.company_id', '=', 'companies.id')
+            ->leftJoin('precious_semi_precious_stones', 'precious_semi_precious_stones.id', '=', 'psp_licenses.stone_id')
             ->select(
                 'psp_licenses.*',
                 'individuals.name_dr as individual_name',
                 'companies.name_dr as company_name',
-                'individuals.tin_num as tin_num',
+                'individuals.tazkira_num as tazkira_num',
                 'companies.license_num as license_num',
                 'precious_semi_precious_stones.name as stone'
             );
-
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {

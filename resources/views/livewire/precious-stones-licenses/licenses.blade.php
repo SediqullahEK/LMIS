@@ -57,7 +57,7 @@
                                 class="bg-red-600 text-white px-5 py-2 rounded-md hover:bg-red-500 transition">
                                 لغو
                             </button>
-                            <button id="confirmButton" @click=" @this.call('deleteIndividual')"
+                            <button id="confirmButton" @click=" @this.call('deleteLIcense')"
                                 class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-500 transition">
                                 تایید
                             </button>
@@ -503,7 +503,19 @@
                         <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
                             wire:click="sortBy('individuals.name_dr')">
                             <div class="flex justify-center">
-                                <span>متقاضی</span>
+                                <span>نام متقاضی</span>
+                                @if ($sortField === 'individuals.name_dr')
+                                    <span
+                                        class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
+                                @else
+                                    <span class="text-gray-400 mr-2"><i class="fa fa-sort"></i></span>
+                                @endif
+                            </div>
+                        </th>
+                        <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
+                            wire:click="sortBy('individuals.name_dr')">
+                            <div class="flex justify-center">
+                                <span>شرکت</span>
                                 @if ($sortField === 'individuals.name_dr')
                                     <span
                                         class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
@@ -514,7 +526,12 @@
                         </th>
                         <th scope="col" class="px-3 py-2 border border-slate-200">
                             <div class="flex justify-center">
-                                <span>نمبر جواز/تشخیصیه</span>
+                                <span>نمبر تذکره</span>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-3 py-2 border border-slate-200">
+                            <div class="flex justify-center">
+                                <span>نمبر جواز</span>
                             </div>
                         </th>
                         <th scope="col" class="px-3 py-2 border border-slate-200">
@@ -585,10 +602,16 @@
                                     @endif
                                 </td>
                                 <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->individual_name ?? ($license->company_name ?? '') }}
+                                    {{ $license->individual_name ?? '' }}
                                 </td>
                                 <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->tin_num ?? ($license->license_num ?? '') }}
+                                    {{ $license->company_name ?? 'ندارد' }}
+                                </td>
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->tazkira_num ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 border border-slate-200">
+                                    {{ $license->license_num ?? 'ندارد' }}
                                 </td>
 
                                 <td class="px-3 py-2 border border-slate-200">
@@ -620,17 +643,52 @@
 
                                 <td class="px-2 py-2 border border-slate-200 dark:text-white">
                                     @can('ویرایش شخص')
+                                        <span class="w-full text-right mx-auto">
+                                            <input type="file" wire:model="maktoobsScans" name="maktoobsScans"
+                                                id="file-upload" accept="application/pdf" class="hidden" />
+
+                                            <label for="file-upload"
+                                                class="cursor-pointer mt-1 block md:mr-[18px] mr-[20px]">
+                                                <span wire:loading.remove wire:target="maktoobsScans">
+                                                    @if ($maktoobsScans)
+                                                        <i class="fa fa-upload text-[#189197] text-xl"></i>
+                                                    @else
+                                                        <i class="fa fa-upload text-sky-800 text-xl"></i>
+                                                    @endif
+                                                </span>
+
+                                                <span wire:loading wire:target="maktoobsScans">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="black">
+                                                        <rect width="6" height="14" x="1" y="4">
+                                                            <animate attributeName="opacity" begin="0s"
+                                                                dur="0.5s" values="1;0.2" repeatCount="indefinite" />
+                                                        </rect>
+                                                        <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                                                            <animate attributeName="opacity" begin="0.2s"
+                                                                dur="0.5s" values="1;0.2" repeatCount="indefinite" />
+                                                        </rect>
+                                                        <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                                                            <animate attributeName="opacity" begin="0.4s"
+                                                                dur="0.5s" values="1;0.2" repeatCount="indefinite" />
+                                                        </rect>
+                                                    </svg>
+                                                </span>
+                                            </label>
+
+                                            @error('maktoobsScans')
+                                                <p class="text-red-500">{{ $message }}</p>
+                                            @enderror
+                                        </span>
+
+
+
+
                                         <button
                                             @click=" @this.call('editLicense', {{ $license->id }}); @this.call('openForm',0) "
                                             class=" text-gray-900 px-2 py-2 rounded">
-                                            <span class="text-xl px-3 pt-5"><i
-                                                    class="fa  fa-upload text-sky-800"></i></span>
-                                        </button>
-                                        <button
-                                            @click=" @this.call('editLicense', {{ $license->id }}); @this.call('openForm',0) "
-                                            class=" text-gray-900 px-2 py-2 rounded">
-                                            <span class="text-xl px-3 pt-5"><i
-                                                    class="fa  fa-file text-sky-800"></i></span>
+                                            <a href="{{ route('ps_maktoobs') }}" class="text-xl px-3 pt-5"><i
+                                                    class="fa  fa-file text-sky-800"></i></a>
                                         </button>
                                     @endcan
                                 </td>
