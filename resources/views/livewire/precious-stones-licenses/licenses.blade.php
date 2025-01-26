@@ -3,7 +3,7 @@
     <div class="bg-white px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]" dir='rtl'>
 
         {{-- alerts section --}}
-        <div wire:loading wire:target="openForm, toggleConfirm">
+        <div wire:loading wire:target="openForm, toggleConfirm,navigateToMaktoobs">
             <x-loader />
         </div>
         @if (session()->has('message'))
@@ -690,7 +690,8 @@
                                             @enderror
                                         </span>
 
-                                        <a href="{{ route('ps_maktoobs') }}" class="text-md px-3">
+                                        <a wire:click="navigateToMaktoobs({{ $license->id }})"
+                                            class="text-md px-3 cursor-pointer">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="fill-[#366089]  w-6 h-6"
                                                 viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
                                                 <path

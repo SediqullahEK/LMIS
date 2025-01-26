@@ -7,6 +7,7 @@ use App\Models\Individual;
 use App\Models\Province;
 use App\Models\PSPLicense;
 use App\Models\PSStone;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -35,6 +36,16 @@ class Maktoobs extends Component
     public $quantity;
     public $stoneColorEn;
     public $stoneAmount;
+
+    public $id;
+
+    public function mount(Request $request)
+    {
+        $this->id = session('license_id'); // Retrieve from session
+        if (!$this->id) {
+            abort(403, 'ID not found');
+        }
+    }
 
     public function generateMaktoobs()
     {

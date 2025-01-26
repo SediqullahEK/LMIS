@@ -341,6 +341,11 @@ class Licenses extends Component
             }
         }
     }
+    public function navigateToMaktoobs($id)
+    {
+        session(['license_id' => $id]);
+        return redirect()->route('ps_maktoobs');
+    }
 
     public function checkLetterData()
     {
@@ -365,6 +370,7 @@ class Licenses extends Component
             $this->letterSubject = '';
         }
     }
+
     public function resetIndividualData($flag = 0)
     {
         //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
@@ -502,13 +508,13 @@ class Licenses extends Component
 
         return $data;
     }
-
     public function loadTableData()
     {
         $this->isDataLoaded = true;
     }
-    //life cycle hooks
 
+
+    //life cycle hooks
     public function updatedIndividualDetails()
     {
         if (!$this->letterNumber) {

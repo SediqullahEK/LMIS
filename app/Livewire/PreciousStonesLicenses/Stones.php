@@ -405,12 +405,7 @@ class Stones extends Component
         } else {
             $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
         }
-       
 
-        // Handle invalid page number
-        // if (!$this->search && $this->perPage != 0 && isset($dataCount) && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-        //     session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
-        // }
 
         return $data;
     }
