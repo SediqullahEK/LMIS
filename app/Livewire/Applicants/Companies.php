@@ -246,15 +246,17 @@ class Companies extends Component
     }
     public function loadAllShareholders()
     {
-        $query = DB::table('individuals')
+
+        $query =
+            DB::table('individuals')
             ->leftJoin('company_shareholders', 'individuals.id', '=', 'company_shareholders.individual_id')
             ->select(
                 'individuals.*',
                 'company_shareholders.shares_in_percentage',
-                DB::raw('CASE WHEN company_shareholders.individual_id IS NOT NULL THEN 1 ELSE 0 END AS is_shareholder')
+                DB::raw('CASE WHEN company_shareholders.company_id = ' . $this->companyId . ' THEN 1 ELSE 0 END AS is_shareholder')
             )
-            ->orderBy(DB::raw('CASE WHEN company_shareholders.individual_id IS NOT NULL THEN 1 ELSE 0 END'), 'desc') 
-            ->orderBy('company_shareholders.shares_in_percentage', 'desc'); 
+            ->orderByRaw('CASE WHEN company_shareholders.company_id = ' . $this->companyId . ' THEN 1 ELSE 0 END DESC')
+            ->orderBy('company_shareholders.shares_in_percentage', 'desc');
 
 
         if (!empty($this->searchedIndividual)) {
@@ -451,6 +453,7 @@ class Companies extends Component
         $this->province = 0;
         $this->address = '';
         $this->sharePercentages = [];
+        $this->shareholders = [];
         $this->resetValidation();
     }
     public function sortBy($field)

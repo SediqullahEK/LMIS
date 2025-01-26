@@ -516,6 +516,13 @@ class Licenses extends Component
             $this->addError('letterNumber', 'نخست معلومات عریضه را وارد کنید');
         }
     }
+    public function updatedCompanyDetails()
+    {
+        if (!$this->letterNumber) {
+            $this->companyDetails = false;
+            $this->addError('letterNumber', 'نخست معلومات عریضه را وارد کنید');
+        }
+    }
     public function updatedPerPage()
     {
         $this->resetPage();
