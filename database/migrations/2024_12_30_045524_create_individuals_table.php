@@ -53,7 +53,7 @@ return new class extends Migration
 
             $table->timestamps();
         });
-        DB::statement('ALTER TABLE individuals ADD FULLTEXT(name, f_name, tazkira_num, tin_num)');
+        DB::statement('ALTER TABLE individuals ADD FULLTEXT(name_dr, f_name, tazkira_num, tin_num)');
     }
 
     /**

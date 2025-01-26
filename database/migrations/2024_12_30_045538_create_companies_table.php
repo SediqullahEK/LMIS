@@ -44,7 +44,7 @@ return new class extends Migration
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });
-        DB::statement('ALTER TABLE companies ADD FULLTEXT(name, license_num, tin_num)');
+        DB::statement('ALTER TABLE companies ADD FULLTEXT(name_dr, license_num, tin_num)');
     }
 
     /**
