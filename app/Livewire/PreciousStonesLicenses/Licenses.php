@@ -18,6 +18,7 @@ class Licenses extends Component
     use WithPagination;
     use WithFileUploads;
     public $perPage = 5;
+    public $modalPerPage = 5;
     public $currentPage = 1;
     public $isDataLoaded = false;
     public $noData = false;
@@ -25,12 +26,14 @@ class Licenses extends Component
     public $sortDirection = 'asc';
     public $isEditing = false;
     public $isOpen = false;
+    public $maktoobModal = false;
+    public $loadMaktoobs = false;
     public $confirm = false;
     public $individualId;
     public $search;
+    public $searchedMaktoob;
     public $idToDelete;
-
-
+    public $selectedMaktoobs = [];
     public $quantity;
     public $stone;
     public $stoneColorDr;
@@ -344,6 +347,7 @@ class Licenses extends Component
     public function navigateToMaktoobs($id)
     {
         session(['license_id' => $id]);
+
         return redirect()->route('ps_maktoobs');
     }
 
@@ -423,6 +427,13 @@ class Licenses extends Component
             $this->isOpen = true;
         }
     }
+    public function openMaktoobsModal($id)
+    {
+        $this->maktoobModal = true;
+        $this->licenseId = $id;
+        $this->loadMaktoobs = true;
+    }
+
     public function toggleConfirm($id)
     {
         if ($id) {
@@ -497,7 +508,7 @@ class Licenses extends Component
         // Pagination logic
         if ($this->perPage) {
             $data = $query->orderBy($this->sortField, $this->sortDirection)
-                ->paginate($this->perPage);
+                ->paginate($this->perPage, ['*'], 'licenses');
 
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
@@ -513,6 +524,26 @@ class Licenses extends Component
         $this->isDataLoaded = true;
     }
 
+    public function maktoobsData()
+    {
+        $data = DB::connection('momp_mis')->table('makatebs')->where('department_id', 30)
+            ->when($this->searchedMaktoob, function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->where('subject', 'like', '%' . $this->searchedMaktoob . '%')
+                        ->orWhere('source', 'like', '%' . $this->searchedMaktoob . '%')
+                        ->orWhere('type', 'like', '%' . $this->searchedMaktoob . '%');
+                });
+            })
+            ->paginate($this->modalPerPage, ['*'], 'maktoobs');
+
+        return $data;
+        // dd($data);
+    }
+    public function addMaktoobsToLicenses()
+    {
+        dd($this->selectedMaktoobs, $this->licenseId);
+        //To work on syncing the maktoobs licensessssssssssssssssssssssssssssssssssssssssssssssssssssss
+    }
 
     //life cycle hooks
     public function updatedIndividualDetails()
@@ -531,11 +562,19 @@ class Licenses extends Component
     }
     public function updatedPerPage()
     {
-        $this->resetPage();
+        $this->resetPage('licenses');
     }
     public function updatedSearch()
     {
-        $this->resetPage();
+        $this->resetPage('licenses');
+    }
+    public function updatedModalPerPage()
+    {
+        $this->resetPage('maktoobs');
+    }
+    public function updatedSearchedMaktoob()
+    {
+        $this->resetPage('maktoobs');
     }
 
     public function render()
@@ -557,6 +596,7 @@ class Licenses extends Component
         }
         return view('livewire.precious-stones-licenses.licenses', [
             'licenses' => $this->isDataLoaded ? $this->tableData() : collect(),
+            'maktoobs' => $this->loadMaktoobs ? $this->maktoobsData() : collect(),
             'stones' => PSStone::all()
         ]);
     }

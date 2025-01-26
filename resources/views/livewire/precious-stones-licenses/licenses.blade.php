@@ -3,7 +3,7 @@
     <div class="bg-white px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]" dir='rtl'>
 
         {{-- alerts section --}}
-        <div wire:loading wire:target="openForm, toggleConfirm,navigateToMaktoobs">
+        <div wire:loading wire:target="openMaktoobsModal,openForm, toggleConfirm, navigateToMaktoobs">
             <x-loader />
         </div>
         @if (session()->has('message'))
@@ -67,7 +67,7 @@
             </div>
         @endcan
 
-        {{-- Add/Edit individual section --}}
+        {{-- Add/Edit License section --}}
         <div class="flex flex-wrap items-center justify-between mb-2">
             <!-- Add Button -->
             @can('ایجاد شخص جدید')
@@ -481,6 +481,210 @@
             </div>
         @endif
 
+        {{-- Maktoobs section --}}
+        <div x-data="{ maktoobModal: @entangle('maktoobModal') }" dir="rtl">
+            <div x-show="maktoobModal" style="display: none;"
+                class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50">
+
+                <!-- Modal Structure -->
+                <div x-show="maktoobModal" x-transition:enter="transition ease-out duration-500"
+                    x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
+                    class="bg-white p-4 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg lg:max-w-5xl mt-12 mx-4 relative">
+                    {{-- alerts section --}}
+                    @if (session()->has('error'))
+                        <div x-data="{ show: @json(session()->has('error')) }" x-init="if (show) { setTimeout(() => { show = false }, 5000); }" x-show="show"
+                            class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-300 text-gray-800 px-3 py-4 shadow-xl flex justify-between items-center rounded-lg w-auto">
+                            <button @click="show = false"
+                                class="text-gray-500 hover:text-gray-700 text-2xl ">&times;</button>
+                            {{ session('error') }}
+                            <svg class="h-5 w-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    @endif
+                    <div wire:loading wire:target="generateMaktoobs">
+                        <x-loader />
+                    </div>
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-center pb-4 border-b w-full max-w-5xl">
+                        <h2 class="text-xl font-semibold">
+                            {{ 'انتخاب مکاتیب' }}
+                        </h2>
+                        <button @click="maktoobModal = false; @this.call('resetForm');"
+                            class="text-gray-500 hover:text-gray-700 text-4xl p-2">&times;</button>
+                    </div>
+                    <input type="text"
+                        class="border border-gray-300 w-full rounded-lg py-2 px-4 mt-2 shadow-sm focus:ring-2 focus:ring-yellow-100 focus:outline-none focus:border-yellow-500 hover:border-gray-400 transition-all duration-150"
+                        placeholder="جستجو" wire:model.live.debounce.400ms="searchedMaktoob">
+                    <!-- Scrollable Modal Content -->
+                    <div class="overflow-y-auto overflow-x-auto  max-h-[70vh] my-2">
+
+                        <table dir="rtl"
+                            class="w-full table-auto mb-4 text-sm text-center text-gray-900 border border-slate-100">
+                            <thead class="text-xs text-gray-50 bg-[#2C3E50] uppercase">
+                                <tr>
+                                    <th scope="col" class="py-2 border border-slate-200">
+                                        <div class="flex items-center justify-center">
+                                            <select id="perPage" wire:model.live="modalPerPage"
+                                                class="text-xs text-gray-100 bg-[#2C3E50] border  cursor-pointer rounded-md px-1 py-1 focus:outline-none">
+                                                <option value="5" selected>5</option>
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                <option value="0">همه</option>
+                                            </select>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-3 py-2 border border-slate-200">
+                                        <div class="flex justify-center">
+                                            <span>نوعیت</span>
+
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-3 py-2 border border-slate-200">
+                                        <div class="flex justify-center">
+                                            <span>موضوع</span>
+
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-3 py-2 border border-slate-200">
+                                        <div class="flex justify-center">
+                                            <span>مرجع</span>
+
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-3 py-2 border border-slate-200">
+                                        <div class="flex justify-center">
+                                            <span>موقعیت فزیکی</span>
+
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-3 py-2 border border-slate-200">
+                                        <div class="flex justify-center">
+                                            <span>تاریخ</span>
+                                        </div>
+                                    </th>
+
+                                    @can('اضافه نمودن سهام دار')
+                                        <th scope="col" class="px-3 py-2 border border-slate-200">
+                                            <div class="flex justify-center">
+                                                <span>انتخاب</span>
+                                            </div>
+                                        </th>
+                                    @endcan
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if ($maktoobs && count($maktoobs))
+                                    @foreach ($maktoobs as $index => $maktoob)
+                                        <tr class="border-b hover:bg-warning-400">
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                @if ($modalPerPage)
+                                                    {{ $maktoobs->firstItem() + $index }}
+                                                @else
+                                                    {{ ++$index }}
+                                                @endif
+                                            </td>
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                {{ $maktoob->type ?? '' }}
+                                            </td>
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                {{ $maktoob->subject ?? '' }}
+                                            </td>
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                {{ $maktoob->source ?? '' }}
+                                            </td>
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                {{ $maktoob->file_location ?? '' }}
+                                            </td>
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                {{ $maktoob->date ?? '' }}
+                                            </td>
+
+                                            <td class="px-2 py-2 border border-slate-200 cursor-pointer">
+                                                <input id="{{ $maktoob->id }}" type="checkbox"
+                                                    class="text-2xl cursor-pointer rounded"
+                                                    wire:model="selectedMaktoobs"
+                                                    onclick="toggleInputDisable({{ $maktoob->id }})"
+                                                    value="{{ $maktoob->id }}">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                        @if ($noData)
+                            <h1 class="font-bold text-xl text-red-900">معلومات موجود نمیباشد! </h1>
+                        @endif
+                        <span wire:loading wire:target="searchedMaktoob,maktoobsData,modalPerPage">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="black">
+                                <rect width="6" height="14" x="1" y="4">
+                                    <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                        repeatCount="indefinite" />
+                                </rect>
+                                <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                                    <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                        repeatCount="indefinite" />
+                                </rect>
+                                <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                                    <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                        repeatCount="indefinite" />
+                                </rect>
+                            </svg>
+                        </span>
+                        <nav class="flex justify-between items-center mt-4">
+                            @if ($modalPerPage && $maktoobs->isNotEmpty())
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <span>{{ $maktoobs->links('vendor.pagination.tailwind') }}</span>
+                                    <span wire:loading wire:target="previousPage, nextPage, gotoPage">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="black">
+                                            <rect width="6" height="14" x="1" y="4">
+                                                <animate attributeName="opacity" begin="0s" dur="0.5s"
+                                                    values="1;0.2" repeatCount="indefinite" />
+                                            </rect>
+                                            <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                                                <animate attributeName="opacity" begin="0.2s" dur="0.5s"
+                                                    values="1;0.2" repeatCount="indefinite" />
+                                            </rect>
+                                            <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                                                <animate attributeName="opacity" begin="0.4s" dur="0.5s"
+                                                    values="1;0.2" repeatCount="indefinite" />
+                                            </rect>
+                                        </svg>
+                                    </span>
+                                </div>
+                            @endif
+                        </nav>
+
+                    </div>
+
+                    <div class="mt-4">
+                        <button wire:click="addMaktoobsToLicenses"
+                            class="text-sm h-10 px-8 bg-[#189197]  rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                            title="ذخیره"wire:loading.attr="disabled">
+                            ذخیره
+                        </button>
+
+                        <button type="button"
+                            class="text-sm h-10 px-8 bg-red-800 rounded-lg text-white hover:bg-red-700 hover:text-black focus:outline-none focus:ring-2 focus:ring-red-600"
+                            @click="maktoobModal = false; @this.call('resetForm');" title="لفو">
+                            لفو
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         {{-- Data table section --}}
         <div class="overflow-x-auto">
             <table dir="rtl"
@@ -634,71 +838,36 @@
                                         <p class="pb-1 px-1 text-white bg-[#D4AF37] rounded-full text-sm">در حال
                                             پروسس</p>
                                     @elseif ($license->status == 'printed')
-                                        <p class="py-1 px-1 text-white bg-green-500 rounded-full text-sm">چاپ شده</p>
+                                        <p class="py-1 px-1 text-white bg-green-500 rounded-full text-sm">چاپ شده
+                                        </p>
                                     @elseif ($license->status == 'expired')
-                                        <p class="py-1 px-1 text-white bg-red-900 rounded-full text-sm">منقضی شده</p>
+                                        <p class="py-1 px-1 text-white bg-red-900 rounded-full text-sm">منقضی شده
+                                        </p>
                                     @endif
                                 </td>
 
 
                                 <td class="px-2 py-2 border border-slate-200 dark:text-white">
-                                    @can('ویرایش شخص')
-                                        <span class="w-full text-right mx-auto">
-                                            <input type="file" wire:model="maktoobsScans" name="maktoobsScans"
-                                                id="file-upload" accept="application/pdf" class="hidden" />
-
-                                            <label for="file-upload" class="cursor-pointer mt-1 block ">
-                                                <span wire:loading.remove wire:target="maktoobsScans">
-                                                    @if ($maktoobsScans)
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                            class="fill-[#189197] text-gray-200"
-                                                            viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-                                                            <path fill="#189197"
-                                                                d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
-                                                        </svg>
-                                                    @else
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                            class="fill-[#374151] w-6 h-6"
-                                                            viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-                                                            <path
-                                                                d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
-                                                        </svg>
-                                                    @endif
-                                                </span>
-
-                                                <span wire:loading wire:target="maktoobsScans">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="black">
-                                                        <rect width="6" height="14" x="1" y="4">
-                                                            <animate attributeName="opacity" begin="0s"
-                                                                dur="0.5s" values="1;0.2" repeatCount="indefinite" />
-                                                        </rect>
-                                                        <rect width="6" height="14" x="9" y="4" opacity="0.3">
-                                                            <animate attributeName="opacity" begin="0.2s"
-                                                                dur="0.5s" values="1;0.2" repeatCount="indefinite" />
-                                                        </rect>
-                                                        <rect width="6" height="14" x="17" y="4" opacity="0.4">
-                                                            <animate attributeName="opacity" begin="0.4s"
-                                                                dur="0.5s" values="1;0.2" repeatCount="indefinite" />
-                                                        </rect>
-                                                    </svg>
-                                                </span>
-                                            </label>
-
-                                            @error('maktoobsScans')
-                                                <p class="text-red-500">{{ $message }}</p>
-                                            @enderror
-                                        </span>
-
-                                        <a wire:click="navigateToMaktoobs({{ $license->id }})"
-                                            class="text-md px-3 cursor-pointer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-[#366089]  w-6 h-6"
-                                                viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-                                                <path
-                                                    d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zm48 96a144 144 0 1 1 0 288 144 144 0 1 1 0-288zm16 80c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 48-48 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l48 0 0 48c0 8.8 7.2 16 16 16s16-7.2 16-16l0-48 48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0 0-48z" />
-                                            </svg>
-                                        </a>
-                                    @endcan
+                                    <button class=" text-gray-900 px-2 py-2 rounded"
+                                        wire:click="openMaktoobsModal('{{ $license->id }}')"">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="@if ($maktoobsScans) fill-[#189197]@else
+                                        fill-[#043234] @endif w-6 h-6"
+                                            viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                            <path
+                                                @if ($maktoobsScans) fill-[#189197]@else
+                                        fill-[#043234] @endif
+                                                d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
+                                        </svg>
+                                    </button>
+                                    <button wire:click="navigateToMaktoobs({{ $license->id }})"
+                                        class=" text-gray-900 px-2 py-2 rounded">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="fill-[#366089]  w-6 h-6"
+                                            viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                            <path
+                                                d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zm48 96a144 144 0 1 1 0 288 144 144 0 1 1 0-288zm16 80c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 48-48 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l48 0 0 48c0 8.8 7.2 16 16 16s16-7.2 16-16l0-48 48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0 0-48z" />
+                                        </svg>
+                                    </button>
                                 </td>
                                 <td class="px-2 py-2 border border-slate-200 dark:text-white">
                                     @can('ویرایش شخص')

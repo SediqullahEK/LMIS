@@ -39,13 +39,6 @@ class Maktoobs extends Component
 
     public $id;
 
-    public function mount(Request $request)
-    {
-        $this->id = session('license_id'); // Retrieve from session
-        if (!$this->id) {
-            abort(403, 'ID not found');
-        }
-    }
 
     public function generateMaktoobs()
     {
@@ -189,76 +182,24 @@ class Maktoobs extends Component
             $this->letterSubject = '';
         }
     }
-    public function resetIndividualData($flag = 0)
-    {
-        //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
-        if ($flag) {
-            $this->tazkiraNumber = null; //data search field
-            $this->province = '';
-            $this->name = '';
-            $this->fathersName = '';
-            $this->tinNumber = '';
-        } else {
-            $this->province = '';
-            $this->name = '';
-            $this->fathersName = '';
-            $this->tinNumber = '';
-        }
-    }
 
-    public function resetCompanyData($flag = 0)
-    {
-        //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
-        if ($flag) {
-            $this->licenseNumber = null; //data search field
-            $this->companyName = '';
-            $this->companyTINNumber = '';
-            $this->address = '';
-        } else {
-
-            $this->companyName = '';
-            $this->companyTINNumber = '';
-            $this->address = '';
-        }
-    }
     public function resetForm()
     {
-        $this->resetCompanyData();
-        $this->resetIndividualData();
+
         $this->letterNumber = null;
         $this->letterSubject = '';
         $this->stone = 0;
-        $this->quantity = '';
-        $this->stoneColorDr = '';
-        $this->stoneColorEn = '';
-        $this->stoneAmount = '';
         $this->individualDetails = false;
         $this->companyDetails = false;
     }
+
+    public function mount(Request $request)
+    {
+        $this->id = session('license_id');
+    }
     public function render()
     {
-        if (($this->individualDetails && ! $this->letterSubject) || ($this->companyDetails && ! $this->letterSubject)) {
-            $this->individualDetails = false;
-            $this->companyDetails = false;
-            $this->addError('letterNumber', 'نخست معلومات عریضه را وارد کنید');
-        } else {
-            $this->resetErrorBag('letterNumber');
-        }
-        if ($this->tazkiraNumber) {
-            $this->loadIndividualData();
-        } else {
-            $this->resetIndividualData();
-        }
-        if ($this->licenseNumber) {
-            $this->loadCompanyData();
-        } else {
-            $this->resetCompanyData();
-        }
-        if ($this->letterNumber) {
-            $this->checkLetterData();
-        } else {
-            $this->letterSubject = '';
-        }
+
         return view('livewire.precious-stones-licenses.maktoobs', [
             'stones' => PSStone::all()
         ]);

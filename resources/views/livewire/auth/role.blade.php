@@ -91,7 +91,7 @@
                         </div>
                         <input type="text"
                             class="border border-gray-300 w-full rounded-lg py-2 px-4 my-2 shadow-sm focus:ring-2 focus:ring-sky-100 focus:outline-none focus:border-blue-500 hover:border-gray-400 transition-all duration-150"
-                            placeholder="جستجو" wire:model.live="searchedPermission">
+                            placeholder="جستجو" wire:model.live.debounce.400ms="searchedPermission">
 
 
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 ">

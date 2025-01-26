@@ -3,10 +3,10 @@
     <div class="bg-white w-full flex flex-col gap-5 px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]" dir='rtl'>
 
         <!-- Loader -->
-        <div wire:loading wire:target="addUser, updateUser, deleteUser, toggle">
+        <div wire:loading wire:target=" deleteUser, toggle">
             <x-loader />
         </div>
-        
+
         <aside class="py-4 w-full md:w-1/3 lg:w-1/4">
             <div class="p-4 text-sm border-l border-gray-200">
                 <a href="#" wire:click="toggle('user')"
@@ -133,7 +133,9 @@
                                     x-transition:leave-start="opacity-100 scale-100"
                                     x-transition:leave-end="opacity-0 scale-90"
                                     class="bg-white p-4 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg lg:max-w-3xl mt-12 mx-4 relative">
-
+                                    <div wire:loading wire:target="addUser, updateUser">
+                                        <x-loader />
+                                    </div>
                                     <!-- Scrollable Modal Content -->
                                     <div class="overflow-y-auto max-h-[80vh]">
                                         <!-- Modal Header -->

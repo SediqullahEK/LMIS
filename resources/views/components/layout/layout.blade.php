@@ -163,6 +163,23 @@
                 </a>
 
                 <ul x-show="psl" x-transition class="mt-2 space-y-1 pl-6">
+                    <li
+                        class="group {{ request()->routeIs('ps_licenses') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_licenses') }}" title="جواز ها"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') ? 'text-gray-900' : 'text-white' }}">
+                            <span class="mr-4 ml-2">-</span><i class="fa-solid fa-address-card "></i>
+                            <p class="mr-3 hidden">جواز ها</p>
+                        </a>
+                    </li>
+                    <li
+                        class="group {{ request()->routeIs('ps_maktoobs') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
+                        <a href="{{ route('ps_maktoobs') }}" title="مکاتیب"
+                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_maktoobs') ? 'text-gray-900' : 'text-white' }}">
+                            <span class="mr-4 ml-2">-</span><i class="fa fa-file"></i>
+                            <p class="mr-3 hidden">مکاتیب</p>
+                        </a>
+                    </li>
+
                     @can('سنگ های قیمتی و نیمه قیمتی')
                         <li
                             class="group {{ request()->routeIs('ps_stones') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
@@ -173,23 +190,6 @@
                             </a>
                         </li>
                     @endcan
-                    <li
-                        class="group {{ request()->routeIs('ps_maktoobs') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('ps_maktoobs') }}" title="مکاتیب"
-                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_maktoobs') ? 'text-gray-900' : 'text-white' }}">
-                            <span class="mr-4 ml-2">-</span><i class="fa fa-file"></i>
-                            <p class="mr-3 hidden">مکاتیب</p>
-                        </a>
-                    </li>
-                    <li
-                        class="group {{ request()->routeIs('ps_licenses') ? '!bg-[#D4AF37] text-gray-900 rounded-lg' : '' }}">
-                        <a href="{{ route('ps_licenses') }}" title="جواز ها"
-                            class="flex items-center p-2 text-sm hover:bg-[#D4AF37] hover:text-gray-900 rounded-lg {{ request()->routeIs('ps_licenses') ? 'text-gray-900' : 'text-white' }}">
-                            <span class="mr-4 ml-2">-</span><i class="fa-solid fa-address-card "></i>
-                            <p class="mr-3 hidden">جواز ها</p>
-                        </a>
-                    </li>
-
                 </ul>
             </li>
 
