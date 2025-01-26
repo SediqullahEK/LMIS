@@ -57,7 +57,7 @@
                                 class="bg-red-600 text-white px-5 py-2 rounded-md hover:bg-red-500 transition">
                                 لغو
                             </button>
-                            <button id="confirmButton" @click=" @this.call('deleteLIcense')"
+                            <button id="confirmButton" @click=" @this.call('deleteLicense')"
                                 class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-500 transition">
                                 تایید
                             </button>
@@ -647,13 +647,22 @@
                                             <input type="file" wire:model="maktoobsScans" name="maktoobsScans"
                                                 id="file-upload" accept="application/pdf" class="hidden" />
 
-                                            <label for="file-upload"
-                                                class="cursor-pointer mt-1 block md:mr-[18px] mr-[20px]">
+                                            <label for="file-upload" class="cursor-pointer mt-1 block ">
                                                 <span wire:loading.remove wire:target="maktoobsScans">
                                                     @if ($maktoobsScans)
-                                                        <i class="fa fa-upload text-[#189197] text-xl"></i>
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="fill-[#189197] text-gray-200"
+                                                            viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                                            <path fill="#189197"
+                                                                d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
+                                                        </svg>
                                                     @else
-                                                        <i class="fa fa-upload text-sky-800 text-xl"></i>
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="fill-[#374151] w-6 h-6"
+                                                            viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                                            <path
+                                                                d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
+                                                        </svg>
                                                     @endif
                                                 </span>
 
@@ -681,15 +690,13 @@
                                             @enderror
                                         </span>
 
-
-
-
-                                        <button
-                                            @click=" @this.call('editLicense', {{ $license->id }}); @this.call('openForm',0) "
-                                            class=" text-gray-900 px-2 py-2 rounded">
-                                            <a href="{{ route('ps_maktoobs') }}" class="text-xl px-3 pt-5"><i
-                                                    class="fa  fa-file text-sky-800"></i></a>
-                                        </button>
+                                        <a href="{{ route('ps_maktoobs') }}" class="text-md px-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-[#366089]  w-6 h-6"
+                                                viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                                <path
+                                                    d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zm48 96a144 144 0 1 1 0 288 144 144 0 1 1 0-288zm16 80c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 48-48 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l48 0 0 48c0 8.8 7.2 16 16 16s16-7.2 16-16l0-48 48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0 0-48z" />
+                                            </svg>
+                                        </a>
                                     @endcan
                                 </td>
                                 <td class="px-2 py-2 border border-slate-200 dark:text-white">

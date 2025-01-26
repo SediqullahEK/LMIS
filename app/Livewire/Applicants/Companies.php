@@ -253,8 +253,9 @@ class Companies extends Component
                 'company_shareholders.shares_in_percentage',
                 DB::raw('CASE WHEN company_shareholders.individual_id IS NOT NULL THEN 1 ELSE 0 END AS is_shareholder')
             )
-            ->orderBy('is_shareholder', 'desc')
-            ->orderBy('company_shareholders.shares_in_percentage', 'desc');
+            ->orderBy(DB::raw('CASE WHEN company_shareholders.individual_id IS NOT NULL THEN 1 ELSE 0 END'), 'desc') 
+            ->orderBy('company_shareholders.shares_in_percentage', 'desc'); 
+
 
         if (!empty($this->searchedIndividual)) {
             $columns = ['individuals.name_dr', 'individuals.tin_num', 'individuals.tazkira_num'];

@@ -28,6 +28,7 @@ class Licenses extends Component
     public $confirm = false;
     public $individualId;
     public $search;
+    public $idToDelete;
 
 
     public $quantity;
@@ -242,6 +243,23 @@ class Licenses extends Component
         }
     }
 
+    public function deleteLicense()
+    {
+        $license = PSPLicense::findOrFail($this->idToDelete);
+        if ($license) {
+            $license->is_deleted = true;
+            $license->deleted_by = auth()->user()->id;
+            $license->deleted_at = now();
+            $license->save();
+            logActivity('delete', 'App\Models\Companies', $license->id);
+            session()->flash('message', 'جواز موفقانه حذف شد');
+            $this->confirm = false;
+            $this->loadTableData();
+        } else {
+            session()->flash('error', 'خطا در پروسه حذف');
+            $this->confirm = false;
+        }
+    }
 
 
     public function loadQauntity()
