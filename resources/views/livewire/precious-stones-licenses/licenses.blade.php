@@ -3,7 +3,7 @@
     <div class="bg-white px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]" dir='rtl'>
 
         {{-- alerts section --}}
-        <div wire:loading wire:target="openMaktoobsModal,openForm, toggleConfirm, navigateToMaktoobs">
+        <div wire:loading wire:target="openMaktoobsModal,openForm, toggleConfirm, navigateToMaktoobs,deleteLicense">
             <x-loader />
         </div>
         @if (session()->has('message'))
@@ -493,20 +493,8 @@
                     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
                     class="bg-white p-4 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg lg:max-w-5xl mt-12 mx-4 relative">
                     {{-- alerts section --}}
-                    @if (session()->has('error'))
-                        <div x-data="{ show: @json(session()->has('error')) }" x-init="if (show) { setTimeout(() => { show = false }, 5000); }" x-show="show"
-                            class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-300 text-gray-800 px-3 py-4 shadow-xl flex justify-between items-center rounded-lg w-auto">
-                            <button @click="show = false"
-                                class="text-gray-500 hover:text-gray-700 text-2xl ">&times;</button>
-                            {{ session('error') }}
-                            <svg class="h-5 w-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                    @endif
-                    <div wire:loading wire:target="generateMaktoobs">
+
+                    <div wire:loading wire:target='addMaktoobsToLicenses'>
                         <x-loader />
                     </div>
                     <!-- Modal Header -->
@@ -518,7 +506,7 @@
                             class="text-gray-500 hover:text-gray-700 text-4xl p-2">&times;</button>
                     </div>
                     <input type="text"
-                        class="border border-gray-300 w-full rounded-lg py-2 px-4 mt-2 shadow-sm focus:ring-2 focus:ring-yellow-100 focus:outline-none focus:border-yellow-500 hover:border-gray-400 transition-all duration-150"
+                        class="border border-gray-300 w-full rounded-lg py-2 px-4 mt-2 shadow-sm focus:ring-2 focus:ring-yellow-100 focus:outline-none focus:border-yellow-500 hover:border-yellow-400 transition-all duration-150"
                         placeholder="جستجو" wire:model.live.debounce.400ms="searchedMaktoob">
                     <!-- Scrollable Modal Content -->
                     <div class="overflow-y-auto overflow-x-auto  max-h-[70vh] my-2">
@@ -667,6 +655,11 @@
                     </div>
 
                     <div class="mt-4">
+                        @if ($error)
+                            <div class="text-red-400 my-2">
+                                {{ $error }}
+                            </div>
+                        @endif
                         <button wire:click="addMaktoobsToLicenses"
                             class="text-sm h-10 px-8 bg-[#189197]  rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
                             title="ذخیره"wire:loading.attr="disabled">

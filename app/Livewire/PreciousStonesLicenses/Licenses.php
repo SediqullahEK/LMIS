@@ -43,6 +43,7 @@ class Licenses extends Component
     public $licenseId;
     public $letterNumber;
     public $letterNumberError;
+    public $error;
     public $letterSubject;
     public $maktoobsScans;
     public $individualDetails = false;
@@ -254,7 +255,7 @@ class Licenses extends Component
             $license->deleted_by = auth()->user()->id;
             $license->deleted_at = now();
             $license->save();
-            logActivity('delete', 'App\Models\Companies', $license->id);
+            logActivity('delete', 'App\Models\PSPLicense', $license->id);
             session()->flash('message', 'جواز موفقانه حذف شد');
             $this->confirm = false;
             $this->loadTableData();
@@ -459,6 +460,7 @@ class Licenses extends Component
         $this->resetValidation();
         $this->individualDetails = false;
         $this->companyDetails = false;
+        $this->error = '';
     }
 
     public function sortBy($field)
@@ -526,24 +528,106 @@ class Licenses extends Component
 
     public function maktoobsData()
     {
-        $data = DB::connection('momp_mis')->table('makatebs')->where('department_id', 30)
-            ->when($this->searchedMaktoob, function ($query) {
-                $query->where(function ($subQuery) {
-                    $subQuery->where('subject', 'like', '%' . $this->searchedMaktoob . '%')
-                        ->orWhere('source', 'like', '%' . $this->searchedMaktoob . '%')
-                        ->orWhere('type', 'like', '%' . $this->searchedMaktoob . '%');
-                });
-            })
-            ->paginate($this->modalPerPage, ['*'], 'maktoobs');
+        $dataQuery = DB::connection('momp_mis')->table('makatebs')
+            ->where('department_id', 30);
 
-        return $data;
-        // dd($data);
+        if (!empty($this->searchedMaktoob)) {
+            $columns = ['subject', 'source', 'type'];
+            $dataQuery->where(function ($query) use ($columns) {
+                foreach ($columns as $column) {
+                    $query->orWhere($column, 'like', '%' . $this->searchedMaktoob . '%');
+                }
+            });
+        }
+
+        $paginatedMakatebs = $dataQuery->paginate($this->modalPerPage, ['*'], 'maktoobs');
+
+        $licenseMaktoobs = DB::connection('LMIS')->table('psp_licenses_maktoobs')
+            ->where('license_id', $this->licenseId)
+            ->pluck('license_id', 'maktoob_id')
+            ->toArray();
+
+        //is_selected flag for selected maktoobs array
+        $paginatedMakatebs->getCollection()->transform(function ($maktoob) use ($licenseMaktoobs) {
+            $maktoob->is_selected = isset($licenseMaktoobs[$maktoob->id]) ? 1 : 0;
+            return $maktoob;
+        });
+
+        $paginatedMakatebs->setCollection(
+            $paginatedMakatebs->getCollection()->sortByDesc('is_selected')->values()
+        );
+
+        $this->selectedMaktoobs = $paginatedMakatebs->getCollection()
+            ->where('is_selected', 1)
+            ->pluck('id')
+            ->toArray();
+
+        $this->noData = $paginatedMakatebs->isEmpty();
+        return $paginatedMakatebs;
     }
+
     public function addMaktoobsToLicenses()
     {
-        dd($this->selectedMaktoobs, $this->licenseId);
-        //To work on syncing the maktoobs licensessssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+        $selectedMaktoobs = $this->selectedMaktoobs; // Maktoobs selected by the user
+        $licenseId = $this->licenseId; // Current license ID
+
+        $result = DB::transaction(function () use ($selectedMaktoobs, $licenseId) {
+            // Fetch current maktoobs linked to the license
+            $currentLicenseMaktoobs = DB::table('psp_licenses_maktoobs')
+                ->where('license_id', $licenseId)
+                ->pluck('maktoob_id')
+                ->toArray();
+
+            sort($selectedMaktoobs);
+            sort($currentLicenseMaktoobs);
+            if ($selectedMaktoobs == $currentLicenseMaktoobs) {
+                return 0;
+            } else {
+                // Determine maktoobs to add and remove
+                $maktoobsToRemove = array_diff($currentLicenseMaktoobs, $selectedMaktoobs);
+                $maktoobsToAdd = array_diff($selectedMaktoobs, $currentLicenseMaktoobs);
+
+                // Remove maktoobs that are no longer selected
+                if (!empty($maktoobsToRemove)) {
+                    DB::table('psp_licenses_maktoobs')
+                        ->where('license_id', $licenseId)
+                        ->whereIn('maktoob_id', $maktoobsToRemove)
+                        ->delete();
+                }
+
+                // Add new maktoobs that are selected
+                if (!empty($maktoobsToAdd)) {
+                    $maktoobsToInsert = array_map(function ($maktoobId) use ($licenseId) {
+                        return [
+                            'license_id' => $licenseId,
+                            'maktoob_id' => $maktoobId,
+                        ];
+                    }, $maktoobsToAdd);
+
+                    DB::table('psp_licenses_maktoobs')->insert($maktoobsToInsert);
+                }
+
+                // Log activities for added and removed maktoobs
+                if (!empty($maktoobsToAdd)) {
+                    logActivity('Maktoobs Added', 'LicensesMaktoobs', $licenseId, $maktoobsToAdd);
+                }
+
+                if (!empty($maktoobsToRemove)) {
+                    logActivity('Maktoobs Removed  from', 'LicensesMaktoobs', $licenseId, $maktoobsToRemove);
+                }
+                return 1;
+            }
+        });
+        if ($result) {
+            $this->maktoobModal = false;
+            session()->flash('message', 'مکاتیب جواز موفقانه ویرایش گردید');
+            $this->error = '';
+        } else {
+            $this->error = 'تغییر جدید ایجاد نگردیده است!';
+        }
     }
+
 
     //life cycle hooks
     public function updatedIndividualDetails()

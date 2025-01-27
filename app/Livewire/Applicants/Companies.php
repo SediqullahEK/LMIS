@@ -275,10 +275,6 @@ class Companies extends Component
 
         $this->noData = $data->isEmpty();
 
-        if (!$this->searchedIndividual && $this->modalPerPage && $data->isEmpty()) {
-            session()->flash('error', 'به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
-        }
-
         // this is for the seach input field to get hidden when on other pages
         if ($this->modalPerPage) {
             $this->currentPage = $data->currentPage();
@@ -361,6 +357,7 @@ class Companies extends Component
     public function syncShareholders($company, $shareholders, $sharePercentages)
     {
         DB::transaction(function () use ($company, $shareholders, $sharePercentages) {
+            
             // Fetch current shareholders
             $currentShareholders = DB::table('company_shareholders')
                 ->where('company_id', $company->id)
