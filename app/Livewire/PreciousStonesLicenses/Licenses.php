@@ -47,6 +47,7 @@ class Licenses extends Component
     public $letterSubject;
     public $maktoobsScans;
     public $individualDetails = false;
+    public $noLicenseMaktoob = false;
     public $name;
     public $province;
     public $tinNumber;
@@ -480,23 +481,26 @@ class Licenses extends Component
         $dataCount;
 
         // Start building the base query
-        $query = PSPLicense::query()
+        $query =
+            PSPLicense::query()
             ->where('psp_licenses.is_deleted', false)
             ->leftJoin('individuals', 'psp_licenses.individual_id', '=', 'individuals.id')
             ->leftJoin('companies', 'psp_licenses.company_id', '=', 'companies.id')
             ->leftJoin('precious_semi_precious_stones', 'precious_semi_precious_stones.id', '=', 'psp_licenses.stone_id')
+            ->leftJoin('psp_licenses_maktoobs', 'psp_licenses.id', '=', 'psp_licenses_maktoobs.license_id')
             ->select(
                 'psp_licenses.*',
                 'individuals.name_dr as individual_name',
                 'companies.name_dr as company_name',
                 'individuals.tazkira_num as tazkira_num',
                 'companies.license_num as license_num',
-                'precious_semi_precious_stones.name as stone'
+                'precious_semi_precious_stones.name as stone',
+                DB::raw('IF(psp_licenses_maktoobs.license_id IS NOT NULL, 1, 0) AS hasMaktoob')
             );
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
-            $columns = ['individuals.name_dr', 'companies.name_dr', 'individuals.tin_num', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
+            $columns = ['individuals.name_dr', 'companies.name_dr', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'like', '%' . $this->search . '%');
@@ -513,12 +517,11 @@ class Licenses extends Component
                 ->paginate($this->perPage, ['*'], 'licenses');
 
             $this->currentPage = $data->currentPage();
-            $dataCount = $data->total();
         } else {
             $data = $query->orderBy($this->sortField, $this->sortDirection)
                 ->get();
         }
-
+        // dd($data);
         return $data;
     }
     public function loadTableData()

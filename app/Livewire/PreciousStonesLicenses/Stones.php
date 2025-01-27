@@ -312,11 +312,11 @@ class Stones extends Component
             $stone->deleted_at = now();
             $stone->save();
             logActivity('delete', 'App\Models\Companies', $stone->id);
-            $request->session()->flash('message', 'سنګ موفقانه حذف شد');
+            session()->flash('message', 'سنګ موفقانه حذف شد');
             $this->confirm = false;
             $this->loadTableData();
         } else {
-            $request->session()->flash('error', 'خطا در پروسه حذف');
+            session()->flash('error', 'خطا در پروسه حذف');
             $this->confirm = false;
         }
     }
