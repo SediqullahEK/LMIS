@@ -478,15 +478,11 @@ class Licenses extends Component
     {
         $data;
         $dataCount;
-
-        // Start building the base query
-        $query =
-            PSPLicense::query()
+        $query = PSPLicense::query()
             ->where('psp_licenses.is_deleted', false)
             ->leftJoin('individuals', 'psp_licenses.individual_id', '=', 'individuals.id')
             ->leftJoin('companies', 'psp_licenses.company_id', '=', 'companies.id')
             ->leftJoin('precious_semi_precious_stones', 'precious_semi_precious_stones.id', '=', 'psp_licenses.stone_id')
-            ->leftJoin('psp_licenses_maktoobs', 'psp_licenses.id', '=', 'psp_licenses_maktoobs.license_id')
             ->select(
                 'psp_licenses.*',
                 'individuals.name_dr as individual_name',
@@ -494,8 +490,11 @@ class Licenses extends Component
                 'individuals.tazkira_num as tazkira_num',
                 'companies.license_num as license_num',
                 'precious_semi_precious_stones.name as stone',
-                DB::raw('IF(psp_licenses_maktoobs.license_id IS NOT NULL, 1, 0) AS hasMaktoob')
+                DB::raw('(SELECT COUNT(*) FROM psp_licenses_maktoobs WHERE psp_licenses_maktoobs.license_id = psp_licenses.id) AS hasMaktoob')
             );
+
+        // Fetch results
+        // $results = $query->get();
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
@@ -682,7 +681,7 @@ class Licenses extends Component
         return view('livewire.precious-stones-licenses.licenses', [
             'licenses' => $this->isDataLoaded ? $this->tableData() : collect(),
             'maktoobs' => $this->loadMaktoobs ? $this->maktoobsData() : collect(),
-            'stones' => PSStone::all()
+            'stones' => PSStone::where('is_deleted',false)->get(),
         ]);
     }
 }
