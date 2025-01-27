@@ -710,10 +710,10 @@
                             </div>
                         </th>
                         <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
-                            wire:click="sortBy('individuals.name_dr')">
+                            wire:click="sortBy('companies.name_dr')">
                             <div class="flex justify-center">
                                 <span>شرکت</span>
-                                @if ($sortField === 'individuals.name_dr')
+                                @if ($sortField === 'companies.name_dr')
                                     <span
                                         class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
                                 @else

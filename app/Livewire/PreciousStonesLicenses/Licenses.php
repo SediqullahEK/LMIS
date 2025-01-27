@@ -298,6 +298,7 @@ class Licenses extends Component
                     ->table('company_shareholders')
                     ->where('individual_id', $individual->id)
                     ->value('company_id');
+
                 if ($this->companyId) {
                     $this->loadCompanyData();
                 } else {
@@ -379,9 +380,7 @@ class Licenses extends Component
 
     public function resetIndividualData($flag = 0)
     {
-        //$flags are used for switches from blade file as the form fields for data search shouldn't get reset
-        if ($this->individualDetails) {
-        } else if ($flag) {
+        if ($flag) {
             $this->tazkiraNumber = null; //data search field
             $this->province = '';
             $this->name = '';
@@ -500,7 +499,7 @@ class Licenses extends Component
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
-            $columns = ['individuals.name_dr', 'companies.name_dr', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
+            $columns = ['individuals.name_dr', 'individuals.tazkira_num', 'companies.name_dr', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'like', '%' . $this->search . '%');
@@ -630,7 +629,6 @@ class Licenses extends Component
             $this->error = 'تغییر جدید ایجاد نگردیده است!';
         }
     }
-
 
     //life cycle hooks
     public function updatedIndividualDetails()
