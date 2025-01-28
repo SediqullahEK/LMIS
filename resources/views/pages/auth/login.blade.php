@@ -50,7 +50,7 @@
             @endif
 
             <!-- Login Form -->
-            <form method="POST" action="{{ route('login') }}">
+            <form id='loginForm' method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="mb-6">
                     <label for="user_name" class="block text-sm font-medium text-gray-700 mb-2">نام کاربری</label>
@@ -78,7 +78,7 @@
                     </a>
                 </div>
                 <div>
-                    <button id="submitBtn" type="submit"
+                    <button type="submit"
                         class="w-full px-4 py-3 mt-2 mb-4 text-white bg-[#D4AF37] hover:bg-[#F6BF0C] rounded-lg focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
                         ورود به سیستم
                     </button>
@@ -100,9 +100,9 @@
         </div>
     </div>
     <script>
-        const submitBtn = document.querySelector('#submitBtn');
+        const form = document.querySelector('#loginForm');
         const loader = document.querySelector('#loader');
-        submitBtn.addEventListener('click', function() {
+        form.addEventListener('submit', function() {
             loader.classList.remove('hidden');
         });
     </script>

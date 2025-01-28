@@ -95,7 +95,7 @@
                     class="absolute top-12 left-0 hidden group-hover:block bg-white border border-[#D4AF37] text-gray-700 px-4 py-1 rounded-lg shadow-md">
                     <div class="flex items-center">
 
-                        <span> جستجو به اساس متقاضی، نمبر جواز/تشخیصیه، سنگ</span>
+                        <span> جستجو به اساس متقاضی، نمبر تذکره/جواز/عریضه/مسلسل و سنگ</span>
                     </div>
                 </div>
                 <!-- Disable on pages other than the first -->
@@ -597,6 +597,7 @@
 
                                             <td class="px-2 py-2 border border-slate-200 cursor-pointer">
                                                 <input id="{{ $maktoob->id }}" type="checkbox"
+                                                    @if ($maktoobModalState) disabled readonly @endif
                                                     class="text-2xl cursor-pointer rounded"
                                                     wire:model="selectedMaktoobs"
                                                     onclick="toggleInputDisable({{ $maktoob->id }})"
@@ -660,8 +661,8 @@
                                 {{ $error }}
                             </div>
                         @endif
-                        <button wire:click="addMaktoobsToLicenses"
-                            class="text-sm h-10 px-8 bg-[#189197]  rounded-lg text-white hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        <button wire:click="addMaktoobsToLicenses" @if ($maktoobModalState) disabled @endif
+                            class="text-sm h-10 px-8 rounded-lg text-white  @if ($maktoobModalState) bg-gray-500 @else bg-[#189197]   hover:bg-[#189179] focus:outline-none focus:ring-2 focus:ring-blue-600 @endif"
                             title="ذخیره"wire:loading.attr="disabled" {{-- disabled --}}>
 
                             ذخیره
@@ -853,7 +854,7 @@
                                 <td class="px-2 py-2 border border-slate-200">
 
                                     <button class=" text-gray-900 px-2 py-2 rounded"
-                                        wire:click="openMaktoobsModal('{{ $license->id }}')">
+                                        wire:click="openMaktoobsModal('{{ $license->id }}',{{ $license->status == 'in_process' ? 0 : 1 }})">
                                         @if ($license->status == 'in_process')
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 class="@if ($license->hasMaktoob) fill-[#189197]@else

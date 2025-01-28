@@ -48,6 +48,7 @@ class Licenses extends Component
     public $maktoobsScans;
     public $individualDetails = false;
     public $noLicenseMaktoob = false;
+    public $maktoobModalState = false;
     public $name;
     public $province;
     public $tinNumber;
@@ -428,10 +429,13 @@ class Licenses extends Component
             $this->isOpen = true;
         }
     }
-    public function openMaktoobsModal($id)
+    public function openMaktoobsModal($id, $state)
     {
         $this->maktoobModal = true;
         $this->licenseId = $id;
+
+        $this->maktoobModalState = $state;
+
         $this->loadMaktoobs = true;
     }
 
@@ -458,6 +462,7 @@ class Licenses extends Component
             'stoneAmount'
         ]);
         $this->resetValidation();
+        $this->resetPage('maktoobs');
         $this->individualDetails = false;
         $this->companyDetails = false;
         $this->error = '';
@@ -498,7 +503,7 @@ class Licenses extends Component
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
-            $columns = ['individuals.name_dr', 'individuals.tazkira_num', 'companies.name_dr', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
+            $columns = ['individuals.name_dr', 'individuals.tazkira_num', 'psp_licenses.letter_id', 'psp_licenses.serial_number', 'companies.name_dr', 'companies.license_num', 'precious_semi_precious_stones.name']; // Columns to search
             $query->where(function ($q) use ($columns) {
                 foreach ($columns as $column) {
                     $q->orWhere($column, 'like', '%' . $this->search . '%');
@@ -681,7 +686,7 @@ class Licenses extends Component
         return view('livewire.precious-stones-licenses.licenses', [
             'licenses' => $this->isDataLoaded ? $this->tableData() : collect(),
             'maktoobs' => $this->loadMaktoobs ? $this->maktoobsData() : collect(),
-            'stones' => PSStone::where('is_deleted',false)->get(),
+            'stones' => PSStone::where('is_deleted', false)->get(),
         ]);
     }
 }
