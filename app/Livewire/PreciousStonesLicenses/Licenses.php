@@ -28,6 +28,7 @@ class Licenses extends Component
     public $isOpen = false;
     public $maktoobModal = false;
     public $loadMaktoobs = false;
+    public $maktoobScan = false;
     public $confirm = false;
     public $individualId;
     public $search;
@@ -531,6 +532,11 @@ class Licenses extends Component
     {
         $this->isDataLoaded = true;
     }
+    public function popMaktoobScan($id)
+    {
+
+        $this->maktoobScan = true;
+    }
 
     public function maktoobsData()
     {
@@ -546,31 +552,50 @@ class Licenses extends Component
             });
         }
 
-        $paginatedMakatebs = $dataQuery->paginate($this->modalPerPage, ['*'], 'maktoobs');
+        $paginatedMakatebs = $this->modalPerPage ?
+            $dataQuery->paginate($this->modalPerPage, ['*'], 'maktoobs')
+            :
+            $dataQuery->get();
 
         $licenseMaktoobs = DB::connection('LMIS')->table('psp_licenses_maktoobs')
             ->where('license_id', $this->licenseId)
             ->pluck('license_id', 'maktoob_id')
             ->toArray();
 
-        //is_selected flag for selected maktoobs array
-        $paginatedMakatebs->getCollection()->transform(function ($maktoob) use ($licenseMaktoobs) {
-            $maktoob->is_selected = isset($licenseMaktoobs[$maktoob->id]) ? 1 : 0;
-            return $maktoob;
-        });
+        // Handle transformation when data is paginated or a collection
+        if ($paginatedMakatebs instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $paginatedMakatebs->getCollection()->transform(function ($maktoob) use ($licenseMaktoobs) {
+                $maktoob->is_selected = isset($licenseMaktoobs[$maktoob->id]) ? 1 : 0;
+                return $maktoob;
+            });
 
-        $paginatedMakatebs->setCollection(
-            $paginatedMakatebs->getCollection()->sortByDesc('is_selected')->values()
-        );
+            $paginatedMakatebs->setCollection(
+                $paginatedMakatebs->getCollection()->sortByDesc('is_selected')->values()
+            );
 
-        $this->selectedMaktoobs = $paginatedMakatebs->getCollection()
-            ->where('is_selected', 1)
-            ->pluck('id')
-            ->toArray();
+            $this->selectedMaktoobs = $paginatedMakatebs->getCollection()
+                ->where('is_selected', 1)
+                ->pluck('id')
+                ->toArray();
+        } else {
+            // If all data is retrieved, transform as a collection
+            $paginatedMakatebs = collect($paginatedMakatebs)->map(function ($maktoob) use ($licenseMaktoobs) {
+                $maktoob->is_selected = isset($licenseMaktoobs[$maktoob->id]) ? 1 : 0;
+                return $maktoob;
+            });
+
+            $paginatedMakatebs = $paginatedMakatebs->sortByDesc('is_selected')->values();
+
+            $this->selectedMaktoobs = $paginatedMakatebs
+                ->where('is_selected', 1)
+                ->pluck('id')
+                ->toArray();
+        }
 
         $this->noData = $paginatedMakatebs->isEmpty();
         return $paginatedMakatebs;
     }
+
 
     public function addMaktoobsToLicenses()
     {
