@@ -3,7 +3,6 @@
 namespace App\Livewire\Auth;
 
 use Livewire\Component;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role as roles;
@@ -27,7 +26,7 @@ class Role extends Component
     public $idToDelete;
 
     //Role CRUD Section
-    public function addRole(Request $request)
+    public function addRole()
     {
         $validatedData = $this->validate([
             'role' => 'required|unique:roles,name',
@@ -42,7 +41,7 @@ class Role extends Component
         logActivity('create', 'Spatie\Permission\Models\Role', $role->id, $role->toArray());
 
         if ($role) {
-            $request->session()->flash('message', 'وظیفه موفقانه ایجاد گردید');
+            session()->flash('message', 'وظیفه موفقانه ایجاد گردید');
             $this->resetForm();
             $this->isOpen = false;
             $this->dispatch('recordCreate');
@@ -60,7 +59,7 @@ class Role extends Component
 
         $this->isOpen = true;
     }
-    public function updateRole(Request $request)
+    public function updateRole()
     {
         $validatedData = $this->validate([
             'role' => 'required|unique:roles,name',
@@ -76,21 +75,21 @@ class Role extends Component
             'بعدا' => $role->toArray()
         ]);
         if ($done) {
-            $request->session()->flash('message', 'وظیفه موفقانه ویرایش گردید');
+            session()->flash('message', 'وظیفه موفقانه ویرایش گردید');
             $this->resetForm();
             $this->isOpen = false;
         }
     }
-    public function deleteRole(Request $request)
+    public function deleteRole()
     {
         $role = roles::find($this->idToDelete);
         if ($role) {
             $role->delete();
             logActivity('delete', 'Spatie\Permission\Models\Role', $role->id);
-            $request->session()->flash('message', 'وظیفه موفقانه حذف شد');
+            session()->flash('message', 'وظیفه موفقانه حذف شد');
             $this->confirm = false;
         } else {
-            $request->session()->flash('error', 'خطا در پروسه حذف');
+            session()->flash('error', 'خطا در پروسه حذف');
             $this->confirm = false;
         }
     }

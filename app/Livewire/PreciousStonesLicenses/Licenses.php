@@ -36,6 +36,7 @@ class Licenses extends Component
     public $idToDelete;
     public $selectedMaktoobs = [];
     public $quantity;
+    public $finalRoyalityPerQuantity;
     public $stone;
     public $stoneColorDr;
     public $stoneColorEn;
@@ -147,7 +148,7 @@ class Licenses extends Component
         $this->checkLetterData();
 
         $this->stone = $license->stone_id;
-        $this->loadQauntity();
+        $this->loadStoneDetails();
         $this->stoneColorDr = $license->stone_color_dr;
         $this->stoneColorEn = $license->stone_color_en;
         $this->stoneAmount = $license->stone_amount;
@@ -269,12 +270,13 @@ class Licenses extends Component
     }
 
 
-    public function loadQauntity()
+    public function loadStoneDetails()
     {
         if ($this->stone) {
             $stone = PSStone::find($this->stone);
             if ($stone) {
                 $this->quantity = $stone->quantity;
+                $this->finalRoyalityPerQuantity = $stone->final_royality_after_negotiations;
             } else {
                 session()->flash('error', 'خطا در پروسه جستجوی معلومات سنگ');
             }

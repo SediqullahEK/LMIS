@@ -228,9 +228,16 @@
                             </select>
                         </div>
                     </th>
-                    <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer">
+                    <th scope="col" class="px-3 py-2 border border-slate-200 cursor-pointer"
+                        wire:click="sortBy('name')">
                         <div class="flex justify-center">
                             <span>صلاحیت</span>
+
+                            @if ($sortField === 'name')
+                                <span class="mr-2 text-gray-200">{{ $sortDirection === 'desc' ? '▲' : '▼' }}</span>
+                            @else
+                                <span class="text-gray-400 mr-2"><i class="fa fa-sort"></i></span>
+                            @endif
                         </div>
                     </th>
                     @if (auth()->user()->can('حذف صلاحیت') || auth()->user()->can('ویرایش صلاحیت'))
@@ -276,7 +283,7 @@
 
             </tbody>
         </table>
-        <span wire:loading wire:target="loadTableData,perPage">
+        <span wire:loading wire:target="loadTableData,perPage,sortBy">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                 fill="black">
                 <rect width="6" height="14" x="1" y="4">

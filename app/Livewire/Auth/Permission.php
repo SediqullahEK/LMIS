@@ -12,6 +12,8 @@ class Permission extends Component
     public $permission;
     public $currentPage = 1;
     public $search;
+    public $sortField = 'created_at';
+    public $sortDirection = 'asc';
     public $perPage = 5;
     public $permissionId;
     public $isDataLoaded = false;
@@ -116,7 +118,6 @@ class Permission extends Component
             $this->confirm = false;
         }
     }
-
     public function closeAlert()
     {
         session()->forget('message');
@@ -142,19 +143,25 @@ class Permission extends Component
 
         // Pagination logic
         if ($this->perPage) {
-            $data = $query->paginate($this->perPage);
+            $data = $query->orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
             $this->currentPage = $data->currentPage();
             $dataCount = $data->total();
         } else {
-            $data = $query->get();
-        }
-
-        // Handle invalid page number
-        if (!$this->search && $this->perPage != 0 && isset($dataCount) && ($data->currentPage() > ceil($dataCount / $this->perPage))) {
-            session()->flash('error', ' به این تعداد دیتا موجود نیست، صفحه/مقدار دیتا را درست انتخاب کنید!');
+            $data = $query->orderBy($this->sortField, $this->sortDirection)->get();
         }
 
         return $data;
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'desc' ? 'asc' : 'desc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'desc';
+        }
+        $this->tableData();
     }
     //life cycle hooks
     public function updatedPerPage()

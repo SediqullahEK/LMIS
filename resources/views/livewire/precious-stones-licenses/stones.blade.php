@@ -70,7 +70,7 @@
 
             <div class="flex flex-wrap items-center justify-between mb-2">
                 {{-- Add and Edit stone section --}}
-                @can('ایجاد سنگ جدید')
+                @can('ایجاد سنگ قیمتی و نیمه قیمتی جدید')
                     <div class="mt-2 sm:mt-0">
                         <button @click=" @this.call('resetForm'); @this.call('openForm',1)"
                             class="px-4 py-1 mb-1 bg-[#189197] rounded-lg text-2xl text-white">
@@ -106,7 +106,7 @@
 
 
 
-            @if (auth()->user()->can('ایجاد سنگ جدید') || auth()->user()->can('ویرایش سنگ'))
+            @if (auth()->user()->can('ایجاد سنگ قیمتی و نیمه قیمتی جدید') || auth()->user()->can('ویرایش سنگ قیمتی و نیمه قیمتی'))
                 <div x-data="{ isOpen: @entangle('isOpen') }" dir="rtl">
                     <div x-show="isOpen" style="display: none;"
                         class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50">
@@ -468,7 +468,7 @@
                                     <span>عواید به اساس رویالیتی مذاکره شده</span>
                                 </div>
                             </th>
-                            @if (auth()->user()->can('ویرایش سنگ') || auth()->user()->can('حذف سنگ'))
+                            @if (auth()->user()->can('ویرایش سنگ قیمتی و نیمه قیمتی') || auth()->user()->can('حذف سنگ قیمتی و نیمه قیمتی'))
                                 <th scope="col" class="px-3 py-2 border border-slate-200 w-[150px]">
                                     <div class="flex justify-center">
                                         <span>اعمال</span>
@@ -525,7 +525,7 @@
 
 
                                     <td class="px-2 py-2 border border-slate-200">
-                                        @can('ویرایش سنگ')
+                                        @can('ویرایش سنگ قیمتی و نیمه قیمتی')
                                             <button
                                                 @click=" @this.call('editStone', {{ $stone->id }}); @this.call('openForm',0) "
                                                 class=" text-gray-900 px-2 py-2 rounded">
@@ -533,7 +533,7 @@
                                                         class="fa  fa-edit text-sky-600"></i></span>
                                             </button>
                                         @endcan
-                                        @can('حذف سنگ')
+                                        @can('حذف سنگ قیمتی و نیمه قیمتی')
                                             <button @click=" @this.call('toggleConfirm', {{ $stone->id }})"
                                                 class=" text-gray-900 px-2 py-2 rounded">
                                                 <span class="text-xl px-3 pt-5"><i
