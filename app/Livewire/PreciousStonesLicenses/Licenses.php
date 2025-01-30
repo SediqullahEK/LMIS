@@ -7,6 +7,7 @@ use App\Models\Individual;
 use App\Models\Province;
 use App\Models\PSPLicense;
 use App\Models\PSStone;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -501,7 +502,8 @@ class Licenses extends Component
                 'individuals.tazkira_num as tazkira_num',
                 'companies.license_num as license_num',
                 'precious_semi_precious_stones.name as stone',
-                DB::raw('(SELECT COUNT(*) FROM psp_licenses_maktoobs WHERE psp_licenses_maktoobs.license_id = psp_licenses.id) as maktoobs_count')
+                DB::raw('(SELECT COUNT(*) FROM psp_licenses_maktoobs WHERE psp_licenses_maktoobs.license_id = psp_licenses.id) as maktoobs_count'),
+                DB::raw(now()->timestamp . ' as cache_buster')
             );
 
         // Apply search filter if the search input is not empty
@@ -654,7 +656,8 @@ class Licenses extends Component
         });
         if ($result) {
             $this->maktoobModal = false;
-            $this->tableData();
+
+
             session()->flash('message', 'مکاتیب جواز موفقانه ویرایش گردید');
             $this->error = '';
         } else {

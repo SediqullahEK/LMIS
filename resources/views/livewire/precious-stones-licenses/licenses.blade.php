@@ -659,9 +659,8 @@
                                                 <input id="{{ $maktoob->id }}" type="checkbox"
                                                     @if ($maktoobModalState) disabled readonly @endif
                                                     class="text-2xl cursor-pointer rounded"
-                                                    wire:model="selectedMaktoobs"
-                                                    onclick="toggleInputDisable({{ $maktoob->id }})"
-                                                    value="{{ $maktoob->id }}" {{-- disabled --}}>
+                                                    wire:model="selectedMaktoobs" value="{{ $maktoob->id }}"
+                                                    {{-- disabled --}}>
 
                                             </td>
                                         </tr>
@@ -947,13 +946,11 @@
                                     <button class=" text-gray-900 px-2 py-2 rounded"
                                         wire:click="openMaktoobsModal('{{ $license->id }}',{{ $license->status == 'in_process' ? 0 : 1 }})">
                                         @if ($license->status == 'in_process')
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="@if ($license->maktoobs_count > 0) fill-[#189197]@else
-                                                    fill-[#043234] @endif w-6 h-6"
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
+                                                viewBox="0 0 576 512"
+                                                style="fill: {{ $license->maktoobs_count > 0 ? '#189197' : '#043234' }};"
                                                 viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
                                                 <path
-                                                    @if ($license->maktoobs_count > 0) fill-[#189197]@else
-                                                    fill-[#043234] @endif
                                                     d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
                                             </svg>
                                         @else
@@ -961,11 +958,13 @@
                                         @endif
 
                                     </button>
+                                    {{-- <button style="fill: #9d5910';">
+                                        </button>  --}}
                                     @if ($license->status == 'in_process')
                                         <button wire:click="navigateToMaktoobs({{ $license->id }})"
                                             class=" text-gray-900 px-2 py-2 rounded">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="@if ($license->status == 'in_process') fill-[#366089] @else fill-gray-300 @endif   w-6 h-6"
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-[#9d5910] w-6 h-6"
+                                                viewBox="0 0 576 512"
                                                 viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
                                                 <path
                                                     d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zm48 96a144 144 0 1 1 0 288 144 144 0 1 1 0-288zm16 80c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 48-48 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l48 0 0 48c0 8.8 7.2 16 16 16s16-7.2 16-16l0-48 48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0 0-48z" />
@@ -975,24 +974,22 @@
                                 </td>
 
                                 <td class="px-2 py-2 border border-slate-200 ">
+                                    <div wire:key="license-{{ $license->id }}">
+                                        @if ($license->status == 'in_process' && $license->maktoobs_count == 0)
+                                            <p class="text-yellow-800">مکاتیب اپلود نشده</p>
+                                        @elseif ($license->status == 'printed')
+                                            <p class="text-green-500">چاپ شده</p>
+                                        @elseif ($license->status == 'expired')
+                                            <p class="text-red-500">منقضی</p>
+                                        @else
+                                            <button wire:click='print()' class=" rounded">
 
-                                    @if ($license->maktoobs_count == 0 && $license->status == 'in_process')
-                                        <p class="text-[#D4AF37]">نخست مکاتیب را اپلود
-                                            کنید!
-                                        </p>
-                                    @elseif ($license->maktoobs_count > 0 && $license->status == 'in_process')
-                                        <button
-                                            @click=" @this.call('editLicense', {{ $license->id }}); @this.call('openForm',0) "
-                                            class=" text-gray-900 px-2 py-2 rounded">
-                                            <span class="text-xl px-3 pt-5"><i
-                                                    class="fa  fa-print text-sky-800"></i></span>
-                                        </button>
-                                    @elseif($license->status == 'printed')
-                                        <p class="text-green-500">چاپ شده</p>
-                                    @elseif($license->status == 'expired')
-                                        <p class="text-red-500">منقضی</p>
-                                    @endif
+                                                <img src="{{ asset('storage/system_images/print.png') }}"
+                                                    class="w-8 h-8">
 
+                                            </button>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 <td class="px-2 py-2 border border-slate-200 ">
