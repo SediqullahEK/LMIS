@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 
-class CustomAuthenticatedSessionController extends  AuthenticatedSessionController
+class CustomAuthenticatedSessionController extends AuthenticatedSessionController
 {
     public function store(Request $request)
     {

@@ -23,7 +23,7 @@ class Licenses extends Component
     public $isDataLoaded = false;
     public $noData = false;
     public $sortField = 'psp_licenses.created_at';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $isEditing = false;
     public $isOpen = false;
     public $maktoobModal = false;
@@ -484,8 +484,11 @@ class Licenses extends Component
     //Table Data Rendering section
     public function tableData()
     {
+        // dd('called');
         $data;
         $dataCount;
+        // $license = PSPLicense::withCount('maktoobs')->first();
+        // dd($license->maktoobs_count, $license->maktoobs->isEmpty());
         $query = PSPLicense::query()
             ->where('psp_licenses.is_deleted', false)
             ->leftJoin('individuals', 'psp_licenses.individual_id', '=', 'individuals.id')
@@ -498,11 +501,8 @@ class Licenses extends Component
                 'individuals.tazkira_num as tazkira_num',
                 'companies.license_num as license_num',
                 'precious_semi_precious_stones.name as stone',
-                DB::raw('(SELECT COUNT(*) FROM psp_licenses_maktoobs WHERE psp_licenses_maktoobs.license_id = psp_licenses.id) AS hasMaktoob')
+                DB::raw('(SELECT COUNT(*) FROM psp_licenses_maktoobs WHERE psp_licenses_maktoobs.license_id = psp_licenses.id) as maktoobs_count')
             );
-
-        // Fetch results
-        // $results = $query->get();
 
         // Apply search filter if the search input is not empty
         if (!empty($this->search)) {
@@ -654,6 +654,7 @@ class Licenses extends Component
         });
         if ($result) {
             $this->maktoobModal = false;
+            $this->tableData();
             session()->flash('message', 'مکاتیب جواز موفقانه ویرایش گردید');
             $this->error = '';
         } else {
