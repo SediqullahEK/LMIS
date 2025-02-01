@@ -622,16 +622,16 @@
                                             <td class="px-3 py-2 border border-slate-200">
                                                 {{ $maktoob->date ?? '' }}
                                             </td>
-                                            <td class="px-3 py-2 border border-slate-200">
-                                                {{-- {{ $maktoob->maktob_scan ?? '' }} --}}
 
+                                            <td class="px-3 py-2 border border-slate-200">
+                                                <!-- Eye Icon -->
                                                 <i id="icon-{{ $maktoob->id }}"
-                                                    class="fa fa-eye text-[#D4AF37] cursor-pointer"
-                                                    wire:loading.attr="hidden"
+                                                    class="fa fa-eye text-[#D4AF37] cursor-pointer" wire:loading.remove
                                                     wire:target="popMaktoobScan({{ $maktoob->id }})"
                                                     wire:click="popMaktoobScan({{ $maktoob->id }})">
                                                 </i>
 
+                                                <!-- Loader -->
                                                 <span wire:loading wire:target="popMaktoobScan({{ $maktoob->id }})">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                         height="24" viewBox="0 0 24 24" fill="black">
@@ -654,7 +654,6 @@
                                                         </rect>
                                                     </svg>
                                                 </span>
-
                                             </td>
 
                                             <td class="px-2 py-2 border border-slate-200 cursor-pointer">

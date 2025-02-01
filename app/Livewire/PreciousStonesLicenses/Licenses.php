@@ -277,7 +277,6 @@ class Licenses extends Component
         }
     }
 
-
     public function loadStoneDetails()
     {
         if ($this->stone) {
@@ -290,7 +289,6 @@ class Licenses extends Component
             }
         }
     }
-
     public function loadIndividualData()
     {
         if ($this->tazkiraNumber || $this->individualId) {
@@ -625,7 +623,6 @@ class Licenses extends Component
         $this->noMaktoobData = $paginatedMakatebs->isEmpty();
         return $paginatedMakatebs;
     }
-
 
     public function addMaktoobsToLicenses()
     {
