@@ -7,7 +7,6 @@ use App\Models\Individual;
 use App\Models\Province;
 use App\Models\PSPLicense;
 use App\Models\PSStone;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -15,29 +14,9 @@ use function Laravel\Prompts\select;
 
 class Maktoobs extends Component
 {
-    public $requestId;
-    public $letterNumber;
-    public $letterSubject;
-    public $individualDetails = false;
-    public $name;
-    public $province;
-    public $tinNumber;
-    public $fathersName;
-    public $tazkiraNumber;
-    public $companyDetails = false;
-    public $companyName;
-    public $companyTINNumber;
-    public $licenseNumber;
-    public $address;
-    public $companyId;
-    public $individualId;
-    public $stone = 0;
-    public $stoneColorDr;
-    public $quantity;
-    public $stoneColorEn;
-    public $stoneAmount;
+    public $serialNumber;
+    public $licenseId;
 
-    public $id;
 
 
     public function generateMaktoobs()
@@ -163,25 +142,6 @@ class Maktoobs extends Component
         }
     }
 
-    public function checkLetterData()
-    {
-        $letter = DB::connection('momp_mis')
-            ->table('letters')
-            ->where('department_operation.department_id', 30)
-            ->where('letters.id', $this->letterNumber)
-            ->join('operations', 'letters.id', '=', 'operations.letter_id')
-            ->join('department_operation', 'operations.department_id', '=', 'department_operation.department_id')
-            ->select('letters.id', 'letters.subject')
-            ->first();
-        // dd('called', $letter);
-        if ($letter) {
-            $this->letterSubject = $letter->subject;
-            $this->resetErrorBag('letterNumber');
-        } else {
-            $this->addError('letterNumber', 'عریضه ذیل در سیستم موجود نیست!');
-            $this->letterSubject = '';
-        }
-    }
 
     public function resetForm()
     {
@@ -193,15 +153,19 @@ class Maktoobs extends Component
         $this->companyDetails = false;
     }
 
-    public function mount(Request $request)
+    public function loadMaktoobs()
     {
-        $this->id = session('license_id');
+        $this->licenseId = session('license_id');
+
+        if ($this->licenseId) {
+
+            $this->serialNumber = PSPLicense::findOrFail($this->licenseId)->serial_number;
+        }
+        session()->forget('license_id');
     }
     public function render()
     {
 
-        return view('livewire.precious-stones-licenses.maktoobs', [
-            'stones' => PSStone::all()
-        ]);
+        return view('livewire.precious-stones-licenses.maktoobs');
     }
 }

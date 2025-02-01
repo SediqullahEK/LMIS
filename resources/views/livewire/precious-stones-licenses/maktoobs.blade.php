@@ -1,3 +1,22 @@
+@push('customCss')
+    <style>
+        .skeleton {
+            background: linear-gradient(90deg, #d1d5db 25%, #e5e7eb 50%, #d1d5db 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+@endpush
 <div class="relative bg-white shadow-md sm:rounded-lg mx-4 my-4">
     <x-topHeader pageTitle='مکتوب ها' />
     <div wire:loading wire:target='generateMaktoobs'>
@@ -30,67 +49,98 @@
             </svg>
         </div>
     @endif
-
-    <div class=" px-4 pb-12 " dir="rtl">
-
-
+    <div class="flex justify-end items-center w-full p-4 mb-8">
+        <div class="flex flex-col items-end space-y-2">
+            <!-- Label -->
+            <label class="font-bold text-sm">
+                نمبر مسلسل <span class="text-red-700">*</span>
+            </label>
+            <!-- Input Field -->
+            <div class="relative">
+                <input type="text" wire:model.live.debounce.300ms="serialNumber" autofocus name="serialNumber"
+                    placeholder="نمبر مسلسل جواز را وارد کنید"
+                    class="mt-1 px-2 peer block h-10 w-64 bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    autocomplete="off" dir="rtl" />
+                <!-- Loading Animation -->
+                {{-- <span wire:loading wire:target="serialNumber"
+                    class="absolute left-2 top-1/2 transform -translate-y-1/2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="black">
+                        <rect width="6" height="14" x="1" y="4">
+                            <animate attributeName="opacity" begin="0s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="9" y="4" opacity="0.3">
+                            <animate attributeName="opacity" begin="0.2s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                        <rect width="6" height="14" x="17" y="4" opacity="0.4">
+                            <animate attributeName="opacity" begin="0.4s" dur="0.5s" values="1;0.2"
+                                repeatCount="indefinite" />
+                        </rect>
+                    </svg>
+                </span> --}}
+            </div>
+            <!-- Error Message -->
+            @error('serialNumber')
+                <p class="text-red-500 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
     </div>
-
 
     <div class="bg-white w-full flex flex-col gap-5 px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]"
         dir='rtl'>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto">
-            @if (!$requestId)
-                <div
-                    class="w-96 h-96 bg-white rounded-lg shadow-lg p-4  mx-auto animate-pulse hover:shadow-2xl hover:w- cursor-pointer ">
+            @if (!$serialNumber)
+                <div class="w-96 h-96 bg-white rounded-lg shadow-lg p-4 mx-auto hover:shadow-2xl cursor-pointer">
                     <!-- Header -->
                     <div class="flex items-center space-x-4 mb-4">
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div wire:loading.class='skeleton' class="w-12 h-12 bg-gray-300 rounded-full"></div>
                         <div class="flex-1 space-y-2">
-                            <div class="w-3/4 mx-auto h-4 bg-gray-300 rounded"></div>
-                            <div class="w-1/2 mx-auto h-4 bg-gray-300 rounded"></div>
+                            <div wire:loading.class='skeleton' class="w-3/4 mx-auto h-4 bg-gray-300 rounded"></div>
+                            <div wire:loading.class='skeleton' class="w-1/2 mx-auto h-4 bg-gray-300 rounded"></div>
                         </div>
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div wire:loading.class='skeleton' class="w-12 h-12 bg-gray-300 rounded-full"></div>
                     </div>
                     <!-- Content -->
                     <div class="space-y-2">
-                        <div class="w-full h-3 bg-gray-300 rounded"></div>
-                        <div class="w-5/6 h-3 bg-gray-300 rounded"></div>
-                        <div class="w-2/3 h-3 bg-gray-300 rounded"></div>
+                        <div wire:loading.class='skeleton' class="w-full h-3 bg-gray-300 rounded "></div>
+                        <div wire:loading.class='skeleton' class="w-5/6 h-3 bg-gray-300 rounded "></div>
+                        <div wire:loading.class='skeleton' class="w-2/3 h-3 bg-gray-300 rounded"></div>
                     </div>
                 </div>
-                <div class="w-96 h-96 bg-white rounded-lg shadow-lg p-4  mx-auto animate-pulse ">
+                <div class="w-96 h-96 bg-white rounded-lg shadow-lg p-4 mx-auto hover:shadow-2xl cursor-pointer">
                     <!-- Header -->
                     <div class="flex items-center space-x-4 mb-4">
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div wire:loading.class='skeleton' class="w-12 h-12 bg-gray-300 rounded-full "></div>
                         <div class="flex-1 space-y-2">
-                            <div class="w-3/4 mx-auto h-4 bg-gray-300 rounded"></div>
-                            <div class="w-1/2 mx-auto h-4 bg-gray-300 rounded"></div>
+                            <div wire:loading.class='skeleton' class="w-3/4 mx-auto h-4 bg-gray-300 rounded "></div>
+                            <div wire:loading.class='skeleton' class="w-1/2 mx-auto h-4 bg-gray-300 rounded "></div>
                         </div>
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div wire:loading.class='skeleton' class="w-12 h-12 bg-gray-300 rounded-full "></div>
                     </div>
                     <!-- Content -->
                     <div class="space-y-2">
-                        <div class="w-full h-3 bg-gray-300 rounded"></div>
-                        <div class="w-5/6 h-3 bg-gray-300 rounded"></div>
-                        <div class="w-2/3 h-3 bg-gray-300 rounded"></div>
+                        <div wire:loading.class='skeleton' class="w-full h-3 bg-gray-300 rounded "></div>
+                        <div wire:loading.class='skeleton' class="w-5/6 h-3 bg-gray-300 rounded "></div>
+                        <div wire:loading.class='skeleton' class="w-2/3 h-3 bg-gray-300 rounded "></div>
                     </div>
                 </div>
-                <div class="w-96 h-96 bg-white rounded-lg shadow-lg p-4  mx-auto animate-pulse ">
+                <div class="w-96 h-96 bg-white rounded-lg shadow-lg p-4 mx-auto hover:shadow-2xl cursor-pointer">
                     <!-- Header -->
                     <div class="flex items-center space-x-4 mb-4">
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div wire:loading.class='skeleton' class="w-12 h-12 bg-gray-300 rounded-full "></div>
                         <div class="flex-1 space-y-2">
-                            <div class="w-3/4 mx-auto h-4 bg-gray-300 rounded"></div>
-                            <div class="w-1/2 mx-auto h-4 bg-gray-300 rounded"></div>
+                            <div wire:loading.class='skeleton' class="w-3/4 mx-auto h-4 bg-gray-300 rounded "></div>
+                            <div wire:loading.class='skeleton' class="w-1/2 mx-auto h-4 bg-gray-300 rounded "></div>
                         </div>
-                        <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+                        <div wire:loading.class='skeleton' class="w-12 h-12 bg-gray-300 rounded-full"></div>
                     </div>
                     <!-- Content -->
                     <div class="space-y-2">
-                        <div class="w-full h-3 bg-gray-300 rounded"></div>
-                        <div class="w-5/6 h-3 bg-gray-300 rounded"></div>
-                        <div class="w-2/3 h-3 bg-gray-300 rounded"></div>
+                        <div wire:loading.class='skeleton' class="w-full h-3 bg-gray-300 rounded"></div>
+                        <div wire:loading.class='skeleton' class="w-5/6 h-3 bg-gray-300 rounded"></div>
+                        <div wire:loading.class='skeleton' class="w-2/3 h-3 bg-gray-300 rounded"></div>
                     </div>
                 </div>
             @else
@@ -200,6 +250,11 @@
     </button>
 </div>
 @push('customJs')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @this.call('loadMaktoobs');
+        });
+    </script>
     <script>
         function validateNumber(input) {
             if (input.value < 0) {

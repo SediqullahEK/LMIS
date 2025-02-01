@@ -960,7 +960,7 @@
                                     </button>
                                     {{-- <button style="fill: #9d5910';">
                                         </button>  --}}
-                                    @if ($license->status == 'in_process')
+                                    @if ($license->status == 'in_process' && $license->maktoobs_count == 0)
                                         <button wire:click="navigateToMaktoobs({{ $license->id }})"
                                             class=" text-gray-900 px-2 py-2 rounded">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="fill-[#9d5910] w-6 h-6"
@@ -983,10 +983,8 @@
                                             <p class="text-red-500">منقضی</p>
                                         @else
                                             <button wire:click='print()' class=" rounded">
-
                                                 <img src="{{ asset('storage/system_images/print.png') }}"
                                                     class="w-8 h-8">
-
                                             </button>
                                         @endif
                                     </div>
