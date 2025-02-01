@@ -3,7 +3,8 @@
     <div class="bg-white px-2 py-2 md:px-16 lg:px-6 md:flex-row text-[#161931]" dir='rtl'>
 
         {{-- alerts section --}}
-        <div wire:loading wire:target="openMaktoobsModal,openForm, toggleConfirm, navigateToMaktoobs,deleteLicense">
+        <div wire:loading
+            wire:target="print, openMaktoobsModal,openForm, toggleConfirm, navigateToMaktoobs,deleteLicense">
             <x-loader />
         </div>
         @if (session()->has('message'))
@@ -79,7 +80,7 @@
                 </div>
             @endcan
             <!-- Search Input -->
-            <div class="relative flex items-center mt-4  group text-left ">
+            <div class="relative flex items-center mt-4 mb-3 group text-left ">
                 <span class="absolute left-3">
                     <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                         class="w-6 h-6 text-gray-300 mt-2">
@@ -130,7 +131,7 @@
                                 </svg>
                             </div>
                         @endif
-                        <div wire:loading wire:target="generateMaktoobs">
+                        <div wire:loading wire:target="addLicense,updateLicense">
                             <x-loader />
                         </div>
                         <!-- Modal Header -->
@@ -253,8 +254,9 @@
                                 <span class="md:col-span-3 sm:col-span-1 text-right w-full">
                                     <label class="font-bold text-sm">مقدار سنگ</label>
                                     <span class="text-red-700">*</span>
-                                    <input type="number" wire:model.live="stoneAmount" name="stoneAmount"
-                                        oninput="validateNumber(this)" placeholder="مقدار سنگ را وارد کنید "
+                                    <input type="number" wire:model.live.debounce.300ms="stoneAmount"
+                                        name="stoneAmount" oninput="validateNumber(this)"
+                                        placeholder="مقدار سنگ را وارد کنید "
                                         class="mt-1 px-2 peer block h-10 w-full bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                         autocomplete="off" dir="rtl">
                                     @error('stoneAmount')
@@ -264,11 +266,11 @@
                                 <span class="md:col-span-3 sm:col-span-2 text-right w-full">
                                     <label class="font-bold text-sm">مجموع پول قابل تادیه</label>
                                     <span class="text-red-700">*</span>
-                                    <input type="text" wire:model.live="finalRoyalityPerQuantity"
-                                        name="finalRoyalityPerQuantity" disabled readonly
+                                    <input type="text" wire:model.live="totalToBePaid" name="totalToBePaid"
+                                        disabled readonly
                                         class="mt-1 px-2 peer block h-10 w-full bg-gray-100 border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                         autocomplete="off" dir="rtl">
-                                    @error('finalRoyalityPerQuantity')
+                                    @error('totalToBePaid')
                                         <p class="text-red-500">{{ $message }}</p>
                                     @enderror
                                 </span>
@@ -659,8 +661,7 @@
                                                 <input id="{{ $maktoob->id }}" type="checkbox"
                                                     @if ($maktoobModalState) disabled readonly @endif
                                                     class="text-2xl cursor-pointer rounded"
-                                                    wire:model="selectedMaktoobs" value="{{ $maktoob->id }}"
-                                                    {{-- disabled --}}>
+                                                    wire:model="selectedMaktoobs" value="{{ $maktoob->id }}">
 
                                             </td>
                                         </tr>
@@ -668,7 +669,7 @@
                                 @endif
                             </tbody>
                         </table>
-                        @if ($noData)
+                        @if ($noMaktoobData)
                             <h1 class="font-bold text-xl text-red-900">معلومات موجود نمیباشد! </h1>
                         @endif
                         <span wire:loading wire:target="searchedMaktoob,maktoobsData,modalPerPage">
@@ -847,10 +848,9 @@
                         </th>
                         <th scope="col" class="px-3 py-2 border border-slate-200">
                             <div class="flex justify-center">
-                                <span>رنگ سنگ</span>
+                                <span>رویالیتی</span>
                             </div>
                         </th>
-
                         <th scope="col" class="px-3 py-2 border border-slate-200">
                             <div class="flex justify-center">
                                 <span>نمبر مسلسل</span>
@@ -922,8 +922,10 @@
                                     {{ $license->stone_amount ?? '' }}
                                 </td>
                                 <td class="px-3 py-2 border border-slate-200">
-                                    {{ $license->stone_color_dr ?? '' }}
+                                    <p class="{{ $license->is_paid ? 'text-green-700' : 'text-red-700' }}">
+                                        {{ $license->total_royality_to_be_paid }}</p>
                                 </td>
+
                                 <td class="px-3 py-2 border border-slate-200">
                                     {{ $license->serial_number ?? '' }}
                                 </td>
@@ -953,8 +955,10 @@
                                                 <path
                                                     d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 38.6C310.1 219.5 256 287.4 256 368c0 59.1 29.1 111.3 73.7 143.3c-3.2 .5-6.4 .7-9.7 .7L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM288 368a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm211.3-43.3c-6.2-6.2-16.4-6.2-22.6 0L416 385.4l-28.7-28.7c-6.2-6.2-16.4-6.2-22.6 0s-6.2 16.4 0 22.6l40 40c6.2 6.2 16.4 6.2 22.6 0l72-72c6.2-6.2 6.2-16.4 0-22.6z" />
                                             </svg>
+                                        @elseif($license->status == 'printed')
+                                            <i class="fa fa-eye text-lg text-green-900"></i>
                                         @else
-                                            <i class="fa fa-eye text-lg text-sky-800"></i>
+                                            <i class="fa fa-eye text-lg text-red-900"></i>
                                         @endif
 
                                     </button>
@@ -981,8 +985,10 @@
                                             <p class="text-green-500">چاپ شده</p>
                                         @elseif ($license->status == 'expired')
                                             <p class="text-red-500">منقضی</p>
+                                        @elseif (!$license->is_paid)
+                                            <p class="text-red-500">رویالیتی تحویل نشده</p>
                                         @else
-                                            <button wire:click='print()' class=" rounded">
+                                            <button wire:click='printModal({{ $license->id }})' class=" rounded">
                                                 <img src="{{ asset('storage/system_images/print.png') }}"
                                                     class="w-8 h-8">
                                             </button>
@@ -994,15 +1000,15 @@
                                     @can('ویرایش شخص')
                                         <button
                                             @click=" @this.call('editLicense', {{ $license->id }}); @this.call('openForm',0) "
-                                            class=" text-gray-900 px-2 py-2 rounded">
-                                            <span class="text-xl px-3 pt-5"><i
+                                            class=" text-gray-900 px-1 py-2 rounded">
+                                            <span class="text-xl px-1 pt-5"><i
                                                     class="fa  fa-edit text-sky-600"></i></span>
                                         </button>
                                     @endcan
                                     @can('حذف شخص')
                                         <button @click=" @this.call('toggleConfirm', {{ $license->id }})"
-                                            class=" text-gray-900 px-2 py-2 rounded">
-                                            <span class="text-xl px-3 pt-5"><i
+                                            class=" text-gray-900 px-1 py-2 rounded">
+                                            <span class="text-xl px-1 pt-5"><i
                                                     class="fa  fa-trash text-red-600"></i></span>
                                         </button>
                                     @endcan
@@ -1056,6 +1062,37 @@
                     </div>
                 @endif
             </nav>
+        </div>
+        <div x-data="{ licensePrintPreview: @entangle('licensePrintPreview') }" dir="rtl">
+            <div x-show="licensePrintPreview" style="display: none;"
+                class="fixed inset-0 z-50 flex items-start justify-center bg-gray-900 bg-opacity-50 ">
+                <!-- Modal Structure -->
+                <div x-show="licensePrintPreview" x-transition:enter="transition ease-out duration-500"
+                    x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
+                    class="bg-gray-900/50 p-4 rounded-lg shadow-lg w-full max-w-sm sm:max-w-lg lg:max-w-4xl mt-12 mb-4 mx-4 relative">
+                    <div wire:loading wire:target='printLicense'>
+                        <x-loader />
+                    </div>
+
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-center pb-4 border-b w-full max-w-4xl">
+                        <h2 class="text-xl text-white font-semibold">
+                            {{ 'چاپ جواز' }}
+                        </h2>
+                        <button @click="licensePrintPreview = false; @this.call('resetForm');"
+                            class="text-gray-100 hover:text-white text-4xl p-2">&times;</button>
+                    </div>
+                    <div class="flex justify-center items-center mx-auto w-full pt-4">
+                        <img src="{{ asset('storage/system_images/license.jpg') }}"
+                            class="w-[10240px] h-[500px] rounded-lg ">
+                    </div>
+                    <button wire:click='printLicense' class="mx-6 my-8 p-3 text-white bg-sky-800 rounded-lg">
+                        چاپ
+                    </button>
+                </div>
+            </div>
         </div>
 
     </div>

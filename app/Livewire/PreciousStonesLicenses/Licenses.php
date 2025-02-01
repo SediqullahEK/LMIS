@@ -23,6 +23,7 @@ class Licenses extends Component
     public $currentPage = 1;
     public $isDataLoaded = false;
     public $noData = false;
+    public $noMaktoobData = false;
     public $sortField = 'psp_licenses.created_at';
     public $sortDirection = 'desc';
     public $isEditing = false;
@@ -30,6 +31,8 @@ class Licenses extends Component
     public $maktoobModal = false;
     public $loadMaktoobs = false;
     public $maktoobScan = false;
+    public $licensePrintPreview = false;
+    public $licenseIdToPrinted;
     public $confirm = false;
     public $individualId;
     public $search;
@@ -37,6 +40,7 @@ class Licenses extends Component
     public $idToDelete;
     public $selectedMaktoobs = [];
     public $quantity;
+    public $totalToBePaid;
     public $finalRoyalityPerQuantity;
     public $stone;
     public $stoneColorDr;
@@ -127,7 +131,9 @@ class Licenses extends Component
                     'stone_color_en' => $this->stoneColorEn,
                     'stone_id' => $this->stone,
                     'stone_amount' => $this->stoneAmount,
+                    'total_royality_to_be_paid' => $this->totalToBePaid,
                 ]);
+
                 $license->update([
                     'serial_number' => 'momplcs0' . $license->id,
                 ]);
@@ -154,6 +160,7 @@ class Licenses extends Component
         $this->stoneColorEn = $license->stone_color_en;
         $this->stoneAmount = $license->stone_amount;
         $this->individualId = $license->individual_id;
+        $this->tazkiraNumber = 0;
         $this->loadIndividualData();
         $this->individualDetails = true;
     }
@@ -457,6 +464,8 @@ class Licenses extends Component
         $this->resetCompanyData();
         $this->resetIndividualData();
         $this->stone = 0;
+        $this->finalRoyalityPerQuantity = '';
+        $this->totalToBePaid = '';
         $this->reset([
             'letterNumber',
             'letterSubject',
@@ -536,6 +545,23 @@ class Licenses extends Component
     {
         $this->isDataLoaded = true;
     }
+
+    public function printModal($id)
+    {
+        $this->licensePrintPreview = true;
+        $this->licenseIdToPrinted = $id;
+    }
+
+    public function printLicense()
+    {
+
+        $license = PSPLicense::findOrFail($this->licenseIdToPrinted);
+        $license->status = 'printed';
+        $license->save();
+        $this->licensePrintPreview = false;
+        session()->flash('message', 'جواز موفقانه چاپ شد');
+    }
+
     public function popMaktoobScan($id)
     {
 
@@ -596,7 +622,7 @@ class Licenses extends Component
                 ->toArray();
         }
 
-        $this->noData = $paginatedMakatebs->isEmpty();
+        $this->noMaktoobData = $paginatedMakatebs->isEmpty();
         return $paginatedMakatebs;
     }
 
@@ -683,6 +709,24 @@ class Licenses extends Component
     public function updatedPerPage()
     {
         $this->resetPage('licenses');
+    }
+    public function updatedStoneAmount()
+    {
+        if ($this->finalRoyalityPerQuantity) {
+            $this->totalToBePaid = $this->finalRoyalityPerQuantity * $this->stoneAmount;
+            $this->resetErrorBag('stone');
+        } else {
+            $this->addError('stone', 'سنگ لازمی میباشد');
+        }
+    }
+    public function updatedStone()
+    {
+        if ($this->stoneAmount) {
+            $this->totalToBePaid = $this->finalRoyalityPerQuantity * $this->stoneAmount;
+            $this->resetErrorBag('stoneAmount');
+        } else {
+            $this->addError('stoneAmount', 'مقدار سنگ لازمی میباشد');
+        }
     }
     public function updatedSearch()
     {

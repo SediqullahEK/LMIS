@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('stone_color_dr');
             $table->string('stone_color_en');
             $table->unsignedInteger('stone_amount');
+            $table->unsignedInteger('total_royality_to_be_paid');
+            $table->boolean('is_paid')->default(false);
             $table->string('serial_number')->unique()->nullable();
             $table->string('issue_date')->nullable();
             $table->string('expire_date')->nullable();

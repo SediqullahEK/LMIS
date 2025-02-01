@@ -19,6 +19,8 @@ class PSPLicense extends Model
         'serial_number',
         'issue_date',
         'expire_date',
+        'total_royality_to_be_paid',
+        'is_paid',
         'is_valid',
         'signed_version_image_path',
         'created_by',
